@@ -1,0 +1,79 @@
+{
+  "home": {
+    "title": "به تستولوژی خوش آمدید",
+    "subtitle": "پلتفرم هوشمند روان‌شناسی با هوش مصنوعی",
+    "cta": "شروع تست رایگان",
+    "welcome": "خوش آمدید",
+    "features": "ویژگی‌ها",
+    "about": "درباره ما"
+  },
+  "nav": {
+    "home": "خانه",
+    "tests": "تست‌ها",
+    "blog": "مقالات",
+    "marketplace": "مارکت",
+    "community": "انجمن",
+    "live": "جلسات لایو",
+    "dashboard": "داشبورد",
+    "profile": "پروفایل",
+    "logout": "خروج",
+    "login": "ورود"
+  },
+  "tests": {
+    "title": "تست‌های روان‌شناسی",
+    "start": "شروع تست",
+    "complete": "تکمیل تست",
+    "results": "نتایج",
+    "analysis": "تحلیل",
+    "duration": "مدت زمان",
+    "questions": "سؤالات"
+  },
+  "dashboard": {
+    "welcome": "خوش آمدید، {name}!",
+    "level": "سطح",
+    "xp": "امتیاز تجربه",
+    "tests_completed": "تست‌های تکمیل شده",
+    "streak": "روزهای متوالی",
+    "missions": "مأموریت‌های روزانه",
+    "progress": "پیشرفت",
+    "achievements": "دستاوردها"
+  },
+  "common": {
+    "save": "ذخیره",
+    "cancel": "انصراف",
+    "delete": "حذف",
+    "edit": "ویرایش",
+    "submit": "ارسال",
+    "loading": "در حال بارگذاری...",
+    "error": "خطا",
+    "success": "موفق",
+    "search": "جست‌وجو",
+    "filter": "فیلتر",
+    "share": "اشتراک‌گذاری",
+    "download": "دانلود"
+  },
+  "gamification": {
+    "level_up": "سطح جدید!",
+    "earned_xp": "{xp} امتیاز دریافت کردید",
+    "achievement_unlocked": "دستاورد جدید باز شد!",
+    "leaderboard": "رتبه‌بندی",
+    "rank": "رتبه",
+    "medals": "مدال‌ها"
+  },
+  "mood": {
+    "log_mood": "ثبت احساس",
+    "today": "امروز",
+    "happy": "خوشحال",
+    "sad": "ناراحت",
+    "anxious": "مضطرب",
+    "calm": "آرام"
+  },
+  "messages": {
+    "inbox": "صندوق ورودی",
+    "sent": "ارسال شده",
+    "new_message": "پیام جدید",
+    "send": "ارسال",
+    "no_messages": "پیامی وجود ندارد"
+  }
+}
+

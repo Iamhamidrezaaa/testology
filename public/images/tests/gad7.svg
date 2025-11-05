@@ -1,0 +1,8 @@
+<svg width="400" height="200" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="200" fill="#F0FDF4"/>
+  <path d="M150,100 Q200,50 250,100" stroke="#22C55E" stroke-width="8" fill="none"/>
+  <path d="M150,100 Q200,150 250,100" stroke="#22C55E" stroke-width="8" fill="none"/>
+  <text x="175" y="105" font-family="Arial" font-size="24" fill="#15803D">GAD-7</text>
+  <circle cx="150" cy="100" r="5" fill="#22C55E"/>
+  <circle cx="250" cy="100" r="5" fill="#22C55E"/>
+</svg> 

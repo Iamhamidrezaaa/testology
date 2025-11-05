@@ -1,0 +1,1266 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id                      String                  @id @default(cuid())
+  email                   String                  @unique
+  hashedPassword          String?
+  phoneNumber             String
+  firstName               String?
+  lastName                String?
+  birthDate               DateTime?
+  country                 String?
+  province                String?
+  city                    String?
+  address                 String?
+  postalCode              String?
+  age                     Int?
+  gender                  String? // 'male' | 'female' | 'other' | 'any'
+  role                    Role                    @default(USER)
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  username                String?                 @unique // برای URL: /profile/username
+  referralCode            String?                 @unique // کد ارجاع یکتا
+  referredBy              String? // کد ارجاع معرف
+  points                  Int                     @default(0) // امتیازات کاربر
+  referrals               Referral[]              @relation("Inviter")
+  invitedBy               Referral[]              @relation("Invitee")
+  publicProfile           PublicProfile?
+  chatSessions            ChatSession[]
+  testResults             TestResult[]
+  screeningResults        ScreeningResult[]
+  name                    String?
+  emailVerified           DateTime?
+  image                   String?
+  accounts                Account[]
+  sessions                Session[]
+  suggestions             Suggestion[]
+  followUps               FollowUp[]
+  exerciseTrackings       ExerciseTracking[]
+  practiceTrackings       PracticeTracking[]
+  posts                   Post[]
+  comments                Comment[]
+  sentMessages            PrivateMessage[]        @relation("SentMessages")
+  receivedMessages        PrivateMessage[]        @relation("ReceivedMessages")
+  psychologicalScores     PsychologicalScore?
+  newsletterSubscriptions NewsletterSubscriber[]
+  blogPosts               BlogPost[]
+  files                   File[]
+  folders                 Folder[]
+  tags                    Tag[]                   @relation("UserTags")
+  notifications           Notification[]
+  supportMessages         SupportMessage[]
+  combinedAnalyses        CombinedAnalysis[]
+  activities              UserActivity[]
+  messages                UserMessage[]
+  supportReplies          SupportReply[]
+  userAnalytics           UserAnalytics[]
+  adminLogs               AdminLog[]
+  isAdmin                 Boolean                 @default(false)
+  userPoints              UserPoint[]
+  surveyResponses         SurveyResponse[]
+  userPaths               UserPath[]
+  behaviors               UserBehavior[]
+  recommendations         Recommendation[]
+  contentRecommendations  ContentRecommendation[]
+  mentalAlerts            MentalAlert[]
+  riskMatches             UserRiskMatch[]
+  criticalTimeWindows     CriticalTimeWindow[]
+  criticalAlerts          UserCriticalAlert[]
+  lastActive              DateTime                @default(now())
+  password                String?
+  userAlerts              UserAlert[]
+  feedbacks               Feedback[]
+  contentInteractions     ContentInteraction[]
+  levelId                 String?
+  level                   UserLevel?              @relation("UserLevel", fields: [levelId], references: [id])
+  tests                   Test[]
+  testBundles             TestBundle[]
+  surveys                 Survey[]                @relation("UserSurveys")
+  testRecommendations     TestRecommendation[]
+  growthExercises         GrowthExercise[]
+  chatMessages            ChatMessage[]
+  growthPaths             GrowthPath[]
+  exerciseItems           ExerciseItem[]
+  progress                UserProgress?
+
+  @@index([email])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum TestCategory {
+  PSYCHOLOGICAL
+  PERSONALITY
+  CAREER
+  SKILLS
+  OTHER
+}
+
+enum TestStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  TEXT
+}
+
+enum TestResultCategory {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model Test {
+  id            String           @id @default(cuid())
+  title         String
+  description   String?
+  slug          String           @unique
+  category      TestCategory
+  timeLimit     Int? // زمان به دقیقه
+  isPublic      Boolean          @default(false)
+  status        TestStatus       @default(DRAFT)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  createdBy     User             @relation(fields: [createdById], references: [id])
+  createdById   String
+  questions     Question[]
+  results       TestResult[]
+  analytics     TestAnalytics?
+  bundles       TestBundleTest[]
+  userAnalytics UserAnalytics[]
+  surveys       Survey[]
+  categories    Category[]       @relation("TestCategories")
+
+  @@index([slug])
+}
+
+model TestResult {
+  id             String              @id @default(cuid())
+  userId         String
+  user           User                @relation(fields: [userId], references: [id])
+  testId         String
+  test           Test                @relation(fields: [testId], references: [id])
+  score          Int
+  answers        Json // پاسخ‌های کاربر
+  analysis       Json? // تحلیل نتایج
+  category       TestResultCategory? // دسته‌بندی نتیجه (LOW, MEDIUM, HIGH)
+  recommendation String? // توصیه‌های شخصی‌سازی شده
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  duration       Int? // مدت زمان انجام تست (به ثانیه)
+  completed      Boolean             @default(true)
+  moodScore      Int? // نمره خلق و خو
+  totalScore     Int? // نمره کل
+  interpretation String? // تفسیر نتایج
+  subscales      Json? // زیرمقیاس‌های تست (مثلاً برای تست‌های چندبعدی)
+}
+
+model ChatMessage {
+  id        String      @id @default(cuid())
+  session   ChatSession @relation(fields: [sessionId], references: [id])
+  sessionId String
+  role      String // 'user' یا 'assistant'
+  content   String
+  createdAt DateTime    @default(now())
+  user      User        @relation(fields: [userId], references: [id])
+  userId    String
+}
+
+model ChatSession {
+  id          String        @id @default(cuid())
+  userId      String
+  title       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  messages    ChatMessage[]
+  screeningId String? // اگر به تست غربالگری وصل باشه
+  summary     String? // تحلیل نهایی اگر وجود داشته باشه
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model ScreeningQuestion {
+  id        String   @id @default(cuid())
+  text      String   @db.Text
+  options   Json // آرایه‌ای از گزینه‌های پاسخ
+  category  String // گروه سنی: youth, middle, senior
+  gender    String? // جنسیت: male, female, null برای هر دو
+  city      String? // شهر خاص یا null برای همه شهرها
+  theme     String // موضوع سوال: anxiety, depression, stress, etc.
+  weight    Int // وزن سوال در محاسبه نمره
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([gender])
+  @@index([theme])
+}
+
+model ScreeningResult {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  answers   Json // پاسخ‌های کاربر
+  score     Int // نمره نهایی
+  category  String // گروه سنی کاربر
+  gender    String // جنسیت کاربر
+  city      String // شهر کاربر
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Suggestion {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String // test, exercise, referral
+  title       String
+  description String
+  completed   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  deadline    DateTime
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+enum FollowUpType {
+  TEST
+  PRACTICE
+}
+
+model FollowUp {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  type        FollowUpType
+  relatedSlug String // slug تست یا تمرین مرتبط
+  title       String // عنوان برای نمایش
+  description String? // توضیح اختیاری
+  dueDate     DateTime? // مهلت انجام
+  done        Boolean      @default(false)
+  postponed   Boolean      @default(false)
+  needHelp    Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([userId])
+  @@index([type])
+  @@index([dueDate])
+}
+
+model TestMetadata {
+  id            String   @id @default(cuid())
+  testId        String   @unique
+  title         String
+  description   String   @db.Text
+  tags          String[] // آرایه‌ای از تگ‌ها
+  targetAgeMin  Int?
+  targetAgeMax  Int?
+  targetGender  String? // 'male', 'female', 'any'
+  useCases      String[] // آرایه‌ای از موارد کاربرد
+  priorityScore Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([testId])
+  @@index([tags])
+  @@index([priorityScore])
+}
+
+model Exercise {
+  id            String             @id @default(cuid())
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  title         String
+  description   String
+  category      String
+  suitableFor   Json // { ageRange?: [number, number], gender?: 'male' | 'female' | 'any', cities?: string[] }
+  estimatedTime Int
+  steps         Json
+  icon          String
+  difficulty    String             @default("MEDIUM")
+  tags          String[]
+  trackings     ExerciseTracking[]
+}
+
+model ExerciseTracking {
+  id         String    @id @default(cuid())
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  userId     String
+  exerciseId String
+  status     String    @default("PENDING")
+  dueDate    DateTime
+  startedAt  DateTime?
+  progress   Int       @default(0)
+  user       User      @relation(fields: [userId], references: [id])
+  exercise   Exercise  @relation(fields: [exerciseId], references: [id])
+
+  @@index([userId])
+  @@index([exerciseId])
+}
+
+model Practice {
+  id            String             @id @default(cuid())
+  title         String
+  description   String
+  category      String
+  suitableFor   Json // { ageRange?: [number, number], gender?: 'male' | 'female' | 'any', cities?: string[] }
+  estimatedTime Int
+  steps         Json
+  icon          String
+  difficulty    String             @default("MEDIUM")
+  tags          String[]
+  trackings     PracticeTracking[]
+}
+
+model PracticeTracking {
+  id          String         @id @default(cuid())
+  user        User           @relation(fields: [userId], references: [id])
+  userId      String
+  practice    Practice       @relation(fields: [practiceId], references: [id])
+  practiceId  String
+  status      PracticeStatus
+  feedback    String?        @db.Text
+  performedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@unique([userId, practiceId], name: "userId_practiceId")
+}
+
+enum PracticeStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+}
+
+model Post {
+  id        String    @id @default(cuid())
+  title     String
+  content   String    @db.Text
+  slug      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  String
+  comments  Comment[] @relation("PostComments")
+}
+
+model Comment {
+  id         String    @id @default(cuid())
+  content    String    @db.Text
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  author     User      @relation(fields: [authorId], references: [id])
+  authorId   String
+  post       Post      @relation("PostComments", fields: [postId], references: [id])
+  postId     String
+  blogPost   BlogPost? @relation("BlogPostComments", fields: [blogPostId], references: [id])
+  blogPostId String?
+}
+
+model PrivateMessage {
+  id         String    @id @default(cuid())
+  senderId   String
+  receiverId String
+  content    String    @db.Text
+  createdAt  DateTime  @default(now())
+  read       Boolean   @default(false)
+  deletedAt  DateTime?
+
+  sender   User @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([createdAt])
+}
+
+model PsychologicalScore {
+  id                    String   @id @default(cuid())
+  userId                String   @unique
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stress                Float?
+  focus                 Float?
+  selfEsteem            Float?
+  anxiety               Float?
+  anger                 Float?
+  depression            Float?
+  happiness             Float?
+  motivation            Float?
+  resilience            Float?
+  socialSkills          Float?
+  emotionalIntelligence Float?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model Question {
+  id        String           @id @default(cuid())
+  text      String
+  type      QuestionType
+  order     Int
+  required  Boolean          @default(true)
+  testId    String
+  test      Test             @relation(fields: [testId], references: [id], onDelete: Cascade)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  options   QuestionOption[]
+}
+
+model QuestionOption {
+  id         String   @id @default(cuid())
+  text       String
+  isCorrect  Boolean  @default(false)
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+}
+
+model BlogPost {
+  id              String                  @id @default(cuid())
+  title           String
+  content         String                  @db.Text
+  slug            String                  @unique
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  author          User                    @relation(fields: [authorId], references: [id])
+  authorId        String
+  comments        Comment[]               @relation("BlogPostComments")
+  tags            Tag[]                   @relation("BlogPostTags")
+  surveys         Survey[]
+  recommendations ContentRecommendation[]
+  category        Category?               @relation(fields: [categoryId], references: [id])
+  categoryId      String?
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  subject   String
+  body      String   @db.Text
+  email     String
+  name      String?
+  phone     String?
+  type      String   @default("CONTACT") // CONTACT, COMMENT, FEEDBACK
+  status    String   @default("UNREAD") // UNREAD, READ, ARCHIVED
+  priority  String   @default("NORMAL") // LOW, NORMAL, HIGH
+  archived  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([status])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model GPTSetting {
+  id           String   @id @default(cuid())
+  model        String   @default("gpt-4")
+  systemPrompt String   @default("You are a professional psychology assistant.")
+  temperature  Float    @default(0.7)
+  numResponses Int      @default(1)
+  updatedAt    DateTime @updatedAt
+}
+
+model File {
+  id         String   @id @default(cuid())
+  name       String
+  url        String
+  folder     Folder?  @relation(fields: [folderId], references: [id])
+  folderId   String?
+  tags       Tag[]    @relation("FileTags")
+  uploadedAt DateTime @default(now())
+  uploadedBy String?
+  user       User?    @relation(fields: [uploadedBy], references: [id])
+  fileType   String
+  fileSize   Int
+  isPublic   Boolean  @default(false)
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([folderId])
+  @@index([uploadedBy])
+}
+
+model Folder {
+  id        String   @id @default(cuid())
+  name      String
+  parent    Folder?  @relation("SubFolders", fields: [parentId], references: [id])
+  parentId  String?
+  children  Folder[] @relation("SubFolders")
+  files     File[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  user      User?    @relation(fields: [createdBy], references: [id])
+
+  @@index([parentId])
+  @@index([createdBy])
+}
+
+model Tag {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  files     File[]     @relation("FileTags")
+  blogPosts BlogPost[] @relation("BlogPostTags")
+  users     User[]     @relation("UserTags")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  title      String
+  message    String
+  type       String // 'info' | 'warning' | 'success' | 'error'
+  isRead     Boolean  @default(false)
+  targetUser String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User?    @relation(fields: [targetUser], references: [id])
+}
+
+model SupportMessage {
+  id           String         @id @default(cuid())
+  userId       String
+  subject      String
+  message      String
+  status       String
+  priority     String
+  category     String
+  response     String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  user         User           @relation(fields: [userId], references: [id])
+  ticketNumber String         @unique
+  emailSent    Boolean        @default(false)
+  replies      SupportReply[]
+}
+
+model SupportReply {
+  id        String         @id @default(cuid())
+  messageId String
+  userId    String
+  content   String
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  message   SupportMessage @relation(fields: [messageId], references: [id])
+  user      User           @relation(fields: [userId], references: [id])
+}
+
+model SiteSetting {
+  id              String   @id @default(cuid())
+  logoUrl         String?
+  faviconUrl      String?
+  welcomeText     String
+  siteTitle       String
+  metaDescription String?
+  metaKeywords    String?
+  gptEnabled      Boolean  @default(true)
+  darkMode        Boolean  @default(false)
+  footerText      String?
+  updatedAt       DateTime @updatedAt
+}
+
+model UISetting {
+  id        String   @id @default(cuid())
+  theme     String   @default("light") // "light", "dark", "custom"
+  font      String   @default("Vazir") // "Vazir", "IranSans", etc.
+  direction String   @default("rtl") // "rtl" or "ltr"
+  preview   Boolean  @default(false) // optional for future
+  updatedAt DateTime @updatedAt
+}
+
+model TestBundle {
+  id          String             @id @default(cuid())
+  title       String
+  description String?
+  price       Float
+  isActive    Boolean            @default(true)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  createdBy   User               @relation(fields: [createdById], references: [id])
+  createdById String
+  tests       TestBundleTest[]
+  analyses    CombinedAnalysis[]
+}
+
+model TestBundleTest {
+  id           String     @id @default(cuid())
+  testBundleId String
+  testId       String
+  testBundle   TestBundle @relation(fields: [testBundleId], references: [id], onDelete: Cascade)
+  test         Test       @relation(fields: [testId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model CombinedAnalysis {
+  id        String     @id @default(cuid())
+  userId    String
+  bundleId  String
+  result    Json
+  createdAt DateTime   @default(now())
+  user      User       @relation(fields: [userId], references: [id])
+  bundle    TestBundle @relation(fields: [bundleId], references: [id])
+
+  @@index([userId])
+  @@index([bundleId])
+}
+
+model UserActivity {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  action    String // مثلا: "view_test", "start_bundle", "login"
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model UserMessage {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  message   String   @db.Text
+  reply     String?  @db.Text
+  status    String // "unread", "archived", "replied"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Translation {
+  id        String   @id @default(cuid())
+  key       String
+  language  String // fa, en, es, ...
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+
+  @@unique([key, language])
+  @@index([language])
+}
+
+model PublicProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  slug        String   @unique
+  displayName String?
+  bio         String?
+  avatar      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model UserAnalytics {
+  id        String   @id @default(cuid())
+  userId    String
+  testId    String?
+  user      User     @relation(fields: [userId], references: [id])
+  test      Test?    @relation(fields: [testId], references: [id])
+  data      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TestAnalytics {
+  id                   String   @id @default(cuid())
+  testId               String   @unique
+  test                 Test     @relation(fields: [testId], references: [id])
+  totalAttempts        Int      @default(0)
+  averageScore         Float    @default(0)
+  completionRate       Float    @default(0)
+  averageDuration      Int      @default(0)
+  categoryDistribution Json? // توزیع نتایج در دسته‌بندی‌ها
+  updatedAt            DateTime @updatedAt
+}
+
+model AdminLog {
+  id        String   @id @default(cuid())
+  adminId   String
+  action    String // نوع اکشن: create, update, delete, login, etc.
+  details   Json? // جزئیات اکشن به صورت JSON
+  ipAddress String?
+  userAgent String? // اطلاعات مرورگر
+  status    String   @default("success") // success, error, warning
+  severity  String   @default("info") // info, warning, error, critical
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  admin User @relation(fields: [adminId], references: [id])
+
+  @@index([adminId])
+  @@index([action])
+  @@index([createdAt])
+  @@index([severity])
+}
+
+model EmailTemplate {
+  id        String   @id @default(cuid())
+  title     String // عنوان داخلی برای ادمین
+  type      String // شناسه ثابت مثل 'welcome', 'test-result'
+  subject   String // عنوان ایمیل
+  body      String   @db.Text // متن کامل HTML
+  variables String[] // لیست متغیرهایی که در این ایمیل استفاده می‌شن
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@index([type])
+  @@index([isActive])
+}
+
+model Referral {
+  id        String   @id @default(cuid())
+  inviter   User     @relation("Inviter", fields: [inviterId], references: [id])
+  inviterId String
+  invitee   User     @relation("Invitee", fields: [inviteeId], references: [id])
+  inviteeId String
+  status    String   @default("PENDING") // PENDING, COMPLETED, REJECTED
+  points    Int      @default(0) // امتیاز تعلق گرفته
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([inviterId])
+  @@index([inviteeId])
+  @@index([status])
+}
+
+enum PointSource {
+  TEST_COMPLETION
+  DAILY_LOGIN
+  SHARING
+  INVITE
+  ADMIN_GIFT
+}
+
+model UserPoint {
+  id        String      @id @default(cuid())
+  userId    String
+  points    Int         @default(0)
+  reason    String
+  source    PointSource
+  createdAt DateTime    @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+enum IntegrationType {
+  WEBHOOK
+  API
+  OAUTH
+}
+
+enum HttpMethod {
+  GET
+  POST
+  PUT
+  DELETE
+  PATCH
+}
+
+model Integration {
+  id          String           @id @default(cuid())
+  name        String
+  type        IntegrationType
+  description String?
+  config      Json
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  logs        IntegrationLog[]
+}
+
+model IntegrationLog {
+  id            String      @id @default(cuid())
+  integration   Integration @relation(fields: [integrationId], references: [id])
+  integrationId String
+  event         String
+  status        String
+  requestData   Json
+  responseData  Json?
+  error         String?
+  createdAt     DateTime    @default(now())
+}
+
+enum TriggerEvent {
+  NEW_USER
+  NEW_TEST_RESULT
+  NEW_CONTACT_MESSAGE
+  SYSTEM_ERROR
+  NEW_SUPPORT_TICKET
+  NEW_COMMENT
+  NEW_BLOG_POST
+  USER_LEVEL_UP
+  REFERRAL_COMPLETED
+}
+
+model AdminNotificationSetting {
+  id            String       @id @default(cuid())
+  triggerEvent  TriggerEvent
+  notifyByEmail Boolean      @default(true)
+  notifyBySMS   Boolean      @default(false)
+  emailTarget   String? // optional, default to admin email
+  phoneTarget   String? // optional, for SMS
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([triggerEvent])
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?
+  icon        String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  parentId    String?
+  parent      Category?  @relation("SubCategories", fields: [parentId], references: [id])
+  children    Category[] @relation("SubCategories")
+  tests       Test[]     @relation("TestCategories")
+  blogPosts   BlogPost[]
+
+  @@index([slug])
+  @@index([parentId])
+}
+
+model Survey {
+  id          String           @id @default(cuid())
+  title       String
+  description String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  createdBy   User             @relation("UserSurveys", fields: [createdById], references: [id])
+  createdById String
+  test        Test?            @relation(fields: [testId], references: [id])
+  testId      String?
+  post        BlogPost?        @relation(fields: [postId], references: [id])
+  postId      String?
+  questions   SurveyQuestion[]
+  responses   SurveyResponse[]
+}
+
+model SurveyQuestion {
+  id       String         @id @default(cuid())
+  text     String
+  required Boolean        @default(true)
+  order    Int            @default(0)
+  surveyId String
+  survey   Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  options  SurveyOption[]
+  answers  SurveyAnswer[]
+}
+
+model SurveyOption {
+  id         String         @id @default(cuid())
+  text       String
+  value      Int?
+  questionId String
+  question   SurveyQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answers    SurveyAnswer[]
+}
+
+model SurveyResponse {
+  id        String         @id @default(cuid())
+  surveyId  String
+  userId    String?
+  createdAt DateTime       @default(now())
+  survey    Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  user      User?          @relation(fields: [userId], references: [id])
+  answers   SurveyAnswer[]
+}
+
+model SurveyAnswer {
+  id         String         @id @default(cuid())
+  responseId String
+  questionId String
+  optionId   String?
+  value      String?
+  response   SurveyResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  question   SurveyQuestion @relation(fields: [questionId], references: [id])
+  option     SurveyOption?  @relation(fields: [optionId], references: [id])
+}
+
+enum StepStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  DONE
+}
+
+model GrowthPath {
+  id              String           @id @default(cuid())
+  userId          String
+  user            User             @relation(fields: [userId], references: [id])
+  summary         String           @db.Text
+  path            Json
+  recommendations Json
+  status          String           @default("active")
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  steps           PathStep[]
+  userPaths       UserPath[]
+  exercises       GrowthExercise[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model PathStep {
+  id           String         @id @default(cuid())
+  growthPathId String
+  title        String
+  description  String?
+  order        Int
+  growthPath   GrowthPath     @relation(fields: [growthPathId], references: [id], onDelete: Cascade)
+  userSteps    UserPathStep[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model UserPath {
+  id          String         @id @default(cuid())
+  userId      String
+  pathId      String
+  status      PathStatus     @default(IN_PROGRESS)
+  progress    Int            @default(0)
+  startedAt   DateTime       @default(now())
+  completedAt DateTime?
+  user        User           @relation(fields: [userId], references: [id])
+  growthPath  GrowthPath     @relation(fields: [pathId], references: [id])
+  steps       UserPathStep[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model UserPathStep {
+  id          String     @id @default(cuid())
+  userPathId  String
+  pathStepId  String
+  status      StepStatus @default(IN_PROGRESS)
+  done        Boolean    @default(false)
+  completedAt DateTime?
+  userPath    UserPath   @relation(fields: [userPathId], references: [id])
+  pathStep    PathStep   @relation(fields: [pathStepId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model UserBehavior {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  target    String
+  value     String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model ContentRecommendation {
+  id           String               @id @default(cuid())
+  userId       String
+  user         User                 @relation(fields: [userId], references: [id])
+  blogPostId   String?
+  blogPost     BlogPost?            @relation(fields: [blogPostId], references: [id])
+  type         String // 'blog' | 'exercise' | 'video'
+  customText   String? // برای تمرین یا ویدئو خاص توسط ادمین
+  reason       String?
+  source       String               @default("ai") // 'ai' یا 'manual'
+  createdAt    DateTime             @default(now())
+  interactions ContentInteraction[]
+}
+
+model ContentInteraction {
+  id               String                @id @default(cuid())
+  userId           String
+  recommendationId String
+  recommendation   ContentRecommendation @relation(fields: [recommendationId], references: [id])
+  type             String // 'click' | 'view'
+  createdAt        DateTime              @default(now())
+  user             User                  @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([recommendationId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model MentalAlert {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  level       String // 'low' | 'medium' | 'high'
+  title       String
+  message     String
+  source      String // 'auto' | 'manual'
+  relatedTest String? // مثلاً 'PHQ-9' یا 'UCLA'
+  status      String    @default("pending") // 'pending' | 'seen' | 'resolved'
+  actions     Json? // لیست اقداماتی که کاربر انجام داده
+  createdAt   DateTime  @default(now())
+  resolvedAt  DateTime?
+}
+
+model RiskPattern {
+  id        String          @id @default(cuid())
+  name      String
+  keywords  String[] // مثلاً ['anxiety', 'insomnia', 'loneliness']
+  severity  String // low | medium | high
+  message   String // پیام هشدار یا راهنمایی
+  createdAt DateTime        @default(now())
+  matches   UserRiskMatch[]
+}
+
+model UserRiskMatch {
+  id        String   @id @default(cuid())
+  userId    String
+  patternId String
+  matchedAt DateTime @default(now())
+  resolved  Boolean  @default(false)
+
+  user    User        @relation(fields: [userId], references: [id])
+  pattern RiskPattern @relation(fields: [patternId], references: [id])
+
+  @@index([userId])
+  @@index([patternId])
+}
+
+model CriticalTimeWindow {
+  id           String              @id @default(cuid())
+  userId       String
+  user         User                @relation(fields: [userId], references: [id])
+  dayOfWeek    Int // 0: Sunday, ..., 6: Saturday
+  hourStart    Int // مثلاً 20 یعنی ساعت 8 شب
+  hourEnd      Int // مثلاً 23 یعنی ساعت 11 شب
+  moodScoreAvg Float? // میانگین نمرات منفی (اضطراب، افسردگی و ...)
+  testCount    Int                 @default(0)
+  lastTestAt   DateTime?
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  alerts       UserCriticalAlert[]
+
+  @@unique([userId, dayOfWeek, hourStart])
+  @@index([userId])
+  @@index([dayOfWeek])
+  @@index([hourStart])
+  @@index([hourEnd])
+}
+
+model UserCriticalAlert {
+  id               String             @id @default(cuid())
+  userId           String
+  user             User               @relation(fields: [userId], references: [id])
+  criticalWindowId String
+  criticalWindow   CriticalTimeWindow @relation(fields: [criticalWindowId], references: [id])
+  resolved         Boolean            @default(false)
+  createdAt        DateTime           @default(now())
+  resolvedAt       DateTime?
+
+  @@index([userId])
+  @@index([criticalWindowId])
+  @@index([resolved])
+}
+
+model UserAlert {
+  id        String     @id @default(cuid())
+  userId    String
+  message   String
+  level     AlertLevel
+  resolved  Boolean    @default(false)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Feedback {
+  id        String   @id @default(cuid())
+  userId    String
+  content   String
+  rating    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Recommendation {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  content   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum PathStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum AlertLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model UserLevel {
+  id        String   @id @default(cuid())
+  level     Int      @unique
+  title     String
+  minPoints Int
+  badgeUrl  String?
+  benefits  String[] @default([])
+  users     User[]   @relation("UserLevel")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TestRecommendation {
+  id              String   @id @default(cuid())
+  userId          String
+  recommendations Json
+  summary         String
+  source          String // screening, manual, etc.
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model GrowthExercise {
+  id        String     @id @default(cuid())
+  userId    String
+  pathId    String
+  exercises Json
+  progress  Int        @default(0)
+  completed Boolean    @default(false)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  user      User       @relation(fields: [userId], references: [id])
+  path      GrowthPath @relation(fields: [pathId], references: [id])
+
+  @@index([userId])
+  @@index([pathId])
+}
+
+model ExerciseItem {
+  id        String   @id @default(cuid())
+  userId    String
+  exercise  String // عنوان یا آیدی تمرین
+  plannedAt DateTime // تاریخ برنامه‌ریزی‌شده
+  done      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model UserProgress {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @unique
+  level     Int      @default(1)
+  points    Int      @default(0)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}

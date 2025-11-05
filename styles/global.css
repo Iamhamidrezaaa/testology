@@ -1,0 +1,333 @@
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap');
+
+:root {
+  --primary-color: #0066cc;
+  --primary-light: #e6f0ff;
+  --secondary-color: #00a3a3;
+  --text-dark: #222;
+  --text-light: #555;
+  --background: #f9fbfc;
+  --white: #fff;
+  --shadow-sm: 0 2px 5px rgba(0,0,0,0.1);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06);
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Vazirmatn', sans-serif;
+  background-color: var(--background);
+  color: var(--text-dark);
+  line-height: 1.6;
+  direction: rtl;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: #003366;
+  margin-bottom: 1rem;
+}
+
+button {
+  transition: all 0.2s ease;
+  font-family: 'Vazirmatn', sans-serif;
+}
+
+input[type="radio"] {
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+.filter-btn {
+  background: var(--white);
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+  background: var(--primary-light);
+}
+
+.form-container {
+  background: var(--white);
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  max-width: 900px;
+  margin: auto;
+}
+
+.question-text {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.option-label {
+  margin-left: 1rem;
+  padding: 0.2rem 0.6rem;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.test-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: 1.2rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.test-card h4 {
+  margin-bottom: 0.5rem;
+}
+
+.test-card p {
+  color: var(--text-light);
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--primary-color);
+}
+
+/* لودینگ تحلیل */
+.analysis-loading {
+  text-align: center;
+  padding: 3rem 0;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin: 2rem 0;
+}
+
+.analysis-loading p {
+  font-size: 1.1rem;
+  color: var(--text-dark);
+  margin-bottom: 1.5rem;
+}
+
+.dot-loader {
+  display: inline-flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.dot-loader span {
+  width: 10px;
+  height: 10px;
+  background: var(--primary-color);
+  border-radius: 50%;
+  animation: pulse 1s infinite ease-in-out;
+}
+
+.dot-loader span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot-loader span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes pulse {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* انیمیشن‌های اضافی برای لودینگ */
+.analysis-loading::before {
+  content: '🧠';
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 1rem;
+  animation: float 2s infinite ease-in-out;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* استایل برای نمایش تحلیل */
+.analysis-result {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  margin: 2rem 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.analysis-result h3 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.analysis-result p {
+  white-space: pre-wrap;
+  line-height: 1.8;
+  color: var(--text-dark);
+}
+
+/* استایل‌های ریسپانسیو */
+@media (max-width: 768px) {
+  body {
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    line-height: 1.4;
+  }
+
+  h2 {
+    font-size: 1.3rem;
+    line-height: 1.4;
+  }
+
+  h3 {
+    font-size: 1.2rem;
+    line-height: 1.4;
+  }
+
+  .form-container {
+    padding: 1.2rem;
+    margin: 0.5rem;
+    border-radius: var(--radius-md);
+  }
+
+  input[type="text"],
+  input[type="tel"],
+  input[type="number"],
+  select {
+    font-size: 1rem !important;
+    padding: 0.8rem !important;
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  button {
+    font-size: 1rem !important;
+    padding: 0.8rem !important;
+    width: 100% !important;
+    margin: 0.5rem 0 !important;
+  }
+
+  .grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+
+  .test-card {
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .analysis-loading {
+    padding: 2rem 1rem;
+    margin: 1rem 0;
+  }
+
+  .analysis-loading p {
+    font-size: 1rem;
+  }
+
+  .dot-loader span {
+    width: 8px;
+    height: 8px;
+  }
+
+  .analysis-result {
+    padding: 1.5rem;
+    margin: 1rem 0;
+  }
+
+  .analysis-result h3 {
+    font-size: 1.1rem;
+  }
+
+  .analysis-result p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .option-label {
+    margin-left: 0.5rem;
+    padding: 0.15rem 0.4rem;
+    font-size: 0.95rem;
+  }
+
+  .filter-btn {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+    width: auto !important;
+  }
+}
+
+/* استایل‌های تبلت */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .form-container {
+    max-width: 800px;
+    margin: 2rem auto;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .analysis-loading,
+  .analysis-result {
+    max-width: 800px;
+    margin: 2rem auto;
+  }
+}
+
+/* استایل‌های موبایل کوچک */
+@media (max-width: 480px) {
+  body {
+    padding: 0.5rem;
+  }
+
+  .form-container {
+    padding: 1rem;
+    margin: 0.2rem;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+  }
+
+  h2 {
+    font-size: 1.1rem;
+  }
+
+  h3 {
+    font-size: 1rem;
+  }
+
+  .analysis-loading::before {
+    font-size: 1.5rem;
+  }
+} 

@@ -1,0 +1,79 @@
+{
+  "home": {
+    "title": "Welcome to Testology",
+    "subtitle": "AI-Powered Mental Health Platform",
+    "cta": "Start Free Test",
+    "welcome": "Welcome",
+    "features": "Features",
+    "about": "About Us"
+  },
+  "nav": {
+    "home": "Home",
+    "tests": "Tests",
+    "blog": "Blog",
+    "marketplace": "Marketplace",
+    "community": "Community",
+    "live": "Live Sessions",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "logout": "Logout",
+    "login": "Login"
+  },
+  "tests": {
+    "title": "Psychology Tests",
+    "start": "Start Test",
+    "complete": "Complete Test",
+    "results": "Results",
+    "analysis": "Analysis",
+    "duration": "Duration",
+    "questions": "Questions"
+  },
+  "dashboard": {
+    "welcome": "Welcome, {name}!",
+    "level": "Level",
+    "xp": "Experience Points",
+    "tests_completed": "Tests Completed",
+    "streak": "Day Streak",
+    "missions": "Daily Missions",
+    "progress": "Progress",
+    "achievements": "Achievements"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "submit": "Submit",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "search": "Search",
+    "filter": "Filter",
+    "share": "Share",
+    "download": "Download"
+  },
+  "gamification": {
+    "level_up": "Level Up!",
+    "earned_xp": "You earned {xp} XP",
+    "achievement_unlocked": "Achievement Unlocked!",
+    "leaderboard": "Leaderboard",
+    "rank": "Rank",
+    "medals": "Medals"
+  },
+  "mood": {
+    "log_mood": "Log Mood",
+    "today": "Today",
+    "happy": "Happy",
+    "sad": "Sad",
+    "anxious": "Anxious",
+    "calm": "Calm"
+  },
+  "messages": {
+    "inbox": "Inbox",
+    "sent": "Sent",
+    "new_message": "New Message",
+    "send": "Send",
+    "no_messages": "No messages"
+  }
+}
+

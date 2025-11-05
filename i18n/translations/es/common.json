@@ -1,0 +1,79 @@
+{
+  "home": {
+    "title": "Bienvenido a Testology",
+    "subtitle": "Plataforma de Salud Mental con IA",
+    "cta": "Comenzar Prueba Gratis",
+    "welcome": "Bienvenido",
+    "features": "Características",
+    "about": "Acerca de"
+  },
+  "nav": {
+    "home": "Inicio",
+    "tests": "Pruebas",
+    "blog": "Blog",
+    "marketplace": "Mercado",
+    "community": "Comunidad",
+    "live": "Sesiones en Vivo",
+    "dashboard": "Panel",
+    "profile": "Perfil",
+    "logout": "Salir",
+    "login": "Iniciar Sesión"
+  },
+  "tests": {
+    "title": "Pruebas Psicológicas",
+    "start": "Iniciar Prueba",
+    "complete": "Completar Prueba",
+    "results": "Resultados",
+    "analysis": "Análisis",
+    "duration": "Duración",
+    "questions": "Preguntas"
+  },
+  "dashboard": {
+    "welcome": "¡Bienvenido, {name}!",
+    "level": "Nivel",
+    "xp": "Puntos de Experiencia",
+    "tests_completed": "Pruebas Completadas",
+    "streak": "Racha de Días",
+    "missions": "Misiones Diarias",
+    "progress": "Progreso",
+    "achievements": "Logros"
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "submit": "Enviar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "share": "Compartir",
+    "download": "Descargar"
+  },
+  "gamification": {
+    "level_up": "¡Subiste de Nivel!",
+    "earned_xp": "Ganaste {xp} XP",
+    "achievement_unlocked": "¡Logro Desbloqueado!",
+    "leaderboard": "Tabla de Clasificación",
+    "rank": "Rango",
+    "medals": "Medallas"
+  },
+  "mood": {
+    "log_mood": "Registrar Estado de Ánimo",
+    "today": "Hoy",
+    "happy": "Feliz",
+    "sad": "Triste",
+    "anxious": "Ansioso",
+    "calm": "Calmado"
+  },
+  "messages": {
+    "inbox": "Bandeja de Entrada",
+    "sent": "Enviados",
+    "new_message": "Nuevo Mensaje",
+    "send": "Enviar",
+    "no_messages": "Sin mensajes"
+  }
+}
+

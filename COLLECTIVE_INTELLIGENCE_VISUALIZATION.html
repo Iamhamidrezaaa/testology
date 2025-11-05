@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌍 Collective Intelligence Visualization - Testology</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 3em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            margin: 15px 0 0 0;
+            font-size: 1.3em;
+            opacity: 0.9;
+        }
+        
+        .collective-intelligence {
+            padding: 40px;
+        }
+        
+        .intelligence-flow {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            margin: 40px 0;
+        }
+        
+        .flow-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-radius: 20px;
+            border: 3px solid #e1e5e9;
+        }
+        
+        .flow-stage {
+            position: absolute;
+            width: 150px;
+            height: 100px;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .flow-stage:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
+        }
+        
+        .stage-1 {
+            top: 50px;
+            left: 50px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+        
+        .stage-2 {
+            top: 50px;
+            right: 50px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+        
+        .stage-3 {
+            bottom: 50px;
+            left: 50px;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+        
+        .stage-4 {
+            bottom: 50px;
+            right: 50px;
+            background: linear-gradient(135deg, #27ae60, #229954);
+        }
+        
+        .stage-5 {
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            width: 120px;
+            height: 80px;
+        }
+        
+        .stage-icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        .stage-title {
+            font-size: 0.9em;
+            margin-bottom: 3px;
+        }
+        
+        .stage-desc {
+            font-size: 0.7em;
+            opacity: 0.9;
+        }
+        
+        .arrow {
+            position: absolute;
+            width: 3px;
+            height: 40px;
+            background: #34495e;
+            transform-origin: bottom;
+        }
+        
+        .arrow-1 {
+            top: 150px;
+            left: 200px;
+            transform: rotate(45deg);
+        }
+        
+        .arrow-2 {
+            top: 150px;
+            right: 200px;
+            transform: rotate(-45deg);
+        }
+        
+        .arrow-3 {
+            bottom: 150px;
+            left: 200px;
+            transform: rotate(-45deg);
+        }
+        
+        .arrow-4 {
+            bottom: 150px;
+            right: 200px;
+            transform: rotate(45deg);
+        }
+        
+        .arrow::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: -4px;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 10px solid #34495e;
+        }
+        
+        .stats {
+            background: #2c3e50;
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .stats h2 {
+            margin: 0 0 30px 0;
+            font-size: 2.5em;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stat-number {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .intelligence-level {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .intelligence-level h2 {
+            margin: 0 0 20px 0;
+            font-size: 2.5em;
+        }
+        
+        .level-indicator {
+            display: inline-block;
+            padding: 20px 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50px;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .features {
+            padding: 40px;
+        }
+        
+        .features h2 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            color: #2c3e50;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .feature {
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature:hover {
+            transform: translateY(-10px);
+        }
+        
+        .feature h3 {
+            margin: 0 0 15px 0;
+            font-size: 1.5em;
+        }
+        
+        .feature p {
+            margin: 0;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .transformation {
+            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            margin: 40px 0;
+            border-radius: 20px;
+        }
+        
+        .transformation h2 {
+            margin: 0 0 20px 0;
+            font-size: 2.5em;
+        }
+        
+        .transformation-text {
+            font-size: 1.3em;
+            margin: 20px 0;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 Collective Intelligence Visualization</h1>
+            <p>Testology از "I think" به "We think" تبدیل شد!</p>
+        </div>
+        
+        <div class="collective-intelligence">
+            <h2 style="text-align: center; margin-bottom: 40px; font-size: 2.5em; color: #2c3e50;">
+                🧠 چرخه هوش جمعی Testology
+            </h2>
+            
+            <div class="intelligence-flow">
+                <div class="flow-container">
+                    <!-- Stage 1: Data Collection -->
+                    <div class="flow-stage stage-1 pulse">
+                        <div class="stage-icon">📊</div>
+                        <div class="stage-title">جمع‌آوری داده</div>
+                        <div class="stage-desc">Data Collection</div>
+                    </div>
+                    
+                    <!-- Stage 2: Psychology Analysis -->
+                    <div class="flow-stage stage-2 pulse">
+                        <div class="stage-icon">🧠</div>
+                        <div class="stage-title">تحلیل روانشناسی</div>
+                        <div class="stage-desc">Psychology Analysis</div>
+                    </div>
+                    
+                    <!-- Stage 3: Clustering -->
+                    <div class="flow-stage stage-3 pulse">
+                        <div class="stage-icon">👥</div>
+                        <div class="stage-title">خوشه‌بندی</div>
+                        <div class="stage-desc">Clustering</div>
+                    </div>
+                    
+                    <!-- Stage 4: Trend Analysis -->
+                    <div class="flow-stage stage-4 pulse">
+                        <div class="stage-icon">📈</div>
+                        <div class="stage-title">تحلیل ترندها</div>
+                        <div class="stage-desc">Trend Analysis</div>
+                    </div>
+                    
+                    <!-- Stage 5: Collective Insights -->
+                    <div class="flow-stage stage-5 pulse">
+                        <div class="stage-icon">💡</div>
+                        <div class="stage-title">بینش‌های جمعی</div>
+                        <div class="stage-desc">Collective Insights</div>
+                    </div>
+                    
+                    <!-- Arrows -->
+                    <div class="arrow arrow-1"></div>
+                    <div class="arrow arrow-2"></div>
+                    <div class="arrow arrow-3"></div>
+                    <div class="arrow arrow-4"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="transformation">
+            <h2>🔄 تبدیل تاریخی</h2>
+            <div class="transformation-text">
+                از "I think" به "We think"
+            </div>
+            <p style="font-size: 1.1em; opacity: 0.9;">
+                Testology حالا یک مغز جمعی است که از رفتار تمام کاربران یاد می‌گیرد
+            </p>
+        </div>
+        
+        <div class="stats">
+            <h2>📊 آمار هوش جمعی</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">1000</div>
+                    <div class="stat-label">کاربران تحلیل شده</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">بینش‌های جمعی</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">50.8%</div>
+                    <div class="stat-label">شاخص سلامت روان</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">2</div>
+                    <div class="stat-label">خوشه‌های کاربری</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="intelligence-level">
+            <h2>🌍 Testology حالا یک مغز جمعی است!</h2>
+            <div class="level-indicator">
+                🧠 سطح هوش جمعی: بالا
+            </div>
+            <p style="font-size: 1.2em; opacity: 0.9;">
+                از هوش فردی به هوش جمعی - یک اکوسیستم هوشمند روان‌شناسی اجتماعی
+            </p>
+        </div>
+        
+        <div class="features">
+            <h2>🧠 ویژگی‌های هوش جمعی</h2>
+            <div class="features-grid">
+                <div class="feature">
+                    <h3>📊 تحلیل روانشناسی جمعی</h3>
+                    <p>سلامت روان جامعه را ارزیابی می‌کند و گروه‌های پرخطر را شناسایی می‌کند</p>
+                </div>
+                <div class="feature">
+                    <h3>👥 خوشه‌بندی هوشمند</h3>
+                    <p>کاربران را بر اساس رفتار گروه‌بندی می‌کند و شخصیت‌های مختلف را شناسایی می‌کند</p>
+                </div>
+                <div class="feature">
+                    <h3>📈 ترندهای اجتماعی</h3>
+                    <p>تغییرات رفتاری را رصد می‌کند و ترندهای نگران‌کننده را هشدار می‌دهد</p>
+                </div>
+                <div class="feature">
+                    <h3>💡 بینش‌های جمعی</h3>
+                    <p>پیشنهادات بهبود جامعه ارائه می‌دهد و راه‌حل‌های جمعی طراحی می‌کند</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // انیمیشن چرخه
+        const stages = document.querySelectorAll('.flow-stage');
+        let currentStage = 0;
+        
+        setInterval(() => {
+            stages.forEach(stage => stage.classList.remove('pulse'));
+            stages[currentStage].classList.add('pulse');
+            currentStage = (currentStage + 1) % stages.length;
+        }, 2000);
+        
+        // کلیک روی مراحل
+        stages.forEach((stage, index) => {
+            stage.addEventListener('click', () => {
+                const stageNames = ['جمع‌آوری داده', 'تحلیل روانشناسی', 'خوشه‌بندی', 'تحلیل ترندها', 'بینش‌های جمعی'];
+                const stageDescs = [
+                    'جمع‌آوری داده‌های رفتاری، تستی و احساسی از تمام کاربران',
+                    'تحلیل روانشناسی جمعی و شناسایی الگوهای عمومی',
+                    'گروه‌بندی کاربران بر اساس رفتار و شخصیت',
+                    'تحلیل ترندهای اجتماعی و تغییرات رفتاری',
+                    'تولید بینش‌های جمعی و پیشنهادات بهبود جامعه'
+                ];
+                
+                alert(`${stageNames[index]}: ${stageDescs[index]}`);
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

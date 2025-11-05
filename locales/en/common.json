@@ -1,0 +1,148 @@
+{
+  "nav": {
+    "home": "Home",
+    "tests": "Tests",
+    "blog": "Blog",
+    "marketplace": "Marketplace",
+    "community": "Community",
+    "live": "Live Sessions",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "logout": "Logout",
+    "login": "Login",
+    "signup": "Sign Up"
+  },
+  "home": {
+    "title": "Testology - AI-Powered Mental Health Platform",
+    "subtitle": "50+ Scientific Psychology Tests + AI Analysis",
+    "cta": "Start Free Test",
+    "features_title": "Why Testology?",
+    "feature_ai": "AI Analysis",
+    "feature_ai_desc": "Personalized insights powered by GPT-4",
+    "feature_gamification": "Gamification",
+    "feature_gamification_desc": "Earn XP, levels, and achievements",
+    "feature_therapist": "Professional Therapists",
+    "feature_therapist_desc": "Connect with licensed professionals"
+  },
+  "tests": {
+    "title": "Psychology Tests",
+    "start_test": "Start Test",
+    "complete": "Complete Test",
+    "submit": "Submit & Analyze",
+    "results": "Results",
+    "analysis": "AI Analysis",
+    "duration": "Duration",
+    "questions": "Questions",
+    "next": "Next",
+    "previous": "Previous",
+    "progress": "Progress"
+  },
+  "dashboard": {
+    "welcome": "Welcome back, {name}!",
+    "level": "Level",
+    "xp": "XP",
+    "tests_completed": "Tests Completed",
+    "day_streak": "Day Streak",
+    "daily_missions": "Daily Missions",
+    "your_progress": "Your Progress",
+    "achievements": "Achievements",
+    "take_test": "Take a Test",
+    "log_mood": "Log Mood",
+    "view_missions": "View Missions"
+  },
+  "gamification": {
+    "level_up": "Level Up!",
+    "earned_xp": "You earned {xp} XP",
+    "achievement_unlocked": "Achievement Unlocked!",
+    "leaderboard": "Leaderboard",
+    "your_rank": "Your Rank",
+    "medals": "Medals",
+    "challenges": "Challenges",
+    "streak": "Streak"
+  },
+  "mood": {
+    "title": "Mood Calendar",
+    "log_today": "Log Today's Mood",
+    "how_feeling": "How are you feeling today?",
+    "very_good": "Very Good",
+    "good": "Good",
+    "normal": "Normal",
+    "bad": "Bad",
+    "very_bad": "Very Bad",
+    "note": "Note",
+    "submit": "Submit"
+  },
+  "messages": {
+    "inbox": "Inbox",
+    "sent": "Sent",
+    "compose": "Compose",
+    "new_message": "New Message",
+    "send": "Send",
+    "to": "To",
+    "subject": "Subject",
+    "message": "Message",
+    "no_messages": "No messages yet"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "submit": "Submit",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "search": "Search",
+    "filter": "Filter",
+    "share": "Share",
+    "download": "Download",
+    "bookmark": "Bookmark",
+    "unbookmark": "Remove Bookmark",
+    "read_more": "Read More",
+    "show_less": "Show Less"
+  },
+  "therapist": {
+    "find": "Find a Therapist",
+    "book_session": "Book Session",
+    "profile": "Therapist Profile",
+    "specialties": "Specialties",
+    "rating": "Rating",
+    "sessions": "Sessions",
+    "verified": "Verified",
+    "available": "Available"
+  },
+  "live": {
+    "upcoming": "Upcoming Sessions",
+    "register": "Register",
+    "registered": "Registered",
+    "join": "Join Live",
+    "watch_recording": "Watch Recording",
+    "participants": "Participants"
+  },
+  "marketplace": {
+    "title": "Marketplace",
+    "exercises": "Exercises",
+    "meditations": "Meditations",
+    "ebooks": "eBooks",
+    "audio": "Audio",
+    "free": "Free",
+    "premium": "Premium",
+    "buy_now": "Buy Now",
+    "add_to_cart": "Add to Cart"
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

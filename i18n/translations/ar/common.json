@@ -1,0 +1,79 @@
+{
+  "home": {
+    "title": "مرحباً بك في تستولوجي",
+    "subtitle": "منصة الصحة النفسية المدعومة بالذكاء الاصطناعي",
+    "cta": "ابدأ الاختبار المجاني",
+    "welcome": "مرحباً",
+    "features": "المميزات",
+    "about": "من نحن"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "tests": "الاختبارات",
+    "blog": "المدونة",
+    "marketplace": "السوق",
+    "community": "المجتمع",
+    "live": "الجلسات المباشرة",
+    "dashboard": "لوحة التحكم",
+    "profile": "الملف الشخصي",
+    "logout": "تسجيل الخروج",
+    "login": "تسجيل الدخول"
+  },
+  "tests": {
+    "title": "اختبارات علم النفس",
+    "start": "بدء الاختبار",
+    "complete": "إكمال الاختبار",
+    "results": "النتائج",
+    "analysis": "التحليل",
+    "duration": "المدة",
+    "questions": "الأسئلة"
+  },
+  "dashboard": {
+    "welcome": "مرحباً، {name}!",
+    "level": "المستوى",
+    "xp": "نقاط الخبرة",
+    "tests_completed": "الاختبارات المكتملة",
+    "streak": "أيام متتالية",
+    "missions": "المهام اليومية",
+    "progress": "التقدم",
+    "achievements": "الإنجازات"
+  },
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "submit": "إرسال",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجاح",
+    "search": "بحث",
+    "filter": "تصفية",
+    "share": "مشاركة",
+    "download": "تحميل"
+  },
+  "gamification": {
+    "level_up": "مستوى جديد!",
+    "earned_xp": "لقد حصلت على {xp} نقطة خبرة",
+    "achievement_unlocked": "إنجاز جديد!",
+    "leaderboard": "لوحة المتصدرين",
+    "rank": "الترتيب",
+    "medals": "الميداليات"
+  },
+  "mood": {
+    "log_mood": "تسجيل المزاج",
+    "today": "اليوم",
+    "happy": "سعيد",
+    "sad": "حزين",
+    "anxious": "قلق",
+    "calm": "هادئ"
+  },
+  "messages": {
+    "inbox": "صندوق الوارد",
+    "sent": "المرسلة",
+    "new_message": "رسالة جديدة",
+    "send": "إرسال",
+    "no_messages": "لا توجد رسائل"
+  }
+}
+

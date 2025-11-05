@@ -1,0 +1,148 @@
+{
+  "nav": {
+    "home": "خانه",
+    "tests": "تست‌ها",
+    "blog": "مقالات",
+    "marketplace": "مارکت",
+    "community": "انجمن",
+    "live": "جلسات لایو",
+    "dashboard": "داشبورد",
+    "profile": "پروفایل",
+    "logout": "خروج",
+    "login": "ورود",
+    "signup": "ثبت‌نام"
+  },
+  "home": {
+    "title": "تستولوژی - پلتفرم هوشمند روان‌شناسی",
+    "subtitle": "50+ تست علمی روان‌شناسی + تحلیل هوش مصنوعی",
+    "cta": "شروع تست رایگان",
+    "features_title": "چرا تستولوژی؟",
+    "feature_ai": "تحلیل هوش مصنوعی",
+    "feature_ai_desc": "تحلیل شخصی‌سازی شده با GPT-4",
+    "feature_gamification": "گیمیفیکیشن",
+    "feature_gamification_desc": "کسب XP، سطح و دستاوردها",
+    "feature_therapist": "درمانگران حرفه‌ای",
+    "feature_therapist_desc": "ارتباط با متخصصان مجاز"
+  },
+  "tests": {
+    "title": "تست‌های روان‌شناسی",
+    "start_test": "شروع تست",
+    "complete": "تکمیل تست",
+    "submit": "ارسال و تحلیل",
+    "results": "نتایج",
+    "analysis": "تحلیل هوش مصنوعی",
+    "duration": "مدت زمان",
+    "questions": "سؤالات",
+    "next": "بعدی",
+    "previous": "قبلی",
+    "progress": "پیشرفت"
+  },
+  "dashboard": {
+    "welcome": "خوش آمدید، {name}!",
+    "level": "سطح",
+    "xp": "امتیاز تجربه",
+    "tests_completed": "تست‌های تکمیل شده",
+    "day_streak": "روزهای متوالی",
+    "daily_missions": "مأموریت‌های روزانه",
+    "your_progress": "پیشرفت شما",
+    "achievements": "دستاوردها",
+    "take_test": "انجام تست",
+    "log_mood": "ثبت احساس",
+    "view_missions": "مشاهده مأموریت‌ها"
+  },
+  "gamification": {
+    "level_up": "سطح جدید!",
+    "earned_xp": "{xp} امتیاز دریافت کردید",
+    "achievement_unlocked": "دستاورد جدید باز شد!",
+    "leaderboard": "رتبه‌بندی",
+    "your_rank": "رتبه شما",
+    "medals": "مدال‌ها",
+    "challenges": "چالش‌ها",
+    "streak": "تداوم"
+  },
+  "mood": {
+    "title": "تقویم احساسات",
+    "log_today": "ثبت احساس امروز",
+    "how_feeling": "امروز چطور احساس می‌کنید؟",
+    "very_good": "خیلی خوب",
+    "good": "خوب",
+    "normal": "معمولی",
+    "bad": "بد",
+    "very_bad": "خیلی بد",
+    "note": "یادداشت",
+    "submit": "ثبت"
+  },
+  "messages": {
+    "inbox": "صندوق ورودی",
+    "sent": "ارسال شده",
+    "compose": "نوشتن",
+    "new_message": "پیام جدید",
+    "send": "ارسال",
+    "to": "به",
+    "subject": "موضوع",
+    "message": "پیام",
+    "no_messages": "هنوز پیامی ندارید"
+  },
+  "common": {
+    "save": "ذخیره",
+    "cancel": "انصراف",
+    "delete": "حذف",
+    "edit": "ویرایش",
+    "submit": "ارسال",
+    "loading": "در حال بارگذاری...",
+    "error": "خطا",
+    "success": "موفق",
+    "search": "جست‌وجو",
+    "filter": "فیلتر",
+    "share": "اشتراک‌گذاری",
+    "download": "دانلود",
+    "bookmark": "ذخیره",
+    "unbookmark": "حذف ذخیره",
+    "read_more": "ادامه مطلب",
+    "show_less": "کمتر"
+  },
+  "therapist": {
+    "find": "یافتن درمانگر",
+    "book_session": "رزرو جلسه",
+    "profile": "پروفایل درمانگر",
+    "specialties": "تخصص‌ها",
+    "rating": "امتیاز",
+    "sessions": "جلسات",
+    "verified": "تأیید شده",
+    "available": "در دسترس"
+  },
+  "live": {
+    "upcoming": "جلسات آینده",
+    "register": "ثبت‌نام",
+    "registered": "ثبت‌نام شده",
+    "join": "ورود به لایو",
+    "watch_recording": "مشاهده ضبط",
+    "participants": "شرکت‌کنندگان"
+  },
+  "marketplace": {
+    "title": "مارکت",
+    "exercises": "تمرین‌ها",
+    "meditations": "مدیتیشن‌ها",
+    "ebooks": "کتاب‌های الکترونیکی",
+    "audio": "صوتی",
+    "free": "رایگان",
+    "premium": "پریمیوم",
+    "buy_now": "خرید",
+    "add_to_cart": "افزودن به سبد"
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

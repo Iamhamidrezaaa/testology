@@ -1,0 +1,8 @@
+{
+  "name": "Testology",
+  "short_name": "Testology",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8b5cf6"
+}

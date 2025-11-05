@@ -1,0 +1,79 @@
+{
+  "home": {
+    "title": "Testology'ye Hoş Geldiniz",
+    "subtitle": "Yapay Zeka Destekli Ruh Sağlığı Platformu",
+    "cta": "Ücretsiz Teste Başla",
+    "welcome": "Hoş Geldiniz",
+    "features": "Özellikler",
+    "about": "Hakkımızda"
+  },
+  "nav": {
+    "home": "Ana Sayfa",
+    "tests": "Testler",
+    "blog": "Blog",
+    "marketplace": "Pazar",
+    "community": "Topluluk",
+    "live": "Canlı Oturumlar",
+    "dashboard": "Panel",
+    "profile": "Profil",
+    "logout": "Çıkış",
+    "login": "Giriş"
+  },
+  "tests": {
+    "title": "Psikoloji Testleri",
+    "start": "Teste Başla",
+    "complete": "Testi Tamamla",
+    "results": "Sonuçlar",
+    "analysis": "Analiz",
+    "duration": "Süre",
+    "questions": "Sorular"
+  },
+  "dashboard": {
+    "welcome": "Hoş geldin, {name}!",
+    "level": "Seviye",
+    "xp": "Deneyim Puanı",
+    "tests_completed": "Tamamlanan Testler",
+    "streak": "Günlük Seri",
+    "missions": "Günlük Görevler",
+    "progress": "İlerleme",
+    "achievements": "Başarılar"
+  },
+  "common": {
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "submit": "Gönder",
+    "loading": "Yükleniyor...",
+    "error": "Hata",
+    "success": "Başarılı",
+    "search": "Ara",
+    "filter": "Filtrele",
+    "share": "Paylaş",
+    "download": "İndir"
+  },
+  "gamification": {
+    "level_up": "Seviye Atladın!",
+    "earned_xp": "{xp} XP kazandınız",
+    "achievement_unlocked": "Başarı Kilidi Açıldı!",
+    "leaderboard": "Lider Tablosu",
+    "rank": "Sıralama",
+    "medals": "Madalyalar"
+  },
+  "mood": {
+    "log_mood": "Ruh Hali Kaydet",
+    "today": "Bugün",
+    "happy": "Mutlu",
+    "sad": "Üzgün",
+    "anxious": "Endişeli",
+    "calm": "Sakin"
+  },
+  "messages": {
+    "inbox": "Gelen Kutusu",
+    "sent": "Gönderilen",
+    "new_message": "Yeni Mesaj",
+    "send": "Gönder",
+    "no_messages": "Mesaj yok"
+  }
+}
+

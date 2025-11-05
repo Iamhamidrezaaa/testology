@@ -1,0 +1,6 @@
+
+admin@testology.me
+ / admin123 → داشبورد مدیر کل
+
+user@testology.me
+ / user123 → داشبورد کاربر

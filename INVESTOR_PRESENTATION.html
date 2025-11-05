@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testology - Investor Presentation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .presentation-container {
+            max-width: 1200px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .slide {
+            display: none;
+            padding: 60px;
+            min-height: 600px;
+            position: relative;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        .slide-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .slide-title {
+            font-size: 48px;
+            font-weight: 900;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+        
+        .slide-subtitle {
+            font-size: 24px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .content {
+            font-size: 20px;
+            line-height: 1.8;
+            color: #374151;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .highlight-number {
+            font-size: 48px;
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+        
+        .highlight-text {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .feature-item {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border-right: 4px solid #667eea;
+        }
+        
+        .feature-item h4 {
+            color: #667eea;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .market-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+        
+        .stat-number {
+            font-size: 36px;
+            font-weight: 900;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+        
+        .revenue-model {
+            background: #f8fafc;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        
+        .revenue-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .revenue-item:last-child {
+            border-bottom: none;
+        }
+        
+        .revenue-name {
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .revenue-value {
+            font-weight: 700;
+            color: #10b981;
+            font-size: 18px;
+        }
+        
+        .timeline {
+            position: relative;
+            margin: 40px 0;
+        }
+        
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+        
+        .timeline-number {
+            background: #667eea;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-left: 20px;
+        }
+        
+        .timeline-content h4 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-content p {
+            color: #6b7280;
+            font-size: 16px;
+        }
+        
+        .cta-section {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        
+        .cta-title {
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 20px;
+        }
+        
+        .cta-text {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        
+        .cta-button {
+            background: white;
+            color: #667eea;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 60px;
+            background: #f8fafc;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .nav-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .nav-button:hover {
+            background: #5a67d8;
+        }
+        
+        .nav-button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+        }
+        
+        .slide-counter {
+            color: #6b7280;
+            font-weight: 600;
+        }
+        
+        .demo-link {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+        
+        .demo-link:hover {
+            background: #059669;
+        }
+        
+        @media (max-width: 768px) {
+            .slide {
+                padding: 30px;
+            }
+            
+            .slide-title {
+                font-size: 36px;
+            }
+            
+            .content {
+                font-size: 18px;
+            }
+            
+            .feature-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation-container">
+        <!-- Slide 1: Introduction -->
+        <div class="slide active">
+            <div class="slide-header">
+                <h1 class="slide-title">🧠 Testology</h1>
+                <p class="slide-subtitle">پلتفرم هوشمند روان‌شناسی با قابلیت یادگیری ماشین</p>
+            </div>
+            
+            <div class="content">
+                <div class="highlight-box">
+                    <div class="highlight-number">43+</div>
+                    <div class="highlight-text">تست روان‌شناسی معتبر</div>
+                </div>
+                
+                <p><strong>سلام! من حمیدرضا عسکری زاده هستم و امروز می‌خواهم Testology را به شما معرفی کنم.</strong></p>
+                
+                <p>Testology یک پلتفرم پیشرفته و هوشمند برای ارزیابی و تحلیل روان‌شناختی است که با استفاده از تکنولوژی‌های نوین هوش مصنوعی، امکان ارائه خدمات روان‌شناسی دقیق و شخصی‌سازی شده را فراهم می‌کند.</p>
+                
+                <div class="market-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">$280B</div>
+                        <div class="stat-label">بازار جهانی سلامت روان</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">25%</div>
+                        <div class="stat-label">رشد سالانه بازار</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">1B+</div>
+                        <div class="stat-label">افراد نیازمند خدمات</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 2: Problem & Solution -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">🎯 مشکل و راه‌حل</h1>
+            </div>
+            
+            <div class="content">
+                <h3>مشکل:</h3>
+                <ul>
+                    <li>دسترسی محدود به خدمات روان‌شناسی باکیفیت</li>
+                    <li>هزینه‌های بالا برای مشاوره و ارزیابی</li>
+                    <li>عدم وجود ابزارهای پیشرفته برای تحلیل</li>
+                    <li>نیاز به راه‌حل‌های مقیاس‌پذیر و قابل دسترس</li>
+                </ul>
+                
+                <div class="highlight-box">
+                    <h3>راه‌حل Testology:</h3>
+                    <p>پلتفرم یکپارچه که با استفاده از AI و ML، خدمات روان‌شناسی را برای همه قابل دسترس، مقرون‌به‌صرفه و دقیق می‌کند.</p>
+                </div>
+                
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h4>🤖 تحلیل هوشمند</h4>
+                        <p>استفاده از GPT-4 برای تحلیل عمیق نتایج</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>📊 داشبوردهای تخصصی</h4>
+                        <p>ابزارهای تحلیلی برای متخصصان</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>💬 چت هوشمند</h4>
+                        <p>مشاوره 24/7 با هوش مصنوعی</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>🎯 شخصی‌سازی</h4>
+                        <p>توصیه‌های بر اساس نیاز فردی</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Technology & Innovation -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">🚀 تکنولوژی و نوآوری</h1>
+            </div>
+            
+            <div class="content">
+                <h3>تکنولوژی‌های پیشرفته:</h3>
+                <ul>
+                    <li><strong>Next.js 14 + TypeScript:</strong> پلتفرم مدرن و مقیاس‌پذیر</li>
+                    <li><strong>PostgreSQL + Prisma:</strong> پایگاه داده قدرتمند و امن</li>
+                    <li><strong>OpenAI GPT-4:</strong> تحلیل هوشمند و مشاوره</li>
+                    <li><strong>Machine Learning:</strong> یادگیری مداوم و بهبود</li>
+                </ul>
+                
+                <div class="highlight-box">
+                    <h3>مزیت رقابتی:</h3>
+                    <p>تنها پلتفرم فارسی‌زبان که ترکیب کاملی از تست‌های علمی، تحلیل AI و داشبوردهای تخصصی ارائه می‌دهد.</p>
+                </div>
+                
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <h4>🔒 امنیت بالا</h4>
+                        <p>حفاظت کامل از داده‌های حساس</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>🌐 چندزبانه</h4>
+                        <p>پشتیبانی از فارسی و انگلیسی</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>📱 PWA</h4>
+                        <p>قابلیت نصب روی موبایل</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>⚡ عملکرد بالا</h4>
+                        <p>بهینه‌سازی برای سرعت</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Market Opportunity -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">💰 فرصت بازار</h1>
+            </div>
+            
+            <div class="content">
+                <h3>بازار هدف:</h3>
+                <ul>
+                    <li><strong>بازار B2C:</strong> افراد عادی برای ارزیابی شخصی</li>
+                    <li><strong>بازار B2B:</strong> شرکت‌ها برای ارزیابی کارکنان</li>
+                    <li><strong>بازار B2P:</strong> روان‌شناسان و متخصصان</li>
+                    <li><strong>بازار آموزشی:</strong> دانشگاه‌ها و مراکز آموزشی</li>
+                </ul>
+                
+                <div class="revenue-model">
+                    <h3>مدل درآمدی:</h3>
+                    <div class="revenue-item">
+                        <span class="revenue-name">اشتراک ماهانه کاربران</span>
+                        <span class="revenue-value">$9.99</span>
+                    </div>
+                    <div class="revenue-item">
+                        <span class="revenue-name">اشتراک سالانه</span>
+                        <span class="revenue-value">$99.99</span>
+                    </div>
+                    <div class="revenue-item">
+                        <span class="revenue-name">اشتراک سازمانی</span>
+                        <span class="revenue-value">$299.99</span>
+                    </div>
+                    <div class="revenue-item">
+                        <span class="revenue-name">مشاوره تخصصی</span>
+                        <span class="revenue-value">$49.99</span>
+                    </div>
+                </div>
+                
+                <div class="highlight-box">
+                    <div class="highlight-number">$2M</div>
+                    <div class="highlight-text">پیش‌بینی درآمد سال اول</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Traction & Milestones -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">📈 پیشرفت و نقاط عطف</h1>
+            </div>
+            
+            <div class="content">
+                <h3>دستاوردهای فعلی:</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-number">1</div>
+                        <div class="timeline-content">
+                            <h4>توسعه MVP</h4>
+                            <p>پیاده‌سازی کامل پلتفرم با تمام قابلیت‌های اصلی</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-number">2</div>
+                        <div class="timeline-content">
+                            <h4>تست‌های روان‌شناسی</h4>
+                            <p>43+ تست معتبر و علمی پیاده‌سازی شده</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-number">3</div>
+                        <div class="timeline-content">
+                            <h4>سیستم AI</h4>
+                            <p>ادغام کامل با OpenAI و تحلیل هوشمند</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-number">4</div>
+                        <div class="timeline-content">
+                            <h4>آماده تولید</h4>
+                            <p>پلتفرم کاملاً آماده برای استقرار</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="highlight-box">
+                    <h3>آماده برای:</h3>
+                    <p>شروع تست بتا با کاربران واقعی و جمع‌آوری بازخورد</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: Future Vision -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">🔮 چشم‌انداز آینده</h1>
+            </div>
+            
+            <div class="content">
+                <h3>برنامه‌های 6 ماه آینده:</h3>
+                <ul>
+                    <li>راه‌اندازی نسخه بتا و جمع‌آوری کاربران اولیه</li>
+                    <li>توسعه اپلیکیشن موبایل</li>
+                    <li>اضافه کردن تست‌های بیشتر و تخصصی‌تر</li>
+                    <li>ایجاد شبکه روان‌شناسان متخصص</li>
+                </ul>
+                
+                <h3>برنامه‌های 12 ماه آینده:</h3>
+                <ul>
+                    <li>ورود به بازارهای منطقه‌ای</li>
+                    <li>توسعه API برای شرکای تجاری</li>
+                    <li>ایجاد پلتفرم B2B برای سازمان‌ها</li>
+                    <li>ادغام با سیستم‌های درمانی</li>
+                </ul>
+                
+                <div class="highlight-box">
+                    <h3>هدف نهایی:</h3>
+                    <p>تبدیل شدن به پلتفرم پیشرو در حوزه سلامت روان در خاورمیانه</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 7: Investment Ask -->
+        <div class="slide">
+            <div class="slide-header">
+                <h1 class="slide-title">💼 درخواست سرمایه‌گذاری</h1>
+            </div>
+            
+            <div class="content">
+                <h3>نیاز به سرمایه:</h3>
+                <div class="revenue-model">
+                    <div class="revenue-item">
+                        <span class="revenue-name">توسعه و بازاریابی</span>
+                        <span class="revenue-value">$150K</span>
+                    </div>
+                    <div class="revenue-item">
+                        <span class="revenue-name">تیم توسعه</span>
+                        <span class="revenue-value">$100K</span>
+                    </div>
+                    <div class="revenue-item">
+                        <span class="revenue-name">بازاریابی و فروش</span>
+                        <span class="revenue-value">$50K</span>
+                    </div>
+                </div>
+                
+                <div class="highlight-box">
+                    <div class="highlight-number">$200K</div>
+                    <div class="highlight-text">کل سرمایه مورد نیاز</div>
+                </div>
+                
+                <h3>استفاده از سرمایه:</h3>
+                <ul>
+                    <li>توسعه تیم و استخدام متخصصان</li>
+                    <li>بازاریابی و جذب کاربران</li>
+                    <li>بهبود تکنولوژی و اضافه کردن قابلیت‌ها</li>
+                    <li>توسعه اپلیکیشن موبایل</li>
+                </ul>
+                
+                <div class="cta-section">
+                    <h3 class="cta-title">همراه ما باشید!</h3>
+                    <p class="cta-text">در این سفر نوآورانه برای بهبود سلامت روان جامعه</p>
+                    <a href="#" class="demo-link">مشاهده دمو</a>
+                    <a href="#" class="demo-link">تماس با ما</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <button class="nav-button" id="prevBtn" onclick="changeSlide(-1)">قبلی</button>
+            <span class="slide-counter">
+                <span id="currentSlide">1</span> / <span id="totalSlides">7</span>
+            </span>
+            <button class="nav-button" id="nextBtn" onclick="changeSlide(1)">بعدی</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('totalSlides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            
+            document.getElementById('currentSlide').textContent = currentSlide + 1;
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+        
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                changeSlide(-1);
+            }
+        });
+        
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>

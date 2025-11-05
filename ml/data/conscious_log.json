@@ -1,0 +1,206 @@
+[
+  {
+    "cycle_number": 1,
+    "timestamp": "2025-10-16T06:56:20.856393",
+    "perception": {
+      "timestamp": "2025-10-16T06:56:19.390192",
+      "overall_confidence": 0.7796353107500363,
+      "internal_state": "uncertain",
+      "mood": "خنثی",
+      "factors": {
+        "model_accuracy": 0.8582321721517969,
+        "data_quality": 0.656536377407242,
+        "user_satisfaction": 0.7437616367801779,
+        "system_stability": 0.8600110566609284
+      },
+      "self_awareness_level": "medium"
+    },
+    "feelings": {
+      "primary_emotion": "نگران",
+      "secondary_emotions": [
+        "مضطرب",
+        "سردرگم"
+      ],
+      "emotional_intensity": "متوسط",
+      "self_reflection": "سیستم احساس نگران می‌کند",
+      "confidence_level": 0.7796353107500363,
+      "needs_attention": false
+    },
+    "decision": {
+      "action": "optimize",
+      "reason": "سیستم نگران است و اعتماد متوسط دارد (0.78). بهینه‌سازی توصیه می‌شود",
+      "urgency": "medium",
+      "confidence": 0.7796353107500363,
+      "emotion": "نگران",
+      "timestamp": "2025-10-16T06:56:20.263094",
+      "conscious_level": "high",
+      "self_awareness": true
+    },
+    "action_result": {
+      "executed": true,
+      "success": true,
+      "message": "بهینه‌سازی آگاهانه انجام شد",
+      "conscious": true,
+      "self_improvement": true
+    },
+    "reflection": {
+      "timestamp": "2025-10-16T06:56:20.739022",
+      "self_awareness": true,
+      "perception_summary": "درک: uncertain (اعتماد: 0.78)",
+      "emotional_summary": "احساس: نگران (شدت: متوسط)",
+      "decision_summary": "تصمیم: optimize - سیستم نگران است و اعتماد متوسط دارد (0.78). بهینه‌سازی توصیه می‌شود",
+      "action_result": "نتیجه: بهینه‌سازی آگاهانه انجام شد",
+      "learning_points": [
+        "اعتماد سیستم: 0.78",
+        "احساس غالب: نگران",
+        "تصمیم گرفته شده: optimize",
+        "موفقیت اجرا: بله"
+      ],
+      "self_improvement_suggestions": [
+        "ادامه نظارت بر اعتماد سیستم",
+        "تحلیل منظم احساسات درونی",
+        "بهبود فرآیند تصمیم‌گیری آگاهانه"
+      ],
+      "consciousness_level": "high",
+      "reflection_context": " | حافظه مرتبط: نتیجه تست اضطراب: 75/100 - سطح بالا... | MetaLearner تصمیم گرفت تمرینات تنفسی پیشنهاد دهد... | احساس آگاهانه سیستم: نگران (شدت: متوسط)..."
+    },
+    "consciousness_level": "high",
+    "self_awareness": true
+  },
+  {
+    "cycle_number": 2,
+    "timestamp": "2025-10-16T06:56:23.928786",
+    "perception": {
+      "timestamp": "2025-10-16T06:56:22.889985",
+      "overall_confidence": 0.8580483667906011,
+      "internal_state": "confident",
+      "mood": "مثبت",
+      "factors": {
+        "model_accuracy": 0.8301155689507105,
+        "data_quality": 0.8043730495941018,
+        "user_satisfaction": 0.8991861732890141,
+        "system_stability": 0.8985186753285781
+      },
+      "self_awareness_level": "high"
+    },
+    "feelings": {
+      "primary_emotion": "امیدوار",
+      "secondary_emotions": [
+        "مطمئن",
+        "خوشحال"
+      ],
+      "emotional_intensity": "پایین",
+      "self_reflection": "سیستم احساس امیدوار می‌کند",
+      "confidence_level": 0.8580483667906011,
+      "needs_attention": false
+    },
+    "decision": {
+      "action": "analyze",
+      "reason": "سیستم در حالت امیدوار است و اعتماد 0.86 دارد. نیاز به تحلیل بیشتر | تجربه قبلی: تصمیم آگاهانه سیستم: optimize - سیستم نگران است و اعتماد متوسط دارد (0.78). بهینه‌سازی توصیه می‌شود (امتیاز: 1.17)",
+      "urgency": "medium",
+      "confidence": 0.8580483667906011,
+      "emotion": "امیدوار",
+      "timestamp": "2025-10-16T06:56:23.478680",
+      "conscious_level": "high",
+      "self_awareness": true
+    },
+    "action_result": {
+      "executed": true,
+      "success": true,
+      "message": "تحلیل آگاهانه انجام شد",
+      "conscious": true,
+      "self_analysis": true
+    },
+    "reflection": {
+      "timestamp": "2025-10-16T06:56:23.829008",
+      "self_awareness": true,
+      "perception_summary": "درک: confident (اعتماد: 0.86)",
+      "emotional_summary": "احساس: امیدوار (شدت: پایین)",
+      "decision_summary": "تصمیم: analyze - سیستم در حالت امیدوار است و اعتماد 0.86 دارد. نیاز به تحلیل بیشتر | تجربه قبلی: تصمیم آگاهانه سیستم: optimize - سیستم نگران است و اعتماد متوسط دارد (0.78). بهینه‌سازی توصیه می‌شود (امتیاز: 1.17)",
+      "action_result": "نتیجه: تحلیل آگاهانه انجام شد",
+      "learning_points": [
+        "اعتماد سیستم: 0.86",
+        "احساس غالب: امیدوار",
+        "تصمیم گرفته شده: analyze",
+        "موفقیت اجرا: بله"
+      ],
+      "self_improvement_suggestions": [
+        "ادامه نظارت بر اعتماد سیستم",
+        "تحلیل منظم احساسات درونی",
+        "بهبود فرآیند تصمیم‌گیری آگاهانه"
+      ],
+      "consciousness_level": "high",
+      "reflection_context": " | حافظه مرتبط: نتیجه تست اضطراب: 75/100 - سطح بالا... | MetaLearner تصمیم گرفت تمرینات تنفسی پیشنهاد دهد... | بازتاب آگاهانه سیستم: درک: uncertain (اعتماد: 0.78..."
+    },
+    "consciousness_level": "high",
+    "self_awareness": true
+  },
+  {
+    "cycle_number": 3,
+    "timestamp": "2025-10-16T06:56:27.137450",
+    "perception": {
+      "timestamp": "2025-10-16T06:56:26.070239",
+      "overall_confidence": 0.817534317388964,
+      "internal_state": "uncertain",
+      "mood": "خنثی",
+      "factors": {
+        "model_accuracy": 0.8684383210068743,
+        "data_quality": 0.6918831066406349,
+        "user_satisfaction": 0.8459236584950967,
+        "system_stability": 0.8638921834132498
+      },
+      "self_awareness_level": "high"
+    },
+    "feelings": {
+      "primary_emotion": "نگران",
+      "secondary_emotions": [
+        "مضطرب",
+        "سردرگم"
+      ],
+      "emotional_intensity": "متوسط",
+      "self_reflection": "سیستم احساس نگران می‌کند",
+      "confidence_level": 0.817534317388964,
+      "needs_attention": false
+    },
+    "decision": {
+      "action": "analyze",
+      "reason": "سیستم در حالت نگران است و اعتماد 0.82 دارد. نیاز به تحلیل بیشتر | تجربه قبلی: تصمیم آگاهانه سیستم: optimize - سیستم نگران است و اعتماد متوسط دارد (0.78). بهینه‌سازی توصیه می‌شود (امتیاز: 1.13) | تصمیم آگاهانه سیستم: analyze - سیستم در حالت امیدوار است و اعتماد 0.86 دارد. نیاز به تحلیل بیشتر | تجربه قبلی: تصمیم آگاهانه سیستم: optimize - سیستم نگران است و اعتماد متوسط دارد (0.78). بهینه‌سازی توصیه می‌شود (امتیاز: 1.17) (امتیاز: 1.03)",
+      "urgency": "medium",
+      "confidence": 0.817534317388964,
+      "emotion": "نگران",
+      "timestamp": "2025-10-16T06:56:26.494873",
+      "conscious_level": "high",
+      "self_awareness": true
+    },
+    "action_result": {
+      "executed": true,
+      "success": true,
+      "message": "تحلیل آگاهانه انجام شد",
+      "conscious": true,
+      "self_analysis": true
+    },
+    "reflection": {
+      "timestamp": "2025-10-16T06:56:27.004116",
+      "self_awareness": true,
+      "perception_summary": "درک: uncertain (اعتماد: 0.82)",
+      "emotional_summary": "احساس: نگران (شدت: متوسط)",
+      "decision_summary": "تصمیم: analyze - سیستم در حالت نگران است و اعتماد 0.82 دارد. نیاز به تحلیل بیشتر | تجربه قبلی: تصمیم آگاهانه سیستم: optimize - سیستم نگران است و اعتماد متوسط دارد (0.78). بهینه‌سازی توصیه می‌شود (امتیاز: 1.13) | تصمیم آگاهانه سیستم: analyze - سیستم در حالت امیدوار است و اعتماد 0.86 دارد. نیاز به تحلیل بیشتر | تجربه قبلی: تصمیم آگاهانه سیستم: optimize - سیستم نگران است و اعتماد متوسط دارد (0.78). بهینه‌سازی توصیه می‌شود (امتیاز: 1.17) (امتیاز: 1.03)",
+      "action_result": "نتیجه: تحلیل آگاهانه انجام شد",
+      "learning_points": [
+        "اعتماد سیستم: 0.82",
+        "احساس غالب: نگران",
+        "تصمیم گرفته شده: analyze",
+        "موفقیت اجرا: بله"
+      ],
+      "self_improvement_suggestions": [
+        "ادامه نظارت بر اعتماد سیستم",
+        "تحلیل منظم احساسات درونی",
+        "بهبود فرآیند تصمیم‌گیری آگاهانه"
+      ],
+      "consciousness_level": "high",
+      "reflection_context": " | حافظه مرتبط: نتیجه تست اضطراب: 75/100 - سطح بالا... | MetaLearner تصمیم گرفت تمرینات تنفسی پیشنهاد دهد... | بازتاب آگاهانه سیستم: درک: uncertain (اعتماد: 0.78..."
+    },
+    "consciousness_level": "high",
+    "self_awareness": true
+  }
+]

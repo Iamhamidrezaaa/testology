@@ -1,0 +1,58 @@
+.landing {
+  font-family: 'Vazirmatn', sans-serif;
+  padding: 2rem;
+  max-width: 960px;
+  margin: auto;
+  direction: rtl;
+}
+
+.header {
+  text-align: center;
+  padding: 4rem 1rem;
+}
+
+.cta {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+  padding: 0.75rem 2rem;
+  background: #0066cc;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.features {
+  margin-top: 4rem;
+}
+
+.features h2 {
+  text-align: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.preview {
+  margin-top: 4rem;
+  text-align: center;
+}
+
+.secondaryBtn {
+  background: none;
+  border: 2px solid #0066cc;
+  color: #0066cc;
+  padding: 0.6rem 1.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.footer {
+  margin-top: 5rem;
+  text-align: center;
+  color: #777;
+} 

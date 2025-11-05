@@ -1,0 +1,148 @@
+{
+  "nav": {
+    "home": "الرئيسية",
+    "tests": "الاختبارات",
+    "blog": "المدونة",
+    "marketplace": "السوق",
+    "community": "المجتمع",
+    "live": "الجلسات المباشرة",
+    "dashboard": "لوحة التحكم",
+    "profile": "الملف الشخصي",
+    "logout": "تسجيل الخروج",
+    "login": "تسجيل الدخول",
+    "signup": "إنشاء حساب"
+  },
+  "home": {
+    "title": "تستولوجي - منصة الصحة النفسية بالذكاء الاصطناعي",
+    "subtitle": "أكثر من 50 اختبار نفسي علمي + تحليل بالذكاء الاصطناعي",
+    "cta": "ابدأ الاختبار المجاني",
+    "features_title": "لماذا تستولوجي؟",
+    "feature_ai": "تحليل بالذكاء الاصطناعي",
+    "feature_ai_desc": "رؤى مخصصة مدعومة بـ GPT-4",
+    "feature_gamification": "اللعب التفاعلي",
+    "feature_gamification_desc": "اكسب نقاط XP والمستويات والإنجازات",
+    "feature_therapist": "معالجون محترفون",
+    "feature_therapist_desc": "تواصل مع متخصصين مرخصين"
+  },
+  "tests": {
+    "title": "الاختبارات النفسية",
+    "start_test": "بدء الاختبار",
+    "complete": "إكمال الاختبار",
+    "submit": "إرسال وتحليل",
+    "results": "النتائج",
+    "analysis": "تحليل الذكاء الاصطناعي",
+    "duration": "المدة",
+    "questions": "الأسئلة",
+    "next": "التالي",
+    "previous": "السابق",
+    "progress": "التقدم"
+  },
+  "dashboard": {
+    "welcome": "مرحباً بعودتك، {name}!",
+    "level": "المستوى",
+    "xp": "نقاط الخبرة",
+    "tests_completed": "الاختبارات المكتملة",
+    "day_streak": "أيام متتالية",
+    "daily_missions": "المهام اليومية",
+    "your_progress": "تقدمك",
+    "achievements": "الإنجازات",
+    "take_test": "إجراء اختبار",
+    "log_mood": "تسجيل المزاج",
+    "view_missions": "عرض المهام"
+  },
+  "gamification": {
+    "level_up": "مستوى جديد!",
+    "earned_xp": "لقد حصلت على {xp} نقطة خبرة",
+    "achievement_unlocked": "إنجاز جديد!",
+    "leaderboard": "لوحة المتصدرين",
+    "your_rank": "ترتيبك",
+    "medals": "الميداليات",
+    "challenges": "التحديات",
+    "streak": "السلسلة"
+  },
+  "mood": {
+    "title": "تقويم المزاج",
+    "log_today": "سجل مزاج اليوم",
+    "how_feeling": "كيف تشعر اليوم؟",
+    "very_good": "ممتاز",
+    "good": "جيد",
+    "normal": "عادي",
+    "bad": "سيء",
+    "very_bad": "سيء جداً",
+    "note": "ملاحظة",
+    "submit": "إرسال"
+  },
+  "messages": {
+    "inbox": "صندوق الوارد",
+    "sent": "المرسلة",
+    "compose": "كتابة",
+    "new_message": "رسالة جديدة",
+    "send": "إرسال",
+    "to": "إلى",
+    "subject": "الموضوع",
+    "message": "الرسالة",
+    "no_messages": "لا توجد رسائل بعد"
+  },
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "submit": "إرسال",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجاح",
+    "search": "بحث",
+    "filter": "تصفية",
+    "share": "مشاركة",
+    "download": "تحميل",
+    "bookmark": "حفظ",
+    "unbookmark": "إزالة الحفظ",
+    "read_more": "اقرأ المزيد",
+    "show_less": "عرض أقل"
+  },
+  "therapist": {
+    "find": "ابحث عن معالج",
+    "book_session": "احجز جلسة",
+    "profile": "ملف المعالج",
+    "specialties": "التخصصات",
+    "rating": "التقييم",
+    "sessions": "الجلسات",
+    "verified": "موثق",
+    "available": "متاح"
+  },
+  "live": {
+    "upcoming": "الجلسات القادمة",
+    "register": "سجل",
+    "registered": "مسجل",
+    "join": "انضم للبث المباشر",
+    "watch_recording": "شاهد التسجيل",
+    "participants": "المشاركون"
+  },
+  "marketplace": {
+    "title": "السوق",
+    "exercises": "التمارين",
+    "meditations": "التأملات",
+    "ebooks": "الكتب الإلكترونية",
+    "audio": "الصوتيات",
+    "free": "مجاني",
+    "premium": "مميز",
+    "buy_now": "اشتر الآن",
+    "add_to_cart": "أضف إلى السلة"
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

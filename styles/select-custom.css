@@ -1,0 +1,124 @@
+/* استایل‌های سفارشی برای منوهای انتخاب */
+
+/* استایل کلی select */
+.custom-select {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  border-radius: 8px !important;
+  padding: 8px 16px !important;
+  transition: all 0.2s ease !important;
+}
+
+.custom-select:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.custom-select:focus {
+  outline: none !important;
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+.custom-select:disabled {
+  background: rgba(107, 114, 128, 0.2) !important;
+  color: rgba(156, 163, 175, 1) !important;
+  cursor: not-allowed !important;
+}
+
+/* استایل option ها */
+.custom-select option {
+  background: #1f2937 !important;
+  color: white !important;
+  padding: 8px 12px !important;
+}
+
+.custom-select option:hover {
+  background: #374151 !important;
+}
+
+.custom-select option:checked {
+  background: #3b82f6 !important;
+  color: white !important;
+}
+
+/* استایل برای SelectContent */
+.select-content-dark {
+  background: #1f2937 !important;
+  border: 1px solid #374151 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3) !important;
+}
+
+.select-item-dark {
+  color: white !important;
+  background: transparent !important;
+  padding: 8px 12px !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+}
+
+.select-item-dark:hover {
+  background: #374151 !important;
+}
+
+.select-item-dark:focus {
+  background: #3b82f6 !important;
+  color: white !important;
+}
+
+.select-item-dark[data-state="checked"] {
+  background: #3b82f6 !important;
+  color: white !important;
+}
+
+/* انیمیشن برای باز و بسته شدن منو */
+.select-content-dark {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* استایل برای placeholder */
+.select-placeholder {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* استایل برای loading state */
+.select-loading {
+  position: relative;
+}
+
+.select-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  transform: translateY(-50%);
+}
+
+@keyframes spin {
+  0% { transform: translateY(-50%) rotate(0deg); }
+  100% { transform: translateY(-50%) rotate(360deg); }
+}
+
+
+
+
+

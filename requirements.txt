@@ -1,0 +1,9 @@
+✅ گام سوم: فایل pages/tests/attachment.tsx
+🎯 موضوع: تست سبک دلبستگی (Attachment Style)
+🔧 کد پایه:openai==1.12.0
+python-dotenv==1.0.0
+fastapi==0.109.2
+uvicorn==0.27.1
+pydantic==2.6.1
+tenacity==8.2.3
+httpx==0.24.1 

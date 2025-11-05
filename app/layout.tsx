@@ -1,0 +1,85 @@
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import { Vazirmatn } from 'next/font/google';
+import './globals.css';
+import { Providers } from './providers';
+import { SessionWrapper } from './session-wrapper';
+import { ThemeProvider } from '@/components/theme-provider';
+import { ClientLayout } from '@/components/ClientLayout';
+import { Toaster } from 'react-hot-toast';
+import { HotToaster } from '@/components/ui/sonner';
+import LoginModalWrapper from '@/components/LoginModalWrapper';
+import SupportChatWidget from '@/components/SupportWidget';
+
+const inter = Inter({ subsets: ['latin'] });
+const vazirmatn = Vazirmatn({
+  subsets: ['arabic'],
+  variable: '--font-vazir',
+});
+
+export const metadata: Metadata = {
+  title: 'Testology - پلتفرم هوشمند روان‌شناسی',
+  description: 'تست‌های روان‌شناسی علمی + تحلیل AI + مشاوره آنلاین',
+  keywords: 'تست روان‌شناسی، مشاوره آنلاین، افسردگی، اضطراب، استرس',
+  authors: [{ name: 'Testology Team' }],
+  openGraph: {
+    title: 'Testology - پلتفرم هوشمند روان‌شناسی',
+    description: 'تست‌های روان‌شناسی علمی + تحلیل AI + مشاوره آنلاین',
+    type: 'website',
+    locale: 'fa_IR',
+    siteName: 'Testology'
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Testology - پلتفرم هوشمند روان‌شناسی',
+    description: 'تست‌های روان‌شناسی علمی + تحلیل AI + مشاوره آنلاین'
+  },
+  robots: 'index, follow',
+  other: {
+    'X-UA-Compatible': 'IE=edge',
+  }
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="fa" dir="rtl" className={`${vazirmatn.variable} font-sans ${inter.className}`}>
+      <head>
+        {/* Preload critical resources */}
+        <link rel="preload" href="/fonts/vazir.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="//api.openai.com" />
+        
+        {/* Critical CSS inline */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            body { font-family: 'Vazir', sans-serif; margin: 0; padding: 0; }
+            .loading { opacity: 0; transition: opacity 0.3s ease; }
+            .loaded { opacity: 1; }
+          `
+        }} />
+      </head>
+      <body className="min-h-screen bg-gray-50 font-vazir">
+        <SessionWrapper>
+          <Providers>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <ClientLayout>{children}</ClientLayout>
+              <Toaster />
+              <HotToaster />
+              <LoginModalWrapper />
+              <SupportChatWidget />
+            </ThemeProvider>
+          </Providers>
+        </SessionWrapper>
+      </body>
+    </html>
+  );
+}

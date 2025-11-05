@@ -1,0 +1,79 @@
+{
+  "home": {
+    "title": "Bienvenue sur Testology",
+    "subtitle": "Plateforme de santé mentale alimentée par l'IA",
+    "cta": "Commencer le test gratuit",
+    "welcome": "Bienvenue",
+    "features": "Fonctionnalités",
+    "about": "À propos"
+  },
+  "nav": {
+    "home": "Accueil",
+    "tests": "Tests",
+    "blog": "Blog",
+    "marketplace": "Marché",
+    "community": "Communauté",
+    "live": "Sessions en direct",
+    "dashboard": "Tableau de bord",
+    "profile": "Profil",
+    "logout": "Déconnexion",
+    "login": "Connexion"
+  },
+  "tests": {
+    "title": "Tests de psychologie",
+    "start": "Commencer le test",
+    "complete": "Terminer le test",
+    "results": "Résultats",
+    "analysis": "Analyse",
+    "duration": "Durée",
+    "questions": "Questions"
+  },
+  "dashboard": {
+    "welcome": "Bienvenue, {name}!",
+    "level": "Niveau",
+    "xp": "Points d'expérience",
+    "tests_completed": "Tests terminés",
+    "streak": "Série de jours",
+    "missions": "Missions quotidiennes",
+    "progress": "Progrès",
+    "achievements": "Réalisations"
+  },
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "submit": "Soumettre",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "share": "Partager",
+    "download": "Télécharger"
+  },
+  "gamification": {
+    "level_up": "Niveau supérieur!",
+    "earned_xp": "Vous avez gagné {xp} XP",
+    "achievement_unlocked": "Succès débloqué!",
+    "leaderboard": "Classement",
+    "rank": "Rang",
+    "medals": "Médailles"
+  },
+  "mood": {
+    "log_mood": "Enregistrer l'humeur",
+    "today": "Aujourd'hui",
+    "happy": "Heureux",
+    "sad": "Triste",
+    "anxious": "Anxieux",
+    "calm": "Calme"
+  },
+  "messages": {
+    "inbox": "Boîte de réception",
+    "sent": "Envoyés",
+    "new_message": "Nouveau message",
+    "send": "Envoyer",
+    "no_messages": "Aucun message"
+  }
+}
+

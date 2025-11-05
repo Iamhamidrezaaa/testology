@@ -1,0 +1,445 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./testology.db"
+}
+
+enum Role {
+  USER
+  ADMIN
+  MODERATOR
+  THERAPIST
+  CONTENT_PRODUCER
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  lastName      String?   // نام خانوادگی
+  email         String?   @unique
+  password      String?
+  image         String?
+  avatar        String?   // آواتار کاربر
+  phone         String?   @unique
+  birthDate     String?   // تاریخ تولد
+  province      String?   // استان
+  city          String?   // شهرستان
+  bio           String?   // بیوگرافی کاربر
+  twoFactorSecret String? // کلید مخفی برای 2FA
+  twoFactorEnabled Boolean @default(false) // وضعیت فعال بودن 2FA
+  role          Role      @default(USER)
+  isActive      Boolean   @default(true)
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  OTPs          OTP[]     @relation("UserOTPs")
+  testResults   TestResult[]
+  comments      Comment[]
+  notifications Notification[]
+  chatHistory   ChatHistory[]
+  userTests     UserTest[] // رابطه با تست‌های انجام شده توسط کاربر
+  blogs         Blog[] // رابطه با مقالات نوشته شده توسط کاربر
+  userExercises UserExercise[] // رابطه با تمرینات کاربر
+  // screeningResults ScreeningResult[] // رابطه با نتایج غربالگری - حذف شد
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  expires      DateTime
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model OTP {
+  id         String   @id @default(cuid())
+  identifier String
+  code       String
+  mode       String
+  used       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  userId     String?
+  user       User?    @relation("UserOTPs", fields: [userId], references: [id])
+}
+
+model UiSetting {
+  id        String   @id @default(cuid())
+  theme     String   @default("light")
+  font      String   @default("vazir")
+  direction String   @default("rtl")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TestResult {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  testName    String
+  testId      String?
+  score       Float
+  result      String?
+  analysis    String?
+  answers     String?  // JSON string of answers
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserRole {
+  id        String   @id @default(cuid())
+  userId    String
+  role      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ChatHistory {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  messages    String   // JSON string of messages
+  testResults String?  // JSON string of test results
+  screeningAnalysis String? // JSON string of screening analysis
+  createdAt   DateTime @default(now())
+  
+  @@index([userId, createdAt])
+}
+
+model Chat {
+  id        String   @id @default(cuid())
+  userEmail String
+  messages  String   // JSON string of messages
+  createdAt DateTime @default(now())
+  
+  @@index([userEmail, createdAt])
+}
+
+model Exercise {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  type        String   // خشم، استرس، افسردگی، اضطراب
+  category    String   // روزانه، هفتگی، ماهانه
+  duration    Int      // مدت زمان به دقیقه
+  instructions String  // دستورالعمل‌های تمرین
+  difficulty  String   // آسان، متوسط، سخت
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userExercises UserExercise[] // رابطه با تمرینات کاربران
+}
+
+model UserExercise {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  exerciseId  String
+  exercise    Exercise @relation(fields: [exerciseId], references: [id])
+  completedAt DateTime?
+  isCompleted Boolean  @default(false)
+  rating      Int?     // امتیاز 1-5
+  feedback    String?  // بازخورد کاربر
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([userId, exerciseId])
+}
+
+model Test {
+  id          String     @id @default(cuid())
+  testSlug    String     @unique
+  testName    String
+  description String?
+  category    String?
+  isActive    Boolean    @default(true)
+  deletedAt   DateTime?  // برای soft delete
+  createdAt   DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  questions   Question[] // رابطه با سوالات تست
+  userTests   UserTest[] // رابطه با تست‌های انجام شده توسط کاربران
+}
+
+model Question {
+  id        String   @id @default(cuid())
+  testId    String
+  test      Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  text      String
+  order     Int      // برای ترتیب سوالات
+  options   Option[] // رابطه با گزینه‌های سوال
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Option {
+  id         String   @id @default(cuid())
+  questionId String
+  question  Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text       String
+  isCorrect  Boolean  @default(false) // برای تست‌های با پاسخ صحیح
+  score      Int      @default(0)     // برای تست‌های امتیازی
+  order      Int      // برای ترتیب گزینه‌ها
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model UserTest {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  testId      String
+  test        Test      @relation(fields: [testId], references: [id], onDelete: Cascade)
+  score       Float?
+  completedAt DateTime  @default(now())
+  answers     Json?     // ذخیره پاسخ‌های کاربر به صورت JSON
+}
+
+model LearningMetric {
+  id          String   @id @default(cuid())
+  accuracy    Float
+  loss        Float
+  modelName   String
+  updatedAt   DateTime @default(now())
+}
+
+model MoodAggregate {
+  id          String   @id @default(cuid())
+  moodType    String
+  intensity   Float
+  userCount   Int
+  recordedAt  DateTime @default(now())
+}
+
+model Article {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String
+  excerpt     String?  // خلاصه مقاله
+  category    String   // دسته‌بندی روان‌شناسی
+  tags        String   // برچسب‌ها (comma-separated)
+  author      String   @default("Testology Editorial Team")
+  coverUrl    String?  // تصویر کاور
+  published   Boolean  @default(false) // وضعیت انتشار
+  featured    Boolean  @default(false) // مقاله ویژه
+  viewCount   Int      @default(0) // تعداد بازدید
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([category, published, createdAt])
+  @@index([featured, published])
+}
+
+model NewsletterSubscriber {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  subscribedAt DateTime @default(now())
+  isActive     Boolean  @default(true)
+  unsubscribedAt DateTime?
+  
+  @@index([email, isActive])
+}
+
+model Blog {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  metaDescription String?
+  content         String
+  category        String   @default("general")
+  imageUrl        String?
+  tags            String?
+  published       Boolean  @default(false)
+  featured        Boolean  @default(false)
+  viewCount       Int      @default(0)
+  authorId        String
+  author          User     @relation(fields: [authorId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([slug])
+  @@index([category])
+  @@index([published])
+  @@index([featured])
+}
+
+// جداول آمار و تحلیل
+model MonthlyAnalytics {
+  id       String @id @default(cuid())
+  month    String @unique
+  users    Int
+  tests    Int
+  articles Int
+  revenue  Int
+}
+
+model CategoryAnalytics {
+  id         String @id @default(cuid())
+  category   String @unique
+  views      Int
+  tests      Int
+  articles   Int
+  engagement Int
+}
+
+model DailyAnalytics {
+  id       String @id @default(cuid())
+  date      String @unique
+  users     Int
+  tests     Int
+  articles  Int
+  revenue   Int
+}
+
+model UserAnalytics {
+  id        String @id @default(cuid())
+  total     Int
+  active    Int
+  new       Int
+  returning Int
+  premium   Int
+  free      Int
+}
+
+model TestAnalytics {
+  id             String @id @default(cuid())
+  total          Int
+  completed      Int
+  averageTime    Float
+  completionRate Float
+  satisfaction   Float
+}
+
+model ArticleAnalytics {
+  id        String @id @default(cuid())
+  total     Int
+  published Int
+  draft     Int
+  views     Int
+  likes     Int
+  shares    Int
+  comments  Int
+}
+
+model GeoAnalytics {
+  id         String @id @default(cuid())
+  country    String @unique
+  users      Int
+  percentage Float
+}
+
+model DeviceAnalytics {
+  id         String @id @default(cuid())
+  device     String @unique
+  users      Int
+  percentage Float
+}
+
+model BrowserAnalytics {
+  id         String @id @default(cuid())
+  browser    String @unique
+  users      Int
+  percentage Float
+}
+
+model HourlyAnalytics {
+  id    String @id @default(cuid())
+  hour  Int    @unique
+  users Int
+  tests Int
+}
+
+model WeeklyAnalytics {
+  id    String @id @default(cuid())
+  day   String @unique
+  users Int
+  tests Int
+}
+
+// مدل‌های جدید برای سیستم غربالگری
+model ScreeningSet {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  questions   String   // JSON string of questions
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  results     ScreeningResult[]
+}
+
+model ScreeningResult {
+  id              String      @id @default(cuid())
+  userEmail       String
+  screeningSetId  String
+  screeningSet    ScreeningSet @relation(fields: [screeningSetId], references: [id])
+  answers         String      // JSON string of answers
+  analysis        String      // GPT analysis
+  recommendedTests String     // JSON string of recommended tests
+  emotionalState  String?     // JSON string of emotional analysis
+  relationshipPatterns String? // JSON string of relationship analysis
+  motivationLevel String?     // motivation level analysis
+  focusAbility    String?     // focus ability analysis
+  selfEsteem      String?     // self-esteem analysis
+  keyInsights     String?     // JSON string of key insights
+  nextSteps       String?     // JSON string of next steps
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  
+  @@index([userEmail, createdAt])
+}
