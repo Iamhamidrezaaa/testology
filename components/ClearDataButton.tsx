@@ -1,7 +1,5 @@
 "use client";
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Trash2, AlertTriangle } from 'lucide-react';
 
 export default function ClearDataButton() {
   const [isClearing, setIsClearing] = useState(false);
@@ -33,24 +31,22 @@ export default function ClearDataButton() {
   };
 
   return (
-    <Button
+    <button
       onClick={handleClearData}
       disabled={isClearing}
-      variant="outline"
-      size="sm"
-      className="fixed bottom-4 right-4 bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20 z-50"
+      className="bg-white/10 backdrop-blur border border-white/20 text-white/90 px-3 py-1.5 rounded-lg text-xs hover:bg-white/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
     >
       {isClearing ? (
         <>
-          <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin mr-2" />
+          <div className="w-3 h-3 border-2 border-white/50 border-t-transparent rounded-full animate-spin" />
           در حال پاک کردن...
         </>
       ) : (
         <>
-          <Trash2 className="w-4 h-4 mr-2" />
+          <span>🧹</span>
           پاک کردن داده‌های تست
         </>
       )}
-    </Button>
+    </button>
   );
 }

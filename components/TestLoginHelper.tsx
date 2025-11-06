@@ -6,9 +6,11 @@ export default function TestLoginHelper() {
   const [showHelper, setShowHelper] = useState(false);
 
   const testUsers = [
-    { email: "user1@testology.me", password: "user1123", name: "تست 1" },
-    { email: "user2@testology.me", password: "user2123", name: "تست 2" },
-    { email: "user3@testology.me", password: "user3123", name: "تست 3" }
+    { email: "admin@testology.me", password: "Admin@1234", name: "ادمین", role: "ADMIN" },
+    { email: "user@testology.me", password: "User@1234", name: "کاربر تست", role: "USER" },
+    { email: "user1@testology.me", password: "User@1234", name: "کاربر 1", role: "USER" },
+    { email: "user2@testology.me", password: "User@1234", name: "کاربر 2", role: "USER" },
+    { email: "user3@testology.me", password: "User@1234", name: "کاربر 3", role: "USER" }
   ];
 
   const copyToClipboard = (text: string) => {
@@ -17,35 +19,46 @@ export default function TestLoginHelper() {
   };
 
   return (
-    <div className="fixed bottom-4 left-4 z-50">
+    <div className="relative">
       <button
         onClick={() => setShowHelper(!showHelper)}
-        className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition-colors"
+        className="bg-white/10 backdrop-blur border border-white/20 text-white/90 px-3 py-1.5 rounded-lg text-xs hover:bg-white/20 transition-colors"
       >
         {showHelper ? "❌ بستن" : "🧪 کاربران تست"}
       </button>
 
       {showHelper && (
-        <div className="absolute bottom-12 left-0 bg-white dark:bg-gray-800 border rounded-lg shadow-xl p-4 min-w-80">
-          <h3 className="font-bold text-gray-800 dark:text-white mb-3">👥 کاربران تست</h3>
-          <div className="space-y-2">
+        <div className="absolute bottom-10 left-0 bg-white/95 backdrop-blur-xl border border-white/30 rounded-xl shadow-2xl p-4 min-w-[280px] max-w-[320px] z-50">
+          <h3 className="font-bold text-gray-800 mb-3 text-sm">👥 کاربران تست</h3>
+          <div className="space-y-2 max-h-[400px] overflow-y-auto">
             {testUsers.map((user, index) => (
-              <div key={index} className="bg-gray-50 dark:bg-gray-700 p-2 rounded text-sm">
-                <div className="font-medium text-gray-800 dark:text-white">{user.name}</div>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-gray-600 dark:text-gray-300">{user.email}</span>
+              <div key={index} className="bg-gray-50 p-2.5 rounded-lg text-xs border border-gray-200">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="font-medium text-gray-800">{user.name}</span>
+                  {user.role && (
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                      user.role === 'ADMIN' 
+                        ? 'bg-purple-100 text-purple-700' 
+                        : 'bg-blue-100 text-blue-700'
+                    }`}>
+                      {user.role}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 mt-1.5">
+                  <span className="text-gray-600 text-[11px] flex-1 truncate">{user.email}</span>
                   <button
                     onClick={() => copyToClipboard(user.email)}
-                    className="text-blue-600 hover:text-blue-800 text-xs"
+                    className="text-blue-600 hover:text-blue-800 text-[10px] px-1.5 py-0.5 bg-blue-50 rounded"
                   >
                     کپی
                   </button>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-gray-600 dark:text-gray-300">{user.password}</span>
+                  <span className="text-gray-600 text-[11px] flex-1 truncate">{user.password}</span>
                   <button
                     onClick={() => copyToClipboard(user.password)}
-                    className="text-blue-600 hover:text-blue-800 text-xs"
+                    className="text-blue-600 hover:text-blue-800 text-[10px] px-1.5 py-0.5 bg-blue-50 rounded"
                   >
                     کپی
                   </button>
@@ -53,7 +66,7 @@ export default function TestLoginHelper() {
               </div>
             ))}
           </div>
-          <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+          <div className="mt-3 text-[10px] text-gray-500 pt-2 border-t border-gray-200">
             💡 روی "کپی" کلیک کنید تا ایمیل/رمز کپی شود
           </div>
         </div>
