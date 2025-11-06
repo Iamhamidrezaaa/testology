@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: testology-db-1
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: testology
+      POSTGRES_USER: testology_user
+      POSTGRES_PASSWORD: strong_db_password   # یادت نره امنش کنی
+    volumes:
+      - testology_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testology_user -d testology"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: testology-app-1
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      # داخل کانتینر باید به سرویس db وصل شویم (نه localhost)
+      DATABASE_URL: postgresql://testology_user:strong_db_password@db:5432/testology?schema=public
+      NEXTAUTH_URL: https://testology.me
+      NODE_ENV: production
+
+volumes:
+  testology_pgdata:
