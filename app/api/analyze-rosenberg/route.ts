@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { analyzeTestWithGPT } from "@/lib/services/analyze-test"
 import prisma from "@/lib/prisma"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from '@/lib/auth'
 import { awardXP } from "@/lib/services/gamification"
 
 export async function POST(req: NextRequest) {
