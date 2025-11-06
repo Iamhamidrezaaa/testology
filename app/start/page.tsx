@@ -44,6 +44,28 @@ export default function StartPage() {
 
   const checkUserSession = async () => {
     try {
+      // اول localStorage را چک کن (برای کاربران تست)
+      const email = localStorage.getItem("testology_email");
+      const role = localStorage.getItem("testology_role");
+      
+      if (email && role === "user") {
+        // کاربر از localStorage لاگین شده
+        // بررسی اینکه آیا کاربر قبلاً غربالگری کرده یا نه
+        // فقط اگر هم screening_completed و هم test_results وجود داشته باشد، به داشبورد بفرست
+        const hasScreening = localStorage.getItem("testology_screening_completed");
+        const hasResults = localStorage.getItem("testology_test_results");
+        const hasProfile = localStorage.getItem("testology_profile_completed");
+        
+        // فقط اگر همه مراحل تکمیل شده باشد، به داشبورد بفرست
+        if (hasScreening && hasResults && hasProfile) {
+          router.push("/dashboard");
+          return;
+        }
+        // اگر غربالگری نکرده یا مراحل ناقص است، اجازه بده ادامه بدهد
+        return;
+      }
+      
+      // اگر localStorage نداریم، از session استفاده کن
       const response = await fetch('/api/auth/session');
       const session = await response.json();
       
@@ -62,7 +84,11 @@ export default function StartPage() {
       }
     } catch (error) {
       console.error('Error checking session:', error);
-      router.push("/login");
+      // اگر خطا داد، فقط اگر localStorage هم نداریم به لاگین بفرست
+      const email = localStorage.getItem("testology_email");
+      if (!email) {
+        router.push("/login");
+      }
     }
   };
 
@@ -111,16 +137,21 @@ export default function StartPage() {
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      // دریافت اطلاعات کاربر از session
-      const sessionResponse = await fetch('/api/auth/session');
-      const session = await sessionResponse.json();
+      // اول localStorage را چک کن (برای کاربران تست)
+      let userEmail = localStorage.getItem("testology_email");
       
-      if (!session?.user?.email) {
-        router.push("/login");
-        return;
+      // اگر localStorage نداریم، از session استفاده کن
+      if (!userEmail) {
+        const sessionResponse = await fetch('/api/auth/session');
+        const session = await sessionResponse.json();
+        
+        if (!session?.user?.email) {
+          router.push("/login");
+          return;
+        }
+        
+        userEmail = session.user.email;
       }
-
-      const userEmail = session.user.email;
       
       const response = await fetch('/api/analyze-screening', {
         method: 'POST',
@@ -134,13 +165,25 @@ export default function StartPage() {
         }),
       });
 
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('API Error:', errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 100)}`);
+      }
+      
       const data = await response.json();
       
       if (data.success) {
+        // ذخیره در localStorage
+        localStorage.setItem('testology_screening_completed', 'true');
+        if (data.analysis) {
+          localStorage.setItem('testology_screening_analysis', JSON.stringify(data.analysis));
+        }
+        
         // انتقال به صفحه تست‌های پیشنهادی
         router.push("/start/suggested-tests");
       } else {
-        alert("خطا در تحلیل پاسخ‌ها. لطفاً دوباره تلاش کنید.");
+        alert(`خطا در تحلیل پاسخ‌ها: ${data.message || 'خطای نامشخص'}`);
       }
     } catch (error) {
       console.error("Error submitting screening:", error);

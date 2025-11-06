@@ -51,10 +51,12 @@ export async function GET(request: NextRequest) {
       success: true,
       results: formattedResults
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ خطا در دریافت نتایج تست‌ها:', error);
+    console.error('Error stack:', error?.stack);
+    console.error('Error message:', error?.message);
     return NextResponse.json(
-      { success: false, error: 'خطا در دریافت نتایج تست‌ها' },
+      { success: false, error: error?.message || 'خطا در دریافت نتایج تست‌ها' },
       { status: 500 }
     );
   }

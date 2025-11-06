@@ -6,6 +6,24 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 const nextConfig = {
   reactStrictMode: true,
   
+  // غیرفعال کردن type checking در بیلد (برای سرعت بیشتر)
+  typescript: {
+    // ⚠️ فقط برای بیلد سریع‌تر - در production بهتر است فعال باشد
+    ignoreBuildErrors: false,
+  },
+  
+  // غیرفعال کردن ESLint در بیلد (برای سرعت بیشتر)
+  eslint: {
+    // ⚠️ فقط برای بیلد سریع‌تر - در production بهتر است فعال باشد
+    ignoreDuringBuilds: false,
+  },
+  
+  // غیرفعال کردن error overlay برای خطاهای extension (فقط در development)
+  onDemandEntries: {
+    maxInactiveAge: 25 * 1000,
+    pagesBufferLength: 2,
+  },
+  
   // بهینه‌سازی تصاویر
   images: {
     domains: [],

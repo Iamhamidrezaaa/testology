@@ -13,9 +13,32 @@ export default function Error({
   reset: () => void
 }) {
   useEffect(() => {
-    // لاگ کردن خطا
+    // فیلتر کردن خطاهای MetaMask و extensionهای مرورگر
+    const ignoredErrors = [
+      'MetaMask',
+      'metamask',
+      'Failed to connect to MetaMask',
+      'chrome-extension://',
+      'moz-extension://',
+      'safari-extension://',
+      'extension://',
+    ];
+
+    const errorMessage = error.message || error.toString();
+    const shouldIgnore = ignoredErrors.some(ignored => 
+      errorMessage.toLowerCase().includes(ignored.toLowerCase())
+    );
+
+    if (shouldIgnore) {
+      // خطاهای extension را نادیده بگیر و reset کن
+      console.debug('Ignored extension error:', errorMessage);
+      reset();
+      return;
+    }
+
+    // لاگ کردن خطاهای واقعی
     console.error('Application Error:', error)
-  }, [error])
+  }, [error, reset])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center" dir="rtl">

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 
 export async function GET(req: NextRequest) {
   try {
@@ -114,10 +114,12 @@ export async function GET(req: NextRequest) {
       }
     })
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching user analytics:', error)
+    console.error('Error stack:', error?.stack)
+    console.error('Error message:', error?.message)
     return NextResponse.json(
-      { success: false, message: 'خطا در دریافت آمار کاربران' },
+      { success: false, message: error?.message || 'خطا در دریافت آمار کاربران' },
       { status: 500 }
     )
   }

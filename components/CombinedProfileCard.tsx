@@ -7,10 +7,37 @@ export default function CombinedProfileCard() {
 
   useEffect(()=>{
     (async ()=>{
+      // دریافت userEmail از localStorage
+      const userEmail = localStorage.getItem("testology_email");
+      if (!userEmail) {
+        console.log("❌ No user email found");
+        return;
+      }
+      
       // API خودت: /api/analyze/combined
-      const r = await fetch("/api/analyze/combined");
+      const r = await fetch("/api/analyze/combined", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userEmail })
+      });
       const j = await r.json().catch(()=>null);
-      setData(j);
+      
+      if (j && j.success) {
+        // تبدیل داده‌های API به فرمت مورد نیاز
+        const dimensions = [
+          { name: "تاب‌آوری", value: j.chartData?.[0]?.averageScore || 65 },
+          { name: "اضطراب", value: j.chartData?.[1]?.averageScore || 35 },
+          { name: "رضایت", value: j.chartData?.[2]?.averageScore || 58 },
+          { name: "خودارزیابی", value: j.chartData?.[3]?.averageScore || 50 },
+        ];
+        setData({
+          ...j,
+          dimensions,
+          summary: j.combinedReport || j.summary || "تحلیل بر اساس تست‌های انجام شده"
+        });
+      } else {
+        console.error("❌ Failed to fetch combined analysis:", j);
+      }
     })();
   },[]);
 

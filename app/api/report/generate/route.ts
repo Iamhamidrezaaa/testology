@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
 import PDFDocument from 'pdfkit'
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
@@ -73,7 +73,8 @@ export async function GET(req: NextRequest) {
     const buffers: Buffer[] = []
     doc.on('data', (chunk) => buffers.push(chunk))
     
-    return new Promise((resolve) => {
+    // استفاده از await برای Promise
+    const pdfResponse = await new Promise<NextResponse>((resolve, reject) => {
       doc.on('end', () => {
         const pdfData = Buffer.concat(buffers)
         resolve(new NextResponse(pdfData, {
@@ -83,6 +84,10 @@ export async function GET(req: NextRequest) {
             'Cache-Control': 'no-cache'
           }
         }))
+      })
+      
+      doc.on('error', (error) => {
+        reject(error)
       })
 
       // شروع تولید PDF
@@ -96,6 +101,8 @@ export async function GET(req: NextRequest) {
         videoLogs
       })
     })
+    
+    return pdfResponse
 
   } catch (error) {
     console.error('Error generating PDF report:', error)

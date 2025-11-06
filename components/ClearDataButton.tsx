@@ -5,7 +5,16 @@ export default function ClearDataButton() {
   const [isClearing, setIsClearing] = useState(false);
 
   const handleClearData = async () => {
-    if (!confirm('آیا مطمئن هستید که می‌خواهید تمام داده‌های تست را پاک کنید؟')) {
+    // بررسی اینکه آیا کاربر یکی از user1, user2, user3 است
+    const currentEmail = localStorage.getItem('testology_email');
+    const testUserEmails = ['user1@testology.me', 'user2@testology.me', 'user3@testology.me'];
+    
+    if (!currentEmail || !testUserEmails.includes(currentEmail)) {
+      alert('⚠️ این دکمه فقط برای کاربران تست (user1, user2, user3) فعال است.');
+      return;
+    }
+
+    if (!confirm('آیا مطمئن هستید که می‌خواهید داده‌های تست را پاک کنید؟\n\nاین عمل فقط داده‌های localStorage شما را پاک می‌کند.')) {
       return;
     }
 
@@ -21,7 +30,7 @@ export default function ClearDataButton() {
 
       setTimeout(() => {
         setIsClearing(false);
-        alert('✅ تمام داده‌های تست پاک شدند! صفحه را رفرش کنید.');
+        alert('✅ داده‌های تست پاک شدند! صفحه را رفرش کنید.');
       }, 1000);
     } catch (error) {
       console.error('Error clearing data:', error);

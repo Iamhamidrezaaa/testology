@@ -1,9 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// ⚙️ اتصال به API GPT (اگر API key وجود داشته باشد)
+let openai: OpenAI | null = null;
+if (process.env.OPENAI_API_KEY) {
+  try {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  } catch (error) {
+    console.warn('OpenAI initialization failed:', error);
+  }
+}
+
+// تابع fallback برای پاسخ‌های ساده
+function generateFallbackResponse(message: string): string {
+  const lowerMessage = message.toLowerCase();
+  
+  if (lowerMessage.includes('اضطراب') || lowerMessage.includes('نگران')) {
+    return 'درک می‌کنم که اضطراب می‌تواند بسیار ناراحت‌کننده باشد. چند راهکار ساده که می‌تواند کمک کند:\n\n1. تنفس عمیق: نفس عمیق بکشید و به آرامی بازدم کنید (۴ ثانیه دم، ۴ ثانیه نگه دارید، ۴ ثانیه بازدم)\n2. تمرینات آرامش: سعی کنید عضلات خود را شل کنید\n3. نوشتن: احساسات خود را روی کاغذ بنویسید\n4. فعالیت بدنی: حتی یک پیاده‌روی کوتاه می‌تواند کمک کند\n\nاگر اضطراب شما شدید است یا در زندگی روزمره اختلال ایجاد می‌کند، توصیه می‌کنم با یک متخصص سلامت روان مشورت کنید.';
+  }
+  
+  if (lowerMessage.includes('افسردگی') || lowerMessage.includes('غم') || lowerMessage.includes('ناراحت')) {
+    return 'متأسفم که این احساسات را تجربه می‌کنید. افسردگی می‌تواند بسیار سخت باشد. چند نکته که ممکن است کمک کند:\n\n1. ارتباط اجتماعی: با دوستان یا خانواده‌ای که به آن‌ها اعتماد دارید صحبت کنید\n2. فعالیت‌های کوچک: حتی کارهای کوچک روزمره می‌تواند کمک کند\n3. روتین منظم: سعی کنید یک برنامه منظم برای خواب و غذا داشته باشید\n4. کمک حرفه‌ای: اگر این احساسات ادامه دارد، با یک روان‌شناس یا روانپزشک مشورت کنید\n\nیادتان باشد که کمک گرفتن نشانه ضعف نیست، بلکه نشانه شجاعت است.';
+  }
+  
+  if (lowerMessage.includes('استرس') || lowerMessage.includes('فشار')) {
+    return 'استرس بخش طبیعی زندگی است، اما وقتی زیاد شود می‌تواند مشکل‌ساز باشد. راهکارهای مدیریت استرس:\n\n1. شناسایی منبع استرس: ببینید چه چیزی باعث استرس شما می‌شود\n2. اولویت‌بندی: کارهای خود را اولویت‌بندی کنید\n3. استراحت: به خودتان استراحت بدهید\n4. تکنیک‌های آرامش: مدیتیشن یا یوگا را امتحان کنید\n5. ورزش منظم: فعالیت بدنی می‌تواند استرس را کاهش دهد\n\nاگر استرس شما شدید است، حتماً با یک متخصص مشورت کنید.';
+  }
+  
+  // پاسخ پیش‌فرض
+  return 'متشکرم که با من به اشتراک گذاشتید. من اینجا هستم تا در مسائل روان‌شناختی به شما کمک کنم.\n\nاگر می‌خواهید درباره موضوع خاصی صحبت کنیم، لطفاً بیشتر توضیح دهید. می‌توانم در زمینه‌های زیر به شما کمک کنم:\n- مدیریت اضطراب و استرس\n- بهبود خلق و خو\n- روابط بین فردی\n- اعتماد به نفس\n- و سایر مسائل روان‌شناختی\n\nهمچنین اگر نیاز به کمک فوری دارید، می‌توانید با مراکز مشاوره یا خطوط بحران تماس بگیرید.';
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,6 +42,18 @@ export async function POST(request: NextRequest) {
         { error: 'پیام مورد نیاز است' },
         { status: 400 }
       );
+    }
+
+    console.log('📨 Chat request received:', { messageLength: message.length, historyLength: history?.length || 0 });
+
+    // اگر OpenAI API key وجود ندارد، از fallback استفاده کن
+    if (!openai || !process.env.OPENAI_API_KEY) {
+      console.log('⚠️ OpenAI API key not found, using fallback response');
+      const fallbackResponse = generateFallbackResponse(message);
+      return NextResponse.json({
+        success: true,
+        response: fallbackResponse
+      });
     }
 
     // ساخت سیستم پرامپت برای روان‌شناس
@@ -40,32 +80,50 @@ export async function POST(request: NextRequest) {
     // ساخت تاریخچه مکالمه
     const messages = [
       { role: 'system', content: systemPrompt },
-      ...history.map((msg: any) => ({
+      ...(history || []).map((msg: any) => ({
         role: msg.role,
         content: msg.content
       })),
       { role: 'user', content: message }
     ];
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: messages as any,
-      max_tokens: 1000,
-      temperature: 0.7,
-    });
+    try {
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: messages as any,
+        max_tokens: 1000,
+        temperature: 0.7,
+      });
 
-    const response = completion.choices[0]?.message?.content || 'متأسفم، خطایی رخ داد.';
+      const response = completion.choices[0]?.message?.content || 'متأسفم، خطایی رخ داد.';
 
+      console.log('✅ OpenAI response received:', response.substring(0, 100));
+
+      return NextResponse.json({
+        success: true,
+        response: response
+      });
+    } catch (openaiError: any) {
+      console.error('❌ OpenAI API error:', openaiError?.message);
+      // اگر OpenAI خطا داد، از fallback استفاده کن
+      const fallbackResponse = generateFallbackResponse(message);
+      return NextResponse.json({
+        success: true,
+        response: fallbackResponse
+      });
+    }
+
+  } catch (error: any) {
+    console.error('❌ Error in AI chat API:', error);
+    console.error('Error stack:', error?.stack);
+    console.error('Error message:', error?.message);
+    
+    // حتی در صورت خطا، یک پاسخ fallback برگردان
+    const fallbackResponse = generateFallbackResponse(message || '');
     return NextResponse.json({
       success: true,
-      response: response
+      response: fallbackResponse,
+      error: process.env.NODE_ENV === 'development' ? error?.message : undefined
     });
-
-  } catch (error) {
-    console.error('Error in AI chat API:', error);
-    return NextResponse.json(
-      { error: 'خطا در پردازش درخواست' },
-      { status: 500 }
-    );
   }
 }

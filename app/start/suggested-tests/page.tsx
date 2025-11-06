@@ -63,40 +63,76 @@ export default function SuggestedTestsPage() {
   useEffect(() => {
     const loadSuggestedTests = async () => {
       try {
-        // دریافت اطلاعات کاربر از session
-        const sessionResponse = await fetch('/api/auth/session');
-        const session = await sessionResponse.json();
+        // اول localStorage را چک کن (برای کاربران تست)
+        let email = localStorage.getItem("testology_email");
+        const role = localStorage.getItem("testology_role");
         
-        if (!session?.user?.email) {
-          router.push("/login");
-          return;
+        // اگر localStorage نداریم، از session استفاده کن
+        if (!email || role !== "user") {
+          try {
+            const sessionResponse = await fetch('/api/auth/session');
+            const session = await sessionResponse.json();
+            
+            if (!session?.user?.email) {
+              router.push("/login");
+              return;
+            }
+            
+            email = session.user.email;
+          } catch (error) {
+            console.error('Error fetching session:', error);
+            router.push("/login");
+            return;
+          }
         }
 
-        const email = session.user.email;
-        setUserEmail(email);
+        setUserEmail(email || '');
 
-        // دریافت تحلیل غربالگری از دیتابیس
-        const screeningResponse = await fetch(`/api/screening/analysis?userEmail=${encodeURIComponent(email)}`);
-        const screeningData = await screeningResponse.json();
+        // دریافت تحلیل غربالگری از localStorage یا دیتابیس
+        const screeningAnalysisFromStorage = localStorage.getItem("testology_screening_analysis");
         
-        if (!screeningData.success) {
-          console.log("No screening analysis found, redirecting to start");
-          router.push("/start");
-          return;
-        }
+        let screeningAnalysis;
+        if (screeningAnalysisFromStorage) {
+          // استفاده از localStorage (برای کاربران تست)
+          try {
+            const parsed = JSON.parse(screeningAnalysisFromStorage);
+            screeningAnalysis = parsed.overallAnalysis || parsed.analysis || screeningAnalysisFromStorage;
+          } catch (e) {
+            screeningAnalysis = screeningAnalysisFromStorage;
+          }
+        } else {
+          // اگر در localStorage نیست، از دیتابیس بگیر
+          const screeningResponse = await fetch(`/api/screening/analysis?userEmail=${encodeURIComponent(email || '')}`);
+          const screeningData = await screeningResponse.json();
+          
+          if (!screeningData.success) {
+            console.log("No screening analysis found, redirecting to start");
+            router.push("/start");
+            return;
+          }
 
-        const screeningAnalysis = screeningData.data.analysis;
+          screeningAnalysis = screeningData.data.analysis;
+        }
 
         // درخواست پیشنهاد تست‌ها از API
         try {
+          // parse کردن screeningAnalysis (اگر string است)
+          let parsedAnalysis;
+          try {
+            parsedAnalysis = typeof screeningAnalysis === 'string' ? JSON.parse(screeningAnalysis) : screeningAnalysis;
+          } catch (parseError) {
+            // اگر parse نشد، از خود string استفاده کن
+            parsedAnalysis = { analysis: screeningAnalysis };
+          }
+
           const response = await fetch('/api/suggest-tests', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              screeningAnalysis: JSON.parse(screeningAnalysis),
-              userEmail: email
+              screeningAnalysis: parsedAnalysis,
+              userEmail: email || ''
             }),
           });
 
@@ -104,10 +140,27 @@ export default function SuggestedTestsPage() {
             const data = await response.json();
             console.log("API response data:", data);
             
-            // دریافت نتایج تست‌های تکمیل شده از دیتابیس
-            const { SimpleTestStorage } = await import('@/lib/simple-test-storage');
-            const completedTests = await SimpleTestStorage.getAllTestResults(email);
-            const completedTestIds = completedTests.map((test: any) => test.testId);
+            // دریافت نتایج تست‌های تکمیل شده از localStorage یا دیتابیس
+            let completedTestIds: string[] = [];
+            try {
+              const { SimpleTestStorage } = await import('@/lib/simple-test-storage');
+              if (email) {
+                const completedTests = await SimpleTestStorage.getAllTestResults(email);
+                completedTestIds = completedTests.map((test: any) => test.testId);
+              }
+            } catch (error) {
+              console.log('Error getting completed tests:', error);
+              // از localStorage استفاده کن
+              const testResults = localStorage.getItem('testology_test_results');
+              if (testResults) {
+                try {
+                  const parsed = JSON.parse(testResults);
+                  completedTestIds = Array.isArray(parsed) ? parsed.map((t: any) => t.testId || t.id) : [];
+                } catch (e) {
+                  completedTestIds = [];
+                }
+              }
+            }
             
             // اضافه کردن وضعیت تکمیل به تست‌ها
             const testsWithStatus = (data.suggestedTests || []).map((test: any) => ({
@@ -155,10 +208,27 @@ export default function SuggestedTestsPage() {
             }
           ];
           
-          // دریافت نتایج تست‌های تکمیل شده از دیتابیس
-          const { SimpleTestStorage } = await import('@/lib/simple-test-storage');
-          const completedTests = await SimpleTestStorage.getAllTestResults(email);
-          const completedTestIds = completedTests.map((test: any) => test.testId);
+          // دریافت نتایج تست‌های تکمیل شده از localStorage یا دیتابیس
+          let completedTestIds: string[] = [];
+          try {
+            const { SimpleTestStorage } = await import('@/lib/simple-test-storage');
+            if (email) {
+              const completedTests = await SimpleTestStorage.getAllTestResults(email);
+              completedTestIds = completedTests.map((test: any) => test.testId);
+            }
+          } catch (error) {
+            console.log('Error getting completed tests:', error);
+            // از localStorage استفاده کن
+            const testResults = localStorage.getItem('testology_test_results');
+            if (testResults) {
+              try {
+                const parsed = JSON.parse(testResults);
+                completedTestIds = Array.isArray(parsed) ? parsed.map((t: any) => t.testId || t.id) : [];
+              } catch (e) {
+                completedTestIds = [];
+              }
+            }
+          }
           
           // اضافه کردن وضعیت تکمیل به تست‌های پیش‌فرض
           const testsWithStatus = defaultTests.map((test: any) => ({
@@ -353,17 +423,44 @@ export default function SuggestedTestsPage() {
       console.log('📝 تحلیل تولید شد:', analysis);
 
       // ذخیره نتیجه در دیتابیس
-      const testResult = await SimpleTestStorage.saveTestResult({
-        testId: activeTestSession.testId,
-        testName: activeTestSession.testData.name,
-        score,
-        answers: activeTestSession.answers,
-        result: analysis,
-        analysis,
-        userId: userEmail || 'demo-user'
-      });
-      
-      console.log('✅ نتیجه تست ذخیره شد:', testResult);
+      let testResult;
+      try {
+        testResult = await SimpleTestStorage.saveTestResult({
+          testId: activeTestSession.testId,
+          testName: activeTestSession.testData.name,
+          score,
+          answers: activeTestSession.answers,
+          result: analysis,
+          analysis,
+          userId: userEmail || 'demo-user'
+        });
+        console.log('✅ نتیجه تست ذخیره شد:', testResult);
+      } catch (saveError) {
+        console.error('Error saving test result:', saveError);
+        // حتی اگر ذخیره نشد، ادامه بده
+      }
+
+      // ذخیره در localStorage (برای کاربران تست)
+      try {
+        const existingResults = localStorage.getItem('testology_test_results');
+        let results = existingResults ? JSON.parse(existingResults) : [];
+        if (!Array.isArray(results)) {
+          results = [];
+        }
+        
+        results.push({
+          testId: activeTestSession.testId,
+          testName: activeTestSession.testData.name,
+          score,
+          analysis,
+          completedAt: new Date().toISOString()
+        });
+        
+        localStorage.setItem('testology_test_results', JSON.stringify(results));
+        console.log('✅ نتیجه تست در localStorage ذخیره شد');
+      } catch (storageError) {
+        console.error('Error saving to localStorage:', storageError);
+      }
 
       // به‌روزرسانی تست به عنوان تکمیل شده
       setSuggestedTests(prev => 

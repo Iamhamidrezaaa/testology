@@ -6,8 +6,6 @@ export default function TestLoginHelper() {
   const [showHelper, setShowHelper] = useState(false);
 
   const testUsers = [
-    { email: "admin@testology.me", password: "Admin@1234", name: "ادمین", role: "ADMIN" },
-    { email: "user@testology.me", password: "User@1234", name: "کاربر تست", role: "USER" },
     { email: "user1@testology.me", password: "User@1234", name: "کاربر 1", role: "USER" },
     { email: "user2@testology.me", password: "User@1234", name: "کاربر 2", role: "USER" },
     { email: "user3@testology.me", password: "User@1234", name: "کاربر 3", role: "USER" }

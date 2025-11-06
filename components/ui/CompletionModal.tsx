@@ -29,6 +29,9 @@ export default function CompletionModal({
         setCountdown(prev => {
           if (prev <= 1) {
             clearInterval(timer);
+            // ذخیره در localStorage که همه مراحل تکمیل شده
+            localStorage.setItem('testology_profile_completed', 'true');
+            // انتقال به داشبورد
             router.push("/dashboard");
             return 0;
           }

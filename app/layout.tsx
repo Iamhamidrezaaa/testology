@@ -61,6 +61,60 @@ export default function RootLayout({
             .loaded { opacity: 1; }
           `
         }} />
+        
+        {/* Global Error Handler Script - اجرا قبل از React */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                // لیست خطاهای غیرضروری که باید نادیده گرفته شوند
+                const ignoredErrors = [
+                  'MetaMask',
+                  'metamask',
+                  'Failed to connect to MetaMask',
+                  'chrome-extension://',
+                  'moz-extension://',
+                  'safari-extension://',
+                  'extension://',
+                  'Non-Error promise rejection',
+                  'ResizeObserver loop',
+                  'ResizeObserver loop limit exceeded',
+                ];
+
+                // بررسی اینکه آیا خطا باید نادیده گرفته شود
+                function shouldIgnoreError(error) {
+                  if (!error) return false;
+                  const errorMessage = (error.message || error.toString() || '').toLowerCase();
+                  const errorStack = (error.stack || '').toLowerCase();
+                  const fullError = errorMessage + ' ' + errorStack;
+
+                  return ignoredErrors.some(ignored => 
+                    fullError.includes(ignored.toLowerCase())
+                  );
+                }
+
+                // Handler برای خطاهای unhandled
+                window.addEventListener('error', function(event) {
+                  if (shouldIgnoreError(event.error || event.message)) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return false;
+                  }
+                }, true);
+
+                // Handler برای unhandled promise rejections
+                window.addEventListener('unhandledrejection', function(event) {
+                  const reason = event.reason;
+                  if (shouldIgnoreError(reason)) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return false;
+                  }
+                }, true);
+              })();
+            `,
+          }}
+        />
       </head>
       <body className="min-h-screen bg-gray-50 font-vazir">
         <SessionWrapper>

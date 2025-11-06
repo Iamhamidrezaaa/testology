@@ -54,10 +54,12 @@ export async function GET(req: NextRequest) {
       profile: profile
     })
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching user profile:', error)
+    console.error('Error stack:', error?.stack)
+    console.error('Error message:', error?.message)
     return NextResponse.json(
-      { success: false, message: 'خطا در دریافت اطلاعات پروفایل' },
+      { success: false, message: error?.message || 'خطا در دریافت اطلاعات پروفایل' },
       { status: 500 }
     )
   }

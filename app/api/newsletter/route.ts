@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { newsletterStorage } from "@/lib/newsletter-storage";
+import prisma from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,7 +14,22 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if email already exists
-    if (newsletterStorage.emailExists(email)) {
+    const existing = await prisma.newsletterSubscriber.findUnique({
+      where: { email: email.toLowerCase() }
+    });
+
+    if (existing) {
+      // اگر وجود دارد و غیرفعال است، فعالش کن
+      if (!existing.isActive) {
+        await prisma.newsletterSubscriber.update({
+          where: { email: email.toLowerCase() },
+          data: { isActive: true, unsubscribedAt: null }
+        });
+        return NextResponse.json({
+          success: true,
+          message: "با موفقیت در خبرنامه عضو شدید"
+        });
+      }
       return NextResponse.json(
         { error: "این ایمیل قبلاً عضو خبرنامه شده است" },
         { status: 400 }
@@ -22,7 +37,12 @@ export async function POST(req: NextRequest) {
     }
 
     // Add to newsletter
-    newsletterStorage.addSubscriber(email);
+    await prisma.newsletterSubscriber.create({
+      data: {
+        email: email.toLowerCase(),
+        isActive: true
+      }
+    });
 
     return NextResponse.json({
       success: true,
@@ -42,18 +62,33 @@ export async function POST(req: NextRequest) {
 // Get newsletter stats (for admin)
 export async function GET() {
   try {
-    const stats = newsletterStorage.getStats();
-    const recentSubscribers = newsletterStorage.getRecentSubscribers(10);
-
-    return NextResponse.json({
-      totalSubscribers: stats.total,
-      recentSubscribers
+    const total = await prisma.newsletterSubscriber.count();
+    const active = await prisma.newsletterSubscriber.count({
+      where: { isActive: true }
+    });
+    
+    const recentSubscribers = await prisma.newsletterSubscriber.findMany({
+      where: { isActive: true },
+      orderBy: { subscribedAt: 'desc' },
+      take: 10
     });
 
-  } catch (error) {
+    return NextResponse.json({
+      totalSubscribers: total,
+      recentSubscribers: recentSubscribers.map(sub => ({
+        id: sub.id,
+        email: sub.email,
+        subscribedAt: sub.subscribedAt,
+        isActive: sub.isActive
+      }))
+    });
+
+  } catch (error: any) {
     console.error("Newsletter stats error:", error);
+    console.error("Error stack:", error?.stack);
+    console.error("Error message:", error?.message);
     return NextResponse.json(
-      { error: "خطا در دریافت آمار" },
+      { error: error?.message || "خطا در دریافت آمار" },
       { status: 500 }
     );
   }

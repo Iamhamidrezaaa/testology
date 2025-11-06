@@ -1,9 +1,5 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-export const fetchCache = 'force-no-store';
-
 import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -47,7 +43,26 @@ export default function LoginPage() {
       localStorage.setItem('testology_role', 'user');
       localStorage.setItem('testology_email', e);
       window.dispatchEvent(new CustomEvent('localStorageChange'));
-      router.push(callbackUrl);
+      
+      // بررسی اینکه آیا کاربر جدید است یا نه
+      // اگر callbackUrl مشخص شده، به آن برو
+      if (callbackUrl && callbackUrl !== '/dashboard') {
+        router.push(callbackUrl);
+        return true;
+      }
+      
+      // بررسی وضعیت کاربر (آیا غربالگری و تست انجام داده یا نه)
+      const hasScreening = localStorage.getItem("testology_screening_completed");
+      const hasResults = localStorage.getItem("testology_test_results");
+      const hasProfile = localStorage.getItem("testology_profile_completed");
+      
+      // اگر کاربر جدید است (هیچ داده‌ای ندارد)، به صفحه غربالگری بفرست
+      if (!hasScreening || !hasResults || !hasProfile) {
+        router.push('/start');
+      } else {
+        // کاربر قبلاً همه مراحل را انجام داده - به داشبورد بفرست
+        router.push('/dashboard');
+      }
       return true;
     }
 

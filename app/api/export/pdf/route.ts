@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import PDFDocument from "pdfkit";
-import fs from "fs";
-import path from "path";
 
-export async function POST(req: Request) {
+export async function POST(req: Request): Promise<NextResponse> {
   try {
     const { userId, type, content } = await req.json();
     
@@ -47,29 +45,39 @@ export async function POST(req: Request) {
 
       let yPosition = 160;
       
-      chatHistory.forEach((msg, index) => {
-        if (yPosition > 700) {
-          doc.addPage();
-          yPosition = 50;
-        }
+      chatHistory.forEach((chatRecord) => {
+        try {
+          // Parse کردن JSON messages
+          const messages = JSON.parse(chatRecord.messages || '[]') as Array<{ role?: string; content?: string; message?: string }>;
+          const timestamp = new Date(chatRecord.createdAt).toLocaleString('fa-IR');
+          
+          messages.forEach((msg) => {
+            if (yPosition > 700) {
+              doc.addPage();
+              yPosition = 50;
+            }
 
-        const role = msg.role === 'user' ? 'کاربر' : 'روان‌شناس';
-        const timestamp = new Date(msg.createdAt).toLocaleString('fa-IR');
-        
-        doc.fontSize(10)
-           .fillColor('#666')
-           .text(`${role} - ${timestamp}`, 50, yPosition);
-        
-        yPosition += 20;
-        
-        doc.fontSize(12)
-           .fillColor('#000')
-           .text(msg.message, 50, yPosition, {
-             width: 500,
-             align: msg.role === 'user' ? 'right' : 'left'
-           });
-        
-        yPosition += 40;
+            const role = (msg.role === 'user' || msg.role === 'کاربر') ? 'کاربر' : 'روان‌شناس';
+            const messageText = msg.content || msg.message || '';
+            
+            doc.fontSize(10)
+               .fillColor('#666')
+               .text(`${role} - ${timestamp}`, 50, yPosition);
+            
+            yPosition += 20;
+            
+            doc.fontSize(12)
+               .fillColor('#000')
+               .text(messageText, 50, yPosition, {
+                 width: 500,
+                 align: msg.role === 'user' ? 'right' : 'left'
+               });
+            
+            yPosition += 40;
+          });
+        } catch (error) {
+          console.error('Error parsing chat messages:', error);
+        }
       });
     }
 
@@ -137,23 +145,35 @@ export async function POST(req: Request) {
        .fillColor('#999')
        .text('تولید شده توسط Testology - پلتفرم هوشمند روان‌شناسی', 50, 750, { align: 'center' });
 
-    // ذخیره فایل PDF
-    const fileName = `testology_report_${Date.now()}.pdf`;
-    const filePath = path.join(process.cwd(), 'public', fileName);
+    // تولید PDF به صورت Buffer
+    const buffers: Buffer[] = [];
+    doc.on('data', (chunk: Buffer) => buffers.push(chunk));
     
-    const stream = fs.createWriteStream(filePath);
-    doc.pipe(stream);
-    doc.end();
-
-    return new Promise((resolve) => {
-      stream.on('finish', () => {
-        resolve(NextResponse.json({ 
-          success: true, 
-          downloadUrl: `/${fileName}`,
-          message: 'گزارش PDF با موفقیت ایجاد شد'
+    // استفاده از await برای Promise
+    const pdfResponse = await new Promise<NextResponse>((resolve, reject) => {
+      doc.on('end', () => {
+        const pdfBuffer = Buffer.concat(buffers);
+        
+        // برگرداندن PDF به صورت Response
+        resolve(new NextResponse(pdfBuffer, {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename="testology_report_${Date.now()}.pdf"`,
+            'Cache-Control': 'no-cache',
+          },
         }));
       });
+      
+      doc.on('error', (error) => {
+        reject(error);
+      });
+      
+      // شروع تولید PDF
+      doc.end();
     });
+    
+    return pdfResponse;
 
   } catch (error) {
     console.error('PDF Export Error:', error);

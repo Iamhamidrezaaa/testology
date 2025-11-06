@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
 import UserSidebar from "@/components/UserSidebar";
 import { LogOut, User } from "lucide-react";
 
@@ -53,10 +52,15 @@ export default function DashboardLayout({
   };
 
   const handleLogout = () => {
+    // پاک کردن localStorage
     localStorage.removeItem("testology_role");
     localStorage.removeItem("testology_email");
+    
+    // Dispatch event برای اطلاع‌رسانی به سایر کامپوننت‌ها
     window.dispatchEvent(new CustomEvent("localStorageChange"));
-    signOut({ callbackUrl: "/" });
+    
+    // انتقال مستقیم به صفحه اصلی
+    router.push("/");
   };
 
   return (

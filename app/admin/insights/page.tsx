@@ -157,19 +157,31 @@ export default function AdminInsightsPage() {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <Button 
-                          size="sm" 
-                          onClick={() => handleApprove(item.id, item.type)}
-                        >
-                          تأیید
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleReject(item.id, item.type, 'رد شده توسط ادمین')}
-                        >
-                          رد
-                        </Button>
+                        {item.type === 'blog' || item.type === 'comment' ? (
+                          <>
+                            <Button 
+                              size="sm" 
+                              onClick={() => {
+                                const type = item.type === 'blog' ? 'blog' as const : 'comment' as const;
+                                handleApprove(item.id, type);
+                              }}
+                            >
+                              تأیید
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => {
+                                const type = item.type === 'blog' ? 'blog' as const : 'comment' as const;
+                                handleReject(item.id, type, 'رد شده توسط ادمین');
+                              }}
+                            >
+                              رد
+                            </Button>
+                          </>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">نوع محتوا پشتیبانی نمی‌شود</span>
+                        )}
                       </div>
                     </div>
                   ))

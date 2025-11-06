@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 
 export async function GET(req: NextRequest) {
   try {
@@ -47,51 +47,69 @@ export async function GET(req: NextRequest) {
     let testPopularityWithNames = []
     
     if (completedTests > 0) {
-      // دریافت آمار واقعی تست‌های محبوب
-      const testPopularity = await prisma.testResult.groupBy({
-        by: ['testId'],
-        _count: {
-          testId: true
-        },
-        where: {
-          createdAt: {
-            gte: startDate
-          }
-        },
-        orderBy: {
+      try {
+        // استفاده از testName به جای testId (چون testName همیشه وجود دارد)
+        const testPopularity = await prisma.testResult.groupBy({
+          by: ['testName'],
           _count: {
-            testId: 'desc'
-          }
-        },
-        take: 5
-      })
+            testName: true
+          },
+          where: {
+            createdAt: {
+              gte: startDate
+            }
+          },
+          orderBy: {
+            _count: {
+              testName: 'desc'
+            }
+          },
+          take: 5
+        })
 
-      const testIds = testPopularity.map((t: any) => t.testId)
-      const tests = await prisma.test.findMany({
-        where: {
-          id: {
-            in: testIds
-          }
-        },
-        select: {
-          id: true,
-          testName: true
-        }
-      })
-
-      testPopularityWithNames = testPopularity.map((t: any) => {
-        const test = tests.find((test: any) => test.id === t.testId)
-        return {
-          testName: test?.testName || 'نامشخص',
-          count: t._count.testId,
+        testPopularityWithNames = testPopularity.map((t: any) => ({
+          testName: t.testName || 'نامشخص',
+          count: t._count.testName,
           percentage: 0
-        }
-      })
+        }))
 
-      const totalTestCount = testPopularityWithNames.reduce((sum: number, t: any) => sum + t.count, 0)
-      testPopularityWithNames.forEach((t: any) => {
-        t.percentage = totalTestCount > 0 ? Math.round((t.count / totalTestCount) * 100) : 0
-      })
+        const totalTestCount = testPopularityWithNames.reduce((sum: number, t: any) => sum + t.count, 0)
+        testPopularityWithNames.forEach((t: any) => {
+          t.percentage = totalTestCount > 0 ? Math.round((t.count / totalTestCount) * 100) : 0
+        })
+      } catch (groupByError) {
+        // اگر groupBy خطا داد، از روش جایگزین استفاده کن
+        console.error('Error in groupBy, using alternative method:', groupByError)
+        const allTestResults = await prisma.testResult.findMany({
+          where: {
+            createdAt: {
+              gte: startDate
+            }
+          },
+          select: {
+            testName: true
+          },
+          take: 1000 // محدود کردن برای کارایی
+        })
+
+        // شمارش دستی
+        const testCounts: { [key: string]: number } = {}
+        allTestResults.forEach((tr: any) => {
+          const name = tr.testName || 'نامشخص'
+          testCounts[name] = (testCounts[name] || 0) + 1
+        })
+
+        const sortedTests = Object.entries(testCounts)
+          .sort(([, a], [, b]) => b - a)
+          .slice(0, 5)
+
+        const totalTestCount = sortedTests.reduce((sum, [, count]) => sum + count, 0)
+        testPopularityWithNames = sortedTests.map(([name, count]) => ({
+          testName: name,
+          count: count,
+          percentage: totalTestCount > 0 ? Math.round((count / totalTestCount) * 100) : 0
+        }))
+      }
     } else {
       // آمارهای فیک برای نمایش به شتابدهنده
       const fakeTestNames = [
@@ -146,14 +164,30 @@ export async function GET(req: NextRequest) {
 
     // آمار ماهانه
     const monthlyStats = []
+    const monthNames = [
+      'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
+      'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'
+    ]
     for (let i = 11; i >= 0; i--) {
       const month = new Date(now.getFullYear(), now.getMonth() - i, 1)
-      monthlyStats.push({
-        month: month.toLocaleDateString('fa-IR', { month: 'long', year: 'numeric' }),
-        users: totalUsers > 0 ? Math.floor(Math.random() * 20) + 5 : Math.floor(Math.random() * 50) + 10,
-        tests: totalTests > 0 ? Math.floor(Math.random() * 30) + 10 : Math.floor(Math.random() * 100) + 20,
-        analyses: completedTests > 0 ? Math.floor(Math.random() * 25) + 5 : Math.floor(Math.random() * 80) + 15
-      })
+      const monthIndex = month.getMonth()
+      const year = month.getFullYear()
+      try {
+        monthlyStats.push({
+          month: `${monthNames[monthIndex]} ${year}`,
+          users: totalUsers > 0 ? Math.floor(Math.random() * 20) + 5 : Math.floor(Math.random() * 50) + 10,
+          tests: totalTests > 0 ? Math.floor(Math.random() * 30) + 10 : Math.floor(Math.random() * 100) + 20,
+          analyses: completedTests > 0 ? Math.floor(Math.random() * 25) + 5 : Math.floor(Math.random() * 80) + 15
+        })
+      } catch (e) {
+        // Fallback در صورت خطا
+        monthlyStats.push({
+          month: `${monthIndex + 1}/${year}`,
+          users: totalUsers > 0 ? Math.floor(Math.random() * 20) + 5 : Math.floor(Math.random() * 50) + 10,
+          tests: totalTests > 0 ? Math.floor(Math.random() * 30) + 10 : Math.floor(Math.random() * 100) + 20,
+          analyses: completedTests > 0 ? Math.floor(Math.random() * 25) + 5 : Math.floor(Math.random() * 80) + 15
+        })
+      }
     }
 
     // آمار دسته‌بندی‌ها
@@ -173,10 +207,15 @@ export async function GET(req: NextRequest) {
       categoryStats
     })
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error generating report:', error)
+    console.error('Error stack:', error?.stack)
+    console.error('Error message:', error?.message)
     return NextResponse.json(
-      { error: 'خطا در تولید گزارش' },
+      { 
+        error: 'خطا در تولید گزارش',
+        details: process.env.NODE_ENV === 'development' ? error?.message : undefined
+      },
       { status: 500 }
     )
   }

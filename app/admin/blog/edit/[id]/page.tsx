@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, notFound } from 'next/navigation';
 import ImageUpload from '../../../../components/ImageUpload';
+
+type Params = { id?: string | string[] };
 import { 
   Save, 
   Eye, 
@@ -43,7 +45,8 @@ import {
   ChevronUp,
   Copy,
   Undo,
-  Redo
+  Redo,
+  X
 } from 'lucide-react';
 
 interface BlogPost {
@@ -353,7 +356,19 @@ const EditorElementComponent = ({ element, onUpdate, onDelete, onMove }: {
 
 export default function BlogEditPage() {
   const router = useRouter();
-  const params = useParams();
+  const params = useParams<Params>();
+  
+  // id را امن استخراج کن (string یا undefined)
+  const id =
+    typeof params?.id === 'string'
+      ? params.id
+      : Array.isArray(params?.id)
+      ? params?.id[0]
+      : undefined;
+
+  // اگر id نبود: 404 بده
+  if (!id) return notFound();
+  
   const [blogPost, setBlogPost] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -365,48 +380,56 @@ export default function BlogEditPage() {
   const [coverImage, setCoverImage] = useState<string>(blogPost?.imageUrl || '');
 
   useEffect(() => {
-    if (params.id) {
-      fetchBlogPost();
-    }
-  }, [params.id]);
+    let cancelled = false;
 
-  const fetchBlogPost = async () => {
-    try {
-      const response = await fetch(`/api/admin/blog/${params.id}`);
-      if (response.ok) {
-        const data = await response.json();
-        setBlogPost(data);
-        setCoverImage(data.imageUrl || '');
+    const fetchBlogPost = async (postId: string) => {
+      try {
+        const res = await fetch(`/api/admin/blog/${postId}`);
+        if (!res.ok) throw new Error('Failed to load blog post');
+        const data = await res.json();
         
-        // Parse existing content or create default elements
-        if (data.content) {
-          try {
-            const parsedElements = JSON.parse(data.content);
-            setElements(parsedElements);
-          } catch {
-            // If content is not JSON, create a text element
+        if (!cancelled) {
+          setBlogPost(data);
+          setCoverImage(data.imageUrl || '');
+          
+          // Parse existing content or create default elements
+          if (data.content) {
+            try {
+              const parsedElements = JSON.parse(data.content);
+              setElements(parsedElements);
+            } catch {
+              // If content is not JSON, create a text element
+              setElements([{
+                id: '1',
+                type: 'text',
+                content: data.content,
+                styles: {}
+              }]);
+            }
+          } else {
             setElements([{
               id: '1',
               type: 'text',
-              content: data.content,
+              content: 'محتوای مقاله خود را اینجا بنویسید...',
               styles: {}
             }]);
           }
-        } else {
-          setElements([{
-            id: '1',
-            type: 'text',
-            content: 'محتوای مقاله خود را اینجا بنویسید...',
-            styles: {}
-          }]);
+        }
+      } catch (error) {
+        console.error('Error fetching blog post:', error);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
         }
       }
-    } catch (error) {
-      console.error('Error fetching blog post:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    fetchBlogPost(id);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
 
   const addElement = (type: EditorElement['type']) => {
     const newElement: EditorElement = {
@@ -451,7 +474,7 @@ export default function BlogEditPage() {
   const saveBlogPost = async () => {
     setSaving(true);
     try {
-      const response = await fetch(`/api/admin/blog/${params.id}`, {
+      const response = await fetch(`/api/admin/blog/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

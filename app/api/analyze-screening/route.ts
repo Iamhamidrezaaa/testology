@@ -2,10 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import OpenAI from 'openai';
 
-// ⚙️ اتصال به API GPT
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
+// ⚙️ اتصال به API GPT (اگر API key وجود داشته باشد)
+let openai: OpenAI | null = null;
+if (process.env.OPENAI_API_KEY) {
+  try {
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  } catch (error) {
+    console.warn('OpenAI initialization failed:', error);
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,8 +25,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // تحلیل پاسخ‌ها با GPT
-    const analysis = await analyzeScreeningWithGPT(answers);
+    console.log('📊 Analyzing screening for:', userEmail);
+
+    // تحلیل پاسخ‌ها با GPT (یا fallback)
+    let analysis;
+    try {
+      analysis = await analyzeScreeningWithGPT(answers);
+    } catch (gptError) {
+      console.error('GPT error, using fallback:', gptError);
+      // استفاده از تحلیل fallback
+      analysis = {
+        analysis: generateFallbackAnalysis(answers),
+        recommendedTests: generateFallbackTests(answers),
+        keyInsights: [],
+        nextSteps: []
+      };
+    }
     
     // ابتدا بررسی کن که آیا ScreeningSet وجود دارد یا نه
     let screeningSet;
@@ -27,34 +48,53 @@ export async function POST(req: NextRequest) {
       screeningSet = await prisma.screeningSet.findUnique({
         where: { id: screeningSetId }
       });
-    } catch (error) {
-      console.log('ScreeningSet not found, creating default one');
+    } catch (error: any) {
+      console.error('Error finding ScreeningSet:', error?.message);
+      screeningSet = null;
     }
 
     // اگر ScreeningSet وجود ندارد، یک مورد پیش‌فرض ایجاد کن
     if (!screeningSet) {
-      screeningSet = await prisma.screeningSet.create({
-        data: {
-          id: screeningSetId,
-          name: 'Screening Set 1',
-          description: 'Default screening set',
-          questions: JSON.stringify([]),
-          isActive: true
-        }
-      });
+      try {
+        screeningSet = await prisma.screeningSet.create({
+          data: {
+            id: screeningSetId,
+            name: 'Screening Set 1',
+            description: 'Default screening set',
+            questions: JSON.stringify([]),
+            isActive: true
+          }
+        });
+        console.log('✅ Created default ScreeningSet');
+      } catch (createError: any) {
+        console.error('Error creating ScreeningSet:', createError?.message);
+        // اگر نتوانستیم create کنیم، از screeningSetId استفاده می‌کنیم
+      }
     }
 
     // ذخیره نتایج در دیتابیس
-    const screeningResult = await prisma.screeningResult.create({
-      data: {
-        userEmail,
-        screeningSetId: screeningSet.id,
-        answers: JSON.stringify(answers),
-        analysis: analysis.analysis,
-        recommendedTests: JSON.stringify(analysis.recommendedTests),
-        createdAt: new Date()
-      }
-    });
+    let screeningResult;
+    try {
+      screeningResult = await prisma.screeningResult.create({
+        data: {
+          userEmail,
+          screeningSetId: screeningSet?.id || screeningSetId,
+          answers: JSON.stringify(answers),
+          analysis: analysis.analysis,
+          recommendedTests: JSON.stringify(analysis.recommendedTests),
+          keyInsights: analysis.keyInsights ? JSON.stringify(analysis.keyInsights) : null,
+          nextSteps: analysis.nextSteps ? JSON.stringify(analysis.nextSteps) : null,
+          createdAt: new Date()
+        }
+      });
+      console.log('✅ Screening result saved:', screeningResult.id);
+    } catch (dbError: any) {
+      console.error('Error saving to database:', dbError?.message);
+      // حتی اگر ذخیره نشد، نتیجه را برگردان
+      // چون ممکن است مدل در دیتابیس وجود نداشته باشد
+    }
+
+    // localStorage در client-side ذخیره می‌شود، نه در server-side
 
     return NextResponse.json({
       success: true,
@@ -64,19 +104,36 @@ export async function POST(req: NextRequest) {
         keyInsights: analysis.keyInsights || [],
         nextSteps: analysis.nextSteps || []
       },
-      screeningResultId: screeningResult.id
+      screeningResultId: screeningResult?.id || null
     });
 
-  } catch (error) {
-    console.error('Error analyzing screening:', error);
+  } catch (error: any) {
+    console.error('❌ Error analyzing screening:', error);
+    console.error('Error stack:', error?.stack);
+    console.error('Error message:', error?.message);
     return NextResponse.json(
-      { success: false, message: 'خطا در تحلیل ارزیابی' },
+      { 
+        success: false, 
+        message: 'خطا در تحلیل ارزیابی',
+        details: process.env.NODE_ENV === 'development' ? error?.message : undefined
+      },
       { status: 500 }
     );
   }
 }
 
 async function analyzeScreeningWithGPT(answers: { [key: number]: string }) {
+  // اگر OpenAI API key وجود ندارد، از fallback استفاده کن
+  if (!openai || !process.env.OPENAI_API_KEY) {
+    console.log('OpenAI API key not found, using fallback analysis');
+    return {
+      analysis: generateFallbackAnalysis(answers),
+      recommendedTests: generateFallbackTests(answers),
+      keyInsights: [],
+      nextSteps: []
+    };
+  }
+
   try {
     // 🔍 پرامپت تحلیل
     const prompt = `
@@ -117,8 +174,8 @@ async function analyzeScreeningWithGPT(answers: { [key: number]: string }) {
       nextSteps: extractNextSteps(aiResponse)
     };
 
-  } catch (error) {
-    console.error('Error calling GPT:', error);
+  } catch (error: any) {
+    console.error('Error calling GPT:', error?.message);
     // Fallback to local analysis if GPT fails
     return {
       analysis: generateFallbackAnalysis(answers),

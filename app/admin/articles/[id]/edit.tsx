@@ -1,7 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, notFound } from "next/navigation";
 import { useTranslation } from "@/lib/i18n/useTranslation";
+
+type Params = { id?: string | string[] };
 
 interface Article {
   id: string;
@@ -20,49 +22,70 @@ const languageOptions = [
 ];
 
 export default function ArticleTranslationEditor() {
-  const params = useParams();
+  const params = useParams<Params>();
   const { t } = useTranslation();
-  const articleId = params.id as string;
+  
+  // id را امن استخراج کن (string یا undefined)
+  const articleId =
+    typeof params?.id === 'string'
+      ? params.id
+      : Array.isArray(params?.id)
+      ? params?.id[0]
+      : undefined;
+
+  // اگر id نبود: 404 بده
+  if (!articleId) return notFound();
   
   const [article, setArticle] = useState<Article | null>(null);
+  const [loading, setLoading] = useState(true);
   const [selectedLang, setSelectedLang] = useState("fa");
   const [translatedText, setTranslatedText] = useState("");
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [existingTranslations, setExistingTranslations] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    loadArticle();
-    loadExistingTranslations();
+    let cancelled = false;
+
+    const run = async () => {
+      try {
+        // بارگذاری مقاله
+        const res = await fetch(`/api/articles/${articleId}`);
+        if (!res.ok) throw new Error('Failed to load article');
+        const data = await res.json();
+        
+        if (!cancelled) {
+          if (data.success) {
+            setArticle(data.article);
+          }
+        }
+
+        // بارگذاری ترجمه‌های موجود
+        const transRes = await fetch(`/api/admin/translate?type=article&id=${articleId}`);
+        if (transRes.ok) {
+          const transData = await transRes.json();
+          if (transData.success && !cancelled) {
+            const translations: Record<string, string> = {};
+            transData.translations.forEach((t: any) => {
+              translations[t.lang] = t.text;
+            });
+            setExistingTranslations(translations);
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load article:', e);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    run();
+
+    return () => {
+      cancelled = true;
+    };
   }, [articleId]);
-
-  const loadArticle = async () => {
-    try {
-      const response = await fetch(`/api/articles/${articleId}`);
-      const data = await response.json();
-      if (data.success) {
-        setArticle(data.article);
-      }
-    } catch (error) {
-      console.error('Failed to load article:', error);
-    }
-  };
-
-  const loadExistingTranslations = async () => {
-    try {
-      const response = await fetch(`/api/admin/translate?type=article&id=${articleId}`);
-      const data = await response.json();
-      if (data.success) {
-        const translations: Record<string, string> = {};
-        data.translations.forEach((t: any) => {
-          translations[t.lang] = t.text;
-        });
-        setExistingTranslations(translations);
-      }
-    } catch (error) {
-      console.error('Failed to load translations:', error);
-    }
-  };
 
   const handleLanguageChange = (lang: string) => {
     setSelectedLang(lang);
@@ -90,7 +113,17 @@ export default function ArticleTranslationEditor() {
       
       if (result.success) {
         // بارگذاری مجدد ترجمه‌ها
-        await loadExistingTranslations();
+        const transRes = await fetch(`/api/admin/translate?type=article&id=${articleId}`);
+        if (transRes.ok) {
+          const transData = await transRes.json();
+          if (transData.success) {
+            const translations: Record<string, string> = {};
+            transData.translations.forEach((t: any) => {
+              translations[t.lang] = t.text;
+            });
+            setExistingTranslations(translations);
+          }
+        }
         alert(`✅ Successfully translated ${result.stats.successful}/${result.stats.total} languages!`);
       } else {
         alert("❌ Auto-translation failed");

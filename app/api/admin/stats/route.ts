@@ -74,10 +74,12 @@ export async function GET(req: NextRequest) {
       browserStats
     })
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching admin stats:', error)
+    console.error('Error stack:', error?.stack)
+    console.error('Error message:', error?.message)
     return NextResponse.json(
-      { error: 'خطا در دریافت آمار' },
+      { error: error?.message || 'خطا در دریافت آمار' },
       { status: 500 }
     )
   }

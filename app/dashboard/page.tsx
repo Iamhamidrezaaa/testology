@@ -40,8 +40,53 @@ export default function DashboardPage() {
   const { profileData, loading: profileLoading } = useProfileCompletion();
 
   useEffect(() => {
-    // دریافت اطلاعات کاربر از session
-    fetchUserSession();
+    // بررسی localStorage برای authentication
+    const role = localStorage.getItem("testology_role");
+    const email = localStorage.getItem("testology_email");
+    
+    if (!role || !email) {
+      // اگر localStorage نداریم، سعی کن از session بگیر
+      fetchUserSession();
+      return;
+    }
+
+    // بررسی نقش کاربر
+    if (role === "admin") {
+      router.push("/admin/dashboard");
+      return;
+    } else if (role === "psychologist") {
+      router.push("/psychologist/dashboard");
+      return;
+    } else if (role === "content_producer") {
+      router.push("/content-producer/dashboard");
+      return;
+    }
+
+    // کاربر عادی (user, user1, user2, user3) - استفاده از localStorage
+    // بررسی می‌کنیم که ایمیل یکی از کاربران مجاز باشد
+    const allowedUserEmails = [
+      'user@testology.me',
+      'user1@testology.me',
+      'user2@testology.me',
+      'user3@testology.me'
+    ];
+    
+    if (!allowedUserEmails.includes(email.toLowerCase())) {
+      console.warn("⚠️ Unauthorized user email:", email);
+      // اگر ایمیل مجاز نیست، به لاگین برگرد
+      router.push("/login");
+      return;
+    }
+
+    setUserEmail(email);
+    console.log("📊 Fetching data for user:", email);
+    Promise.all([
+      fetchUserStats(email),
+      fetchUserProfile(email)
+    ]).finally(() => {
+      setInitialLoad(false);
+      setIsLoading(false);
+    });
   }, [router]);
 
   const fetchUserSession = async () => {
@@ -122,23 +167,52 @@ export default function DashboardPage() {
       if (data.success) {
         const testResults = data.results;
         
+        // محاسبه moodScore از میانگین score تست‌ها (تبدیل به مقیاس 0-10)
+        // score در دیتابیس از 0 تا 100 است، باید به 0-10 تبدیل شود
+        const avgScore = testResults.length > 0 
+          ? testResults.reduce((sum: number, result: any) => sum + (result.score || 0), 0) / testResults.length 
+          : 0;
+        const moodScore = Math.round((avgScore / 10) * 10) / 10; // تبدیل از 0-100 به 0-10
+        
+        // محاسبه پیشرفت هفتگی
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        const weeklyTests = testResults.filter((result: any) => {
+          const resultDate = new Date(result.completedAt || result.createdAt);
+          return resultDate >= oneWeekAgo;
+        }).length;
+        const weeklyProgress = Math.min((weeklyTests / 3) * 100, 100);
+        
         setStats({
           completedTests: testResults.length,
           totalInsights: testResults.length,
-          moodScore: testResults.length > 0 ? Math.round(testResults.reduce((sum: number, result: any) => sum + result.score, 0) / testResults.length) : 0,
-          weeklyProgress: Math.min((testResults.length / 3) * 100, 100)
+          moodScore: moodScore,
+          weeklyProgress: Math.round(weeklyProgress)
         });
         
         // بارگذاری تست‌های اخیر از دیتابیس
-        const recentTestsData = testResults.slice(0, 3).map((result: any) => ({
-          name: result.testName,
-          date: new Date(result.completedAt).toLocaleDateString('fa-IR'),
-          score: `${Math.round(result.score)}%`
-        }));
+        const recentTestsData = testResults.slice(0, 3).map((result: any) => {
+          const resultDate = new Date(result.completedAt || result.createdAt);
+          const daysAgo = Math.floor((Date.now() - resultDate.getTime()) / (1000 * 60 * 60 * 24));
+          let dateText = '';
+          if (daysAgo === 0) dateText = 'امروز';
+          else if (daysAgo === 1) dateText = 'دیروز';
+          else if (daysAgo < 7) dateText = `${daysAgo} روز پیش`;
+          else if (daysAgo < 30) dateText = `${Math.floor(daysAgo / 7)} هفته پیش`;
+          else dateText = `${Math.floor(daysAgo / 30)} ماه پیش`;
+          
+          return {
+            name: result.testName || 'تست',
+            date: dateText,
+            score: result.result || `${Math.round(result.score || 0)}%`
+          };
+        });
         setRecentTests(recentTestsData);
         
         console.log("✅ Stats updated:", {
           completedTests: testResults.length,
+          moodScore,
+          weeklyProgress,
           recentTests: recentTestsData
         });
       } else {

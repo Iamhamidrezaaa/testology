@@ -24,16 +24,39 @@ export default function ReportsPage() {
 
   useEffect(() => {
     console.log('Fetching reports for period:', selectedPeriod)
-    fetch(`/api/admin/reports-public?period=${selectedPeriod}`)
+    
+    // بررسی localStorage برای authentication
+    const role = localStorage.getItem("testology_role");
+    const email = localStorage.getItem("testology_email");
+    
+    if (!role || role !== "admin") {
+      console.error("Unauthorized access to reports");
+      setLoading(false);
+      return;
+    }
+    
+    fetch(`/api/admin/reports?period=${selectedPeriod}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include'
+    })
       .then(res => {
         console.log('Response status:', res.status)
         if (!res.ok) {
+          // اگر خطای 401 یا 403 بود، احتمالاً مشکل session است
+          if (res.status === 401 || res.status === 403) {
+            throw new Error('دسترسی غیرمجاز. لطفاً دوباره وارد شوید.')
+          }
           throw new Error(`HTTP error! status: ${res.status}`)
         }
         return res.json()
       })
       .then(data => {
         console.log('Report data received:', data)
+        if (data.error) {
+          throw new Error(data.error)
+        }
         setReportData(data)
         setLoading(false)
       })
@@ -41,7 +64,7 @@ export default function ReportsPage() {
         console.error('Error fetching reports:', err)
         setLoading(false)
         // نمایش پیام خطا به کاربر
-        alert(err.message)
+        alert(`خطا در دریافت گزارش: ${err.message}`)
       })
   }, [selectedPeriod])
 
