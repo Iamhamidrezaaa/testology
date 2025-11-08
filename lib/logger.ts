@@ -14,8 +14,8 @@ export async function logEvent(
         layer,
         action,
         status,
-        meta,
-        latencyMs: meta.latency || 0,
+        meta: meta ? JSON.stringify(meta) : null,
+        latencyMs: meta?.latency || 0,
       },
     });
 
@@ -33,12 +33,12 @@ export async function logError(layer: string, action: string, error: any, meta: 
         layer,
         action,
         status: "error",
-        meta: {
+        meta: JSON.stringify({
           ...meta,
           error: error?.message || String(error),
           stack: error?.stack,
-        },
-        latencyMs: meta.latency || 0,
+        }),
+        latencyMs: meta?.latency || 0,
       },
     });
     console.error(`[${layer}] ${action} ERROR:`, error);
@@ -54,8 +54,8 @@ export async function logSuccess(layer: string, action: string, meta: any = {}) 
         layer,
         action,
         status: "success",
-        meta,
-        latencyMs: meta.latency || 0,
+        meta: meta ? JSON.stringify(meta) : null,
+        latencyMs: meta?.latency || 0,
       },
     });
     console.info(`[${layer}] ${action} SUCCESS`);

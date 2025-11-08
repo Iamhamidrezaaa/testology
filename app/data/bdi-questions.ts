@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const bdiQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "احساس غم و ناراحتی",
     options: [
       "هیچ‌وقت",
@@ -12,7 +16,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "احساس ناامیدی",
     options: [
       "هیچ‌وقت",
@@ -22,7 +25,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "احساس شکست",
     options: [
       "هیچ‌وقت",
@@ -32,7 +34,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "عدم رضایت از زندگی",
     options: [
       "هیچ‌وقت",
@@ -42,7 +43,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "احساس گناه",
     options: [
       "هیچ‌وقت",
@@ -52,7 +52,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "احساس تنبیه شدن",
     options: [
       "هیچ‌وقت",
@@ -62,7 +61,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "نفرت از خود",
     options: [
       "هیچ‌وقت",
@@ -72,7 +70,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "سرزنش خود",
     options: [
       "هیچ‌وقت",
@@ -82,7 +79,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "افکار خودکشی",
     options: [
       "هیچ‌وقت",
@@ -92,7 +88,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "گریه کردن",
     options: [
       "هیچ‌وقت",
@@ -102,7 +97,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 11,
     text: "تحریک‌پذیری",
     options: [
       "هیچ‌وقت",
@@ -112,7 +106,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 12,
     text: "کاهش علاقه به دیگران",
     options: [
       "هیچ‌وقت",
@@ -122,7 +115,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 13,
     text: "مشکل در تصمیم‌گیری",
     options: [
       "هیچ‌وقت",
@@ -132,7 +124,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 14,
     text: "احساس زشتی",
     options: [
       "هیچ‌وقت",
@@ -142,7 +133,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 15,
     text: "مشکل در کار",
     options: [
       "هیچ‌وقت",
@@ -152,7 +142,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 16,
     text: "مشکل در خواب",
     options: [
       "هیچ‌وقت",
@@ -162,7 +151,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 17,
     text: "خستگی",
     options: [
       "هیچ‌وقت",
@@ -172,7 +160,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 18,
     text: "کاهش اشتها",
     options: [
       "هیچ‌وقت",
@@ -182,7 +169,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 19,
     text: "کاهش وزن",
     options: [
       "هیچ‌وقت",
@@ -192,7 +178,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 20,
     text: "نگرانی در مورد سلامتی",
     options: [
       "هیچ‌وقت",
@@ -202,7 +187,6 @@ export const bdiQuestions: Question[] = [
     ]
   },
   {
-    id: 21,
     text: "کاهش علاقه جنسی",
     options: [
       "هیچ‌وقت",
@@ -212,6 +196,15 @@ export const bdiQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const bdiQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'bdi',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const bdiOptions = [
   { label: "هیچ‌وقت", value: "0" },

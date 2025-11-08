@@ -13,17 +13,17 @@ export async function GET() {
     const userId = session.user.id
 
     // دریافت نوتیفیکیشن‌های کاربر
-    const notifications = await prisma.smartNotification.findMany({
+    const notifications = await prisma.notification.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
       take: 50 // آخرین ۵۰ نوتیفیکیشن
     })
 
     // شمارش نوتیفیکیشن‌های خوانده نشده
-    const unreadCount = await prisma.smartNotification.count({
+    const unreadCount = await prisma.notification.count({
       where: { 
         userId,
-        seen: false 
+        read: false 
       }
     })
 
@@ -49,13 +49,13 @@ export async function PUT() {
     const userId = session.user.id
 
     // علامت‌گذاری تمام نوتیفیکیشن‌ها به عنوان خوانده شده
-    await prisma.smartNotification.updateMany({
+    await prisma.notification.updateMany({
       where: { 
         userId,
-        seen: false 
+        read: false 
       },
       data: { 
-        seen: true 
+        read: true 
       }
     })
 

@@ -79,7 +79,7 @@ export default function BlogManager() {
   const filteredPosts = posts.filter(post =>
     post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     post.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.tags.some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+    (post.tags || []).some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
   )
 
   return (
@@ -128,7 +128,7 @@ export default function BlogManager() {
                     {post.slug} • {new Date(post.createdAt).toLocaleDateString('fa-IR')}
                   </p>
                   <div className="flex gap-2 mt-2">
-                    {post.tags.map((tag: string) => (
+                    {(post.tags || []).map((tag: string) => (
                       <span key={tag} className="px-2 py-1 bg-gray-100 rounded-full text-xs">
                         {tag}
                       </span>

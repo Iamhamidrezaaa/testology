@@ -29,7 +29,7 @@ export default function ReportsPage() {
     const role = localStorage.getItem("testology_role");
     const email = localStorage.getItem("testology_email");
     
-    if (!role || role !== "admin") {
+    if (!role || role !== "ADMIN") {
       console.error("Unauthorized access to reports");
       setLoading(false);
       return;

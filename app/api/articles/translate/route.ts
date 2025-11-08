@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import OpenAI from 'openai';
+import prisma from '@/lib/prisma';
+import { getOpenAIClient } from '@/lib/openai-client';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
 
 const languageNames: Record<string, string> = {
   en: 'English',
@@ -25,7 +22,7 @@ export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
-    if (!session?.user?.id || session.user.role !== 'admin') {
+    if (!session?.user?.id || session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
@@ -39,7 +36,7 @@ export async function POST(req: NextRequest) {
     }
 
     // دریافت مقاله
-    const article = await prisma.blogPost.findUnique({
+    const article = await prisma.blog.findUnique({
       where: { id: articleId }
     });
 
@@ -65,6 +62,11 @@ ${article.content}
 
 Provide the translation in the same format (Title first, then content):`;
 
+      const openai = getOpenAIClient();
+      if (!openai) {
+        return NextResponse.json({ success: false, error: "OpenAI API key is not configured" }, { status: 500 });
+      }
+
       const completion = await openai.chat.completions.create({
         model: 'gpt-4',
         messages: [
@@ -88,24 +90,22 @@ Provide the translation in the same format (Title first, then content):`;
     }
 
     // ذخیره در دیتابیس
+    const key = `article_${articleId}`;
     const translation = await prisma.translation.upsert({
       where: {
-        type_referenceId_language: {
-          type: 'article',
-          referenceId: articleId,
-          language
+        key_lang: {
+          key,
+          lang: language
         }
       },
       update: {
-        content: translationText,
+        text: translationText,
         updatedAt: new Date()
       },
       create: {
-        type: 'article',
-        referenceId: articleId,
-        language,
-        content: translationText,
-        translated: mode === 'auto'
+        key,
+        lang: language,
+        text: translationText
       }
     });
 
@@ -113,8 +113,8 @@ Provide the translation in the same format (Title first, then content):`;
       success: true,
       translation: {
         id: translation.id,
-        language: translation.language,
-        content: translation.content,
+        language: translation.lang,
+        content: translation.text,
         updatedAt: translation.updatedAt
       }
     });
@@ -144,16 +144,16 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    const key = `article_${articleId}`;
     const translations = await prisma.translation.findMany({
       where: {
-        type: 'article',
-        referenceId: articleId
+        key
       }
     });
 
     const translationsMap: Record<string, string> = {};
     translations.forEach(t => {
-      translationsMap[t.language] = t.content;
+      translationsMap[t.lang] = t.text;
     });
 
     return NextResponse.json(translationsMap);

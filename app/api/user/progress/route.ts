@@ -25,7 +25,7 @@ export async function GET() {
           xp: 0,
           level: 1,
           totalTests: 0,
-          achievements: ['شروع کنید! 🚀'],
+          achievements: JSON.stringify(['شروع کنید! 🚀']),
           streakDays: 0
         }
       })

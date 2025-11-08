@@ -16,8 +16,8 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url);
-    const days = parseInt(searchParams.get('days') || '7');
-    const userId = session.user.id;
+    const days = parseInt(searchParams?.get('days') || '7');
+    const userId = session?.user?.id;
 
     // محاسبه تاریخ شروع
     const startDate = new Date();
@@ -30,13 +30,12 @@ export async function GET(req: NextRequest) {
         createdAt: { gte: startDate }
       },
       orderBy: { createdAt: 'asc' },
-      include: {
-        message: {
-          select: {
-            content: true,
-            createdAt: true
-          }
-        }
+      select: {
+        id: true,
+        userId: true,
+        mood: true,
+        sentiment: true,
+        createdAt: true
       }
     });
 
@@ -81,10 +80,11 @@ export async function GET(req: NextRequest) {
 
     // آمار کلی
     const totalMoods = moods.length;
-    const sentimentCounts = moods.reduce((acc: any, mood) => {
-      acc[mood.sentiment] = (acc[mood.sentiment] || 0) + 1;
+    const sentimentCounts = moods.reduce((acc: Record<string, number>, mood: any) => {
+      const sentiment = mood.sentiment || 'neutral';
+      acc[sentiment] = (acc[sentiment] || 0) + 1;
       return acc;
-    }, {});
+    }, {} as Record<string, number>);
 
     // محاسبه trend (آیا احساسات بهتر شده یا بدتر)
     let trend = 'stable';
@@ -92,8 +92,8 @@ export async function GET(req: NextRequest) {
       const firstWeek = chartData.slice(0, Math.ceil(chartData.length / 2));
       const secondWeek = chartData.slice(Math.ceil(chartData.length / 2));
       
-      const firstAvg = firstWeek.reduce((sum, day) => sum + day.score, 0) / firstWeek.length;
-      const secondAvg = secondWeek.reduce((sum, day) => sum + day.score, 0) / secondWeek.length;
+      const firstAvg = firstWeek.reduce((sum: any, day: any) => sum + day.score, 0) / firstWeek.length;
+      const secondAvg = secondWeek.reduce((sum: any, day: any) => sum + day.score, 0) / secondWeek.length;
       
       if (secondAvg > firstAvg + 0.5) trend = 'improving';
       else if (secondAvg < firstAvg - 0.5) trend = 'declining';
@@ -108,7 +108,7 @@ export async function GET(req: NextRequest) {
           sentimentCounts,
           trend,
           averageScore: chartData.length > 0 
-            ? Math.round((chartData.reduce((sum, day) => sum + day.score, 0) / chartData.length) * 10) / 10
+            ? Math.round((chartData.reduce((sum: any, day: any) => sum + day.score, 0) / chartData.length) * 10) / 10
             : 0
         }
       }

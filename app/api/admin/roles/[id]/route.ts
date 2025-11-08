@@ -14,7 +14,7 @@ export async function GET(
     }
 
     // فقط ادمین مجاز است
-    if (session.user.role !== 'admin') {
+    if (session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -56,7 +56,7 @@ export async function PUT(
     }
 
     // فقط ادمین مجاز است
-    if (session.user.role !== 'admin') {
+    if (session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -107,7 +107,7 @@ export async function DELETE(
     }
 
     // فقط ادمین مجاز است
-    if (session.user.role !== 'admin') {
+    if (session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

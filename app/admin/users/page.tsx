@@ -19,6 +19,9 @@ interface User {
   testCount: number
   lastTestDate?: string
   isActive: boolean
+  country?: string
+  province?: string
+  averageScore?: number
 }
 
 export default function UsersPage() {
@@ -152,18 +155,16 @@ export default function UsersPage() {
         const data = await response.json()
         if (data.success && data.data) {
           // تبدیل فرمت داده از API به فرمت مورد نیاز کامپوننت
-          const newUserFormatted = {
+          const newUserFormatted: User = {
             id: data.data.id,
             name: data.data.name,
             email: data.data.email,
             phone: data.data.phone,
+            role: data.data.role || newUser.role,
             createdAt: data.data.createdAt,
             testCount: 0,
-            lastTestDate: null,
-            isActive: true,
-            averageScore: 0,
-            country: null,
-            province: null
+            lastTestDate: undefined,
+            isActive: true
           }
           setUsers([...users, newUserFormatted])
           setNewUser({ name: '', email: '', phone: '', role: 'USER' })

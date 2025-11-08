@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import OpenAI from "openai";
+import prisma from "@/lib/prisma";
+import { getOpenAIClient } from '@/lib/openai-client';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function POST(req: Request) {
   try {
@@ -35,6 +34,11 @@ Return JSON:
 Report to review:
 ${report.summary}
 `;
+
+    const openai = getOpenAIClient();
+    if (!openai) {
+      return NextResponse.json({ success: false, error: "OpenAI API key is not configured" }, { status: 500 });
+    }
 
     const gptRes = await openai.chat.completions.create({
       model: "gpt-4o-mini",

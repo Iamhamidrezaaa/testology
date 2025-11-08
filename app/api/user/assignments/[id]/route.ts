@@ -14,7 +14,7 @@ export async function PUT(
     }
 
     const { id } = params
-    const { status, userNotes } = await req.json()
+    const { status } = await req.json()
 
     // بررسی اینکه تمرین متعلق به کاربر است
     const assignment = await prisma.therapistAssignment.findFirst({
@@ -32,35 +32,41 @@ export async function PUT(
     const updatedAssignment = await prisma.therapistAssignment.update({
       where: { id },
       data: {
-        ...(status !== undefined && { status }),
-        ...(userNotes !== undefined && { userNotes })
-      },
-      include: {
-        content: {
-          select: {
-            id: true,
-            title: true,
-            description: true,
-            type: true,
-            category: true,
-            difficulty: true,
-            duration: true,
-            imageUrl: true
-          }
-        },
-        therapist: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                email: true
-              }
-            }
-          }
-        }
+        ...(status !== undefined && { status })
       }
     })
+    
+    // دریافت محتوای تمرین
+    const content = await prisma.marketplaceItem.findUnique({
+      where: { id: assignment.contentId },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        type: true,
+        category: true,
+        difficulty: true,
+        duration: true,
+        imageUrl: true
+      }
+    })
+    
+    // دریافت اطلاعات درمانگر
+    const therapist = await prisma.therapist.findUnique({
+      where: { id: assignment.therapistId },
+      select: {
+        userId: true
+      }
+    })
+    
+    const therapistUser = therapist ? await prisma.user.findUnique({
+      where: { id: therapist.userId },
+      select: {
+        id: true,
+        name: true,
+        email: true
+      }
+    }) : null
 
     // اهدای XP بر اساس وضعیت
     if (status === 'completed' && assignment.status !== 'completed') {
@@ -79,11 +85,11 @@ export async function PUT(
       }
 
       // نوتیفیکیشن تکمیل تمرین
-      await prisma.smartNotification.create({
+      await prisma.notification.create({
         data: {
           userId: session.user.id,
           title: '🎉 تمرین تکمیل شد!',
-          message: `تمرین "${updatedAssignment.content.title}" با موفقیت تکمیل شد.`,
+          message: `تمرین "${content?.title || 'تمرین'}" با موفقیت تکمیل شد.`,
           type: 'achievement',
           priority: 'normal',
           actionUrl: '/profile/assignments'
@@ -91,21 +97,23 @@ export async function PUT(
       })
 
       // نوتیفیکیشن برای درمانگر
-      await prisma.smartNotification.create({
-        data: {
-          userId: assignment.therapistId,
-          title: '✅ تمرین تکمیل شد',
-          message: `بیمار شما تمرین "${updatedAssignment.content.title}" را تکمیل کرد.`,
-          type: 'assignment_completed',
-          priority: 'normal',
-          actionUrl: '/therapist/assignments'
-        }
-      })
+      if (therapistUser) {
+        await prisma.notification.create({
+          data: {
+            userId: therapistUser.id,
+            title: '✅ تمرین تکمیل شد',
+            message: `بیمار شما تمرین "${content?.title || 'تمرین'}" را تکمیل کرد.`,
+            type: 'assignment_completed',
+            priority: 'normal',
+            actionUrl: '/therapist/assignments'
+          }
+        })
+      }
     }
 
     return NextResponse.json({
       success: true,
-      assignment: updatedAssignment
+      assignment: { ...updatedAssignment, content, therapist: therapistUser ? { user: therapistUser } : null }
     })
 
   } catch (error) {
@@ -113,19 +121,3 @@ export async function PUT(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

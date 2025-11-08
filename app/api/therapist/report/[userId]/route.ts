@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 /**
  * گزارش ترکیبی تست‌های بیمار برای درمانگر
@@ -19,7 +19,7 @@ export async function GET(
     }
 
     // بررسی نقش درمانگر
-    if (session.user.role !== 'therapist' && session.user.role !== 'admin') {
+    if (session.user.role !== 'THERAPIST' && session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Forbidden - Therapist access required' }, 
         { status: 403 }
@@ -52,14 +52,14 @@ export async function GET(
     // گروه‌بندی بر اساس نوع تست
     const testsByType: Record<string, any[]> = {};
     results.forEach(result => {
-      if (!testsByType[result.testSlug]) {
-        testsByType[result.testSlug] = [];
+      const key = result.testId || result.testName || 'unknown';
+      if (!testsByType[key]) {
+        testsByType[key] = [];
       }
-      testsByType[result.testSlug].push({
+      testsByType[key].push({
         id: result.id,
         testName: result.testName,
         score: result.score,
-        severity: result.severity,
         date: result.createdAt
       });
     });
@@ -73,9 +73,10 @@ export async function GET(
 
     Object.entries(testsByType).forEach(([slug, tests]) => {
       const latestTest = tests[0];
-      if (latestTest.severity === 'شدید' || latestTest.severity === 'severe') {
+      // استفاده از score برای تعیین سطح خطر (فرض: score پایین = خطر بالا)
+      if (latestTest.score !== null && latestTest.score < 40) {
         concerns.push(`${latestTest.testName}: نیاز به توجه ویژه`);
-      } else if (latestTest.severity === 'عادی' || latestTest.severity === 'low') {
+      } else if (latestTest.score !== null && latestTest.score >= 70) {
         strengths.push(`${latestTest.testName}: وضعیت خوب`);
       }
     });

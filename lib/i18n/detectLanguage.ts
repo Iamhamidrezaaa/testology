@@ -1,3 +1,4 @@
+// @ts-ignore
 import parser from "accept-language-parser";
 
 const fallbackLang = "en";
@@ -144,6 +145,8 @@ export function detectLanguageAdvanced(req: Request): string {
     return fallbackLang;
   }
 }
+
+
 
 
 

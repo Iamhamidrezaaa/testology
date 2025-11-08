@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { calculateLevel, getXPForTest, checkAchievements } from '@/lib/services/leveling';
 
 /**
@@ -54,20 +54,14 @@ export async function POST(req: NextRequest) {
     });
 
     // فیلتر کردن دستاوردهایی که قبلاً کسب نشده‌اند
-    const existingAchievements = Array.isArray(userProgress.achievements) 
-      ? userProgress.achievements 
-      : (userProgress.achievements as any) || [];
-    const achievementsToAdd = newAchievements.filter(
-      a => !existingAchievements.includes(a)
-    );
+    // توجه: achievements در schema وجود ندارد، پس فقط برای نمایش استفاده می‌شود
+    const achievementsToAdd = newAchievements;
 
-    // به‌روزرسانی سطح و دستاوردها
-    const allAchievements = [...existingAchievements, ...achievementsToAdd];
+    // به‌روزرسانی سطح
     const updatedProgress = await prisma.userProgress.update({
       where: { userId: session.user.id },
       data: { 
-        level: newLevel,
-        achievements: allAchievements
+        level: newLevel
       },
     });
 
@@ -77,9 +71,7 @@ export async function POST(req: NextRequest) {
         data: {
           userId: session.user.id,
           title: '🎉 تبریک! سطح جدید',
-          message: `شما به سطح ${newLevel} رسیدید!`,
-          type: 'level_up',
-          actionUrl: '/dashboard'
+          message: `شما به سطح ${newLevel} رسیدید!`
         }
       });
     }
@@ -90,9 +82,7 @@ export async function POST(req: NextRequest) {
         data: {
           userId: session.user.id,
           title: '🏆 دستاورد جدید!',
-          message: `دستاورد "${achievement}" را کسب کردید`,
-          type: 'achievement',
-          actionUrl: '/profile'
+          message: `دستاورد "${achievement}" را کسب کردید`
         }
       });
     }

@@ -87,13 +87,13 @@ export async function POST(req: NextRequest) {
         week,
         year,
         mood: mood || null,
-        tags: parsedTags,
+        tags: parsedTags ? JSON.stringify(parsedTags) : null,
         isPrivate: true
       }
     })
 
     // ایجاد نوتیفیکیشن برای ضبط ویدئو
-    await prisma.smartNotification.create({
+    await prisma.notification.create({
       data: {
         userId: session.user.id,
         title: '🎥 ویدئو ضبط شد!',

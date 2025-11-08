@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
-import geoip from "geoip-lite";
+
+export const dynamic = "force-dynamic"; // جلوگیری از SSG
+export const revalidate = 0;
+export const runtime = "nodejs"; // مطمئن شو روی Node اجرا میشه، نه Edge
 
 /**
  * مسیر سروری برای دریافت کشور کاربر بر اساس IP
@@ -7,29 +10,24 @@ import geoip from "geoip-lite";
  */
 export async function GET(req: Request) {
   try {
+    // Lazy import برای جلوگیری از خواندن فایل .dat در زمان build
+    const geoip = (await import("geoip-lite")).default;
+
+    // IP واقعی را از هدر پراکسی/کدی به دست میاریم، fallback برای تست:
     const ip =
       req.headers.get("x-real-ip") ||
-      req.headers.get("x-forwarded-for")?.split(",")[0] ||
-      "8.8.8.8"; // پیش‌فرض برای تست
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      "8.8.8.8";
 
-    const geo = geoip.lookup(ip);
+    const info = geoip.lookup(ip);
 
     return NextResponse.json(
-      geo || {
-        country: "Unknown",
-        region: "Unknown",
-        city: "Unknown",
-      }
+      info ?? { country: "Unknown", region: "Unknown", city: "Unknown" }
     );
-  } catch (error) {
-    console.error('GeoIP error:', error);
+  } catch (err) {
+    console.error("geoip error:", err);
     return NextResponse.json(
-      {
-        country: "Unknown",
-        region: "Unknown", 
-        city: "Unknown",
-        error: "Failed to detect location"
-      },
+      { error: "geoip failed" },
       { status: 500 }
     );
   }

@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const teamworkQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "من در کار تیمی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -13,7 +17,6 @@ export const teamworkQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "من در همکاری با دیگران مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -24,7 +27,6 @@ export const teamworkQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "من در ارتباطات تیمی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -35,7 +37,6 @@ export const teamworkQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "من در حل تعارض تیمی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -46,7 +47,6 @@ export const teamworkQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "من در رهبری تیمی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -57,7 +57,6 @@ export const teamworkQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "من در پیروی از رهبری تیمی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -68,7 +67,6 @@ export const teamworkQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "من در تقسیم کار تیمی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -79,7 +77,6 @@ export const teamworkQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "من در هماهنگی تیمی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -90,7 +87,6 @@ export const teamworkQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "من در انگیزه‌دهی تیمی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -101,7 +97,6 @@ export const teamworkQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "من در انگیزه‌گیری تیمی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -112,7 +107,6 @@ export const teamworkQuestions: Question[] = [
     ]
   },
   {
-    id: 11,
     text: "من در حل مسائل تیمی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -123,7 +117,6 @@ export const teamworkQuestions: Question[] = [
     ]
   },
   {
-    id: 12,
     text: "من در تصمیم‌گیری تیمی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -134,7 +127,6 @@ export const teamworkQuestions: Question[] = [
     ]
   },
   {
-    id: 13,
     text: "من در برنامه‌ریزی تیمی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -145,7 +137,6 @@ export const teamworkQuestions: Question[] = [
     ]
   },
   {
-    id: 14,
     text: "من در اجرای برنامه‌های تیمی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -156,7 +147,6 @@ export const teamworkQuestions: Question[] = [
     ]
   },
   {
-    id: 15,
     text: "من در نظارت بر عملکرد تیمی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -167,6 +157,15 @@ export const teamworkQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const teamworkQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'teamwork',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const teamworkOptions = [
   { label: "کاملاً مخالفم", value: "1" },

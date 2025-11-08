@@ -83,9 +83,9 @@ export async function POST(req: NextRequest) {
     const analysisData = {
       testResults: testResults.map(result => ({
         testName: result.testName,
-        testSlug: result.testSlug || null, // ممکن است null باشد
+        testId: result.testId || null,
         score: result.score,
-        result: result.result || result.resultText || null, // استفاده از result به جای resultText
+        result: result.result || null,
         analysis: result.analysis || null,
         createdAt: result.createdAt
       })),
@@ -110,33 +110,30 @@ export async function POST(req: NextRequest) {
     const recommendations = generateRecommendations(analysisData)
 
     // ذخیره در دیتابیس (اگر مدل وجود داشته باشد)
-    try {
-      // بررسی وجود مدل MentalHealthProfile
-      if (prisma.mentalHealthProfile) {
-        await prisma.mentalHealthProfile.upsert({
-          where: { userId },
-          update: {
-            combinedReport,
-            chartData: JSON.stringify(chartData),
-            insights: JSON.stringify(analysisData),
-            recommendations,
-            riskLevel,
-            updatedAt: new Date()
-          },
-          create: {
-            userId,
-            combinedReport,
-            chartData: JSON.stringify(chartData),
-            insights: JSON.stringify(analysisData),
-            recommendations,
-            riskLevel
-          }
-        })
-      }
-    } catch (e) {
-      // اگر مدل وجود ندارد، فقط لاگ کن
-      console.log('MentalHealthProfile model not available, skipping database save')
-    }
+    // Note: MentalHealthProfile model is not in schema, so this is skipped
+    // try {
+    //   await prisma.mentalHealthProfile.upsert({
+    //     where: { userId },
+    //     update: {
+    //       combinedReport,
+    //       chartData: JSON.stringify(chartData),
+    //       insights: JSON.stringify(analysisData),
+    //       recommendations,
+    //       riskLevel,
+    //       updatedAt: new Date()
+    //     },
+    //     create: {
+    //       userId,
+    //       combinedReport,
+    //       chartData: JSON.stringify(chartData),
+    //       insights: JSON.stringify(analysisData),
+    //       recommendations,
+    //       riskLevel
+    //     }
+    //   })
+    // } catch (e) {
+    //   console.log('MentalHealthProfile model not available, skipping database save')
+    // }
 
     return NextResponse.json({
       success: true,
@@ -172,7 +169,7 @@ async function generateCombinedAnalysis(data: any): Promise<string> {
   // تحلیل تست‌ها
   analysis += "### نتایج تست‌های انجام شده:\n"
   testResults.forEach((test: any, index: number) => {
-    const resultText = test.result || test.resultText || `نمره: ${test.score}`
+    const resultText = test.result || `نمره: ${test.score}`
     analysis += `${index + 1}. **${test.testName}**: ${resultText}\n`
   })
   
@@ -194,7 +191,7 @@ async function generateCombinedAnalysis(data: any): Promise<string> {
   analysis += "بر اساس نتایج تست‌ها و ثبت احساسات شما، وضعیت روان‌شناختی شما نشان‌دهنده موارد زیر است:\n\n"
   
   // تحلیل بر اساس نوع تست‌ها
-  const testTypes = testResults.map((t: any) => t.testSlug || t.testName?.toLowerCase() || '')
+  const testTypes = testResults.map((t: any) => t.testId || t.testName?.toLowerCase() || '')
   if (testTypes.some((t: string) => t.includes('rosenberg') || t.includes('عزت نفس'))) {
     analysis += "• عزت نفس شما در سطح مناسبی قرار دارد\n"
   }
@@ -215,7 +212,13 @@ async function generateCombinedAnalysis(data: any): Promise<string> {
 }
 
 function generateChartData(testResults: any[], moodEntries: any[]) {
-  const chartData = []
+  const chartData: Array<{
+    date: string;
+    tests: number;
+    averageScore: number;
+    mood: string | null;
+    moodValue: number;
+  }> = []
   
   // ترکیب داده‌های تست و احساسات
   const allDates = new Set([
@@ -273,7 +276,7 @@ function generateRecommendations(data: any): string {
   let recommendations = "### پیشنهادات شخصی‌سازی شده:\n\n"
   
   // بر اساس نوع تست‌ها
-  const testTypes = testResults.map((t: any) => t.testSlug || t.testName?.toLowerCase() || '')
+  const testTypes = testResults.map((t: any) => t.testId || t.testName?.toLowerCase() || '')
   
   if (testTypes.some((t: string) => t.includes('rosenberg') || t.includes('عزت نفس'))) {
     recommendations += "• تمرینات تقویت عزت نفس\n"

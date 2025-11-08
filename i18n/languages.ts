@@ -90,7 +90,7 @@ export type LanguageCode = keyof typeof languages;
 export const getEnabledLanguages = () => {
   return Object.entries(languages)
     .filter(([_, lang]) => lang.enabled)
-    .map(([code, lang]) => ({ code, ...lang }));
+    .map(([code, lang]) => ({ ...lang, code }));
 };
 
 /**

@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import OpenAI from 'openai'
+import { getOpenAIClient } from '@/lib/openai-client';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,8 +25,8 @@ export async function POST(req: NextRequest) {
 اطلاعات تست کاربر:
 - نام تست: ${testResult.testName}
 - امتیاز: ${testResult.score || 'نامشخص'}
-- نوع تست: ${testResult.testSlug}
-- تحلیل: ${testResult.resultText || 'تحلیل در دسترس نیست'}
+- نوع تست: ${testResult.testId || 'unknown'}
+- تحلیل: ${testResult.result || testResult.analysis || 'تحلیل در دسترس نیست'}
 
 ${combinedAnalysis ? `تحلیل ترکیبی: ${combinedAnalysis}` : ''}
 
@@ -41,6 +38,11 @@ ${combinedAnalysis ? `تحلیل ترکیبی: ${combinedAnalysis}` : ''}
 5. به زبان فارسی و با لحن دوستانه پاسخ دهید
 6. راهکارهای عملی ارائه دهید
 `
+
+    const openai = getOpenAIClient();
+    if (!openai) {
+      return NextResponse.json({ success: false, error: "OpenAI API key is not configured" }, { status: 500 });
+    }
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',

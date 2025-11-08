@@ -1,9 +1,5 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
-
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY 
-});
+import { getOpenAIClient } from "@/lib/openai-client";
 
 export async function POST(req: Request) {
   try {
@@ -55,6 +51,15 @@ Respond in JSON format:
 }
 `;
 
+    const openai = getOpenAIClient();
+    if (!openai) {
+      return NextResponse.json({ 
+        success: false,
+        error: "OpenAI API key is not configured",
+        message: "کلید API OpenAI تنظیم نشده است"
+      }, { status: 500 });
+    }
+
     const clinicalRes = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: clinicalPrompt }],
@@ -64,7 +69,11 @@ Respond in JSON format:
 
     let clinicalValidation;
     try {
-      clinicalValidation = JSON.parse(clinicalRes.choices[0].message.content);
+      const content = clinicalRes.choices[0]?.message?.content;
+      if (!content) {
+        throw new Error("Empty response from OpenAI");
+      }
+      clinicalValidation = JSON.parse(content);
     } catch (error) {
       console.error("خطا در پارس اعتبارسنجی بالینی:", error);
       clinicalValidation = {
@@ -97,6 +106,16 @@ Respond in JSON format:
     }, { status: 500 });
   }
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

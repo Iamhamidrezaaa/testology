@@ -14,7 +14,7 @@ export async function isAdmin() {
     // اطمینان حاصل می‌کنیم که نقش کاربر در دیتابیس admin است
     await prisma.user.update({
       where: { email: session.user.email },
-      data: { role: 'admin' }
+      data: { role: 'ADMIN' }
     });
     return true;
   }
@@ -25,5 +25,5 @@ export async function isAdmin() {
     select: { role: true }
   });
 
-  return user?.role === 'admin';
+  return user?.role === 'ADMIN';
 } 

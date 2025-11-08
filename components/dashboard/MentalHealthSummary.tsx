@@ -19,23 +19,23 @@ interface MentalHealthSummaryProps {
 export function MentalHealthSummary({ tests, moodHistory }: MentalHealthSummaryProps) {
   // محاسبه آمار کلی
   const totalTests = tests.length
-  const completedTests = tests.filter(test => test.completed).length
+  const completedTests = tests.filter((test: any) => test.completed).length
   const averageScore = tests
-    .filter(test => test.score !== null)
-    .reduce((sum, test) => sum + (test.score || 0), 0) / tests.filter(test => test.score !== null).length
+    .filter((test: any) => test.score !== null)
+    .reduce((sum: any, test: any) => sum + (test.score || 0), 0) / tests.filter((test: any) => test.score !== null).length
 
   const latestMood = moodHistory?.[0]
   const averageMoodScore = moodHistory.length > 0 
-    ? moodHistory.reduce((sum, mood) => sum + mood.moodScore, 0) / moodHistory.length 
+    ? moodHistory.reduce((sum: any, mood: any) => sum + mood.moodScore, 0) / moodHistory.length 
     : 0
 
   // دسته‌بندی تست‌ها بر اساس نوع
   const testCategories = {
-    anxiety: tests.filter(test => ['gad7', 'hads'].includes(test.testSlug)),
-    depression: tests.filter(test => ['phq9', 'hads'].includes(test.testSlug)),
-    selfEsteem: tests.filter(test => ['rosenberg', 'rsei'].includes(test.testSlug)),
-    lifeSatisfaction: tests.filter(test => ['swls'].includes(test.testSlug)),
-    stress: tests.filter(test => ['pss'].includes(test.testSlug))
+    anxiety: tests.filter((test: any) => test.testSlug && ['gad7', 'hads'].includes(test.testSlug)),
+    depression: tests.filter((test: any) => test.testSlug && ['phq9', 'hads'].includes(test.testSlug)),
+    selfEsteem: tests.filter((test: any) => test.testSlug && ['rosenberg', 'rsei'].includes(test.testSlug)),
+    lifeSatisfaction: tests.filter((test: any) => test.testSlug && ['swls'].includes(test.testSlug)),
+    stress: tests.filter((test: any) => test.testSlug && ['pss'].includes(test.testSlug))
   }
 
   // محاسبه وضعیت کلی هر دسته
@@ -43,12 +43,12 @@ export function MentalHealthSummary({ tests, moodHistory }: MentalHealthSummaryP
     if (categoryTests.length === 0) return { status: 'unknown', label: 'نامشخص', color: 'bg-gray-100 text-gray-600' }
     
     const avgScore = categoryTests
-      .filter(test => test.score !== null)
-      .reduce((sum, test) => sum + (test.score || 0), 0) / categoryTests.filter(test => test.score !== null).length
+      .filter((test: any) => test.score !== null)
+      .reduce((sum: any, test: any) => sum + (test.score || 0), 0) / categoryTests.filter((test: any) => test.score !== null).length
 
     const testSlug = categoryTests[0].testSlug
     
-    if (['gad7', 'phq9', 'pss'].includes(testSlug)) {
+    if (testSlug && ['gad7', 'phq9', 'pss'].includes(testSlug)) {
       // برای تست‌های منفی (هرچه کمتر بهتر)
       if (avgScore <= 4) return { status: 'excellent', label: 'عالی', color: 'bg-green-100 text-green-800' }
       if (avgScore <= 9) return { status: 'good', label: 'خوب', color: 'bg-yellow-100 text-yellow-800' }

@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
 
     // Check if user is admin
     const role = session.user.role;
-    if (role !== 'ADMIN' && role !== 'admin' && session.user.email !== 'h.asgarizade@gmail.com') {
+    if (role !== 'ADMIN' && session.user.email !== 'h.asgarizade@gmail.com') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
     */
@@ -26,7 +26,15 @@ export async function GET(req: NextRequest) {
     // Get all tests from database using Prisma ORM
     const tests = await prisma.test.findMany({
       where: { deletedAt: null },
-      include: {
+      select: {
+        id: true,
+        testSlug: true,
+        testName: true,
+        description: true,
+        category: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
         questions: {
           include: {
             options: true
@@ -35,7 +43,7 @@ export async function GET(req: NextRequest) {
         userTests: true
       },
       orderBy: { createdAt: 'desc' }
-    })
+    }).catch(() => [])
 
     // Transform the result
     const transformedTests = tests.map(test => ({

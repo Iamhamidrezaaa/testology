@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import OpenAI from "openai";
+import prisma from "@/lib/prisma";
+import { getOpenAIClient } from '@/lib/openai-client';
 
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY 
-});
 
 export async function POST() {
   try {
@@ -27,7 +24,7 @@ export async function POST() {
 
     // آماده‌سازی داده برای تحلیل
     const content = tests.map(
-      (t) => `${t.testName}: score=${t.score} (summary=${t.summary || ""})`
+      (t) => `${t.testName}: score=${t.score} (result=${t.result || ""}, analysis=${t.analysis || ""})`
     );
 
     const prompt = `
@@ -61,6 +58,11 @@ Focus on clinically significant patterns that can inform test recommendations.
 
     console.log("🤖 ارسال به GPT برای تحلیل الگوهای رفتاری...");
 
+    const openai = getOpenAIClient();
+    if (!openai) {
+      return NextResponse.json({ success: false, error: "OpenAI API key is not configured" }, { status: 500 });
+    }
+
     const gptRes = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: prompt }],
@@ -68,7 +70,7 @@ Focus on clinically significant patterns that can inform test recommendations.
       max_tokens: 1500,
     });
 
-    const output = gptRes.choices[0].message.content;
+    const output = gptRes.choices[0]?.message?.content;
     
     if (!output) {
       throw new Error("GPT response is empty");

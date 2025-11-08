@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
         energy: energy || null,
         stress: stress || null,
         note: note || null,
-        activities: parsedActivities,
+        activities: parsedActivities ? JSON.stringify(parsedActivities) : null,
         weather: weather || null,
         social: social || null,
         exercise: exercise || false,
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
         energy: energy || null,
         stress: stress || null,
         note: note || null,
-        activities: parsedActivities,
+        activities: parsedActivities ? JSON.stringify(parsedActivities) : null,
         weather: weather || null,
         social: social || null,
         exercise: exercise || false,
@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ایجاد نوتیفیکیشن
-    await prisma.smartNotification.create({
+    await prisma.notification.create({
       data: {
         userId: session.user.id,
         title: '📅 ثبت احساس روزانه',

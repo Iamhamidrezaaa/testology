@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 
 export async function GET(req: NextRequest) {
   try {
@@ -13,11 +13,7 @@ export async function GET(req: NextRequest) {
     const blog = await prisma.blog.findUnique({
       where: { id: blogId },
       select: {
-        views: true,
-        likes: true,
-        comments: {
-          select: { id: true }
-        }
+        viewCount: true
       }
     })
 
@@ -28,9 +24,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       success: true,
       analytics: {
-        views: blog.views,
-        likes: blog.likes,
-        comments: blog.comments.length
+        views: blog.viewCount,
+        likes: 0,
+        comments: 0
       }
     })
 
@@ -60,11 +56,11 @@ export async function POST(req: NextRequest) {
 
     switch (action) {
       case 'view':
-        updateData.views = { increment: 1 }
+        updateData.viewCount = { increment: 1 }
         break
       case 'like':
-        updateData.likes = { increment: 1 }
-        break
+        // likes field doesn't exist in schema
+        return NextResponse.json({ error: 'Like action not supported' }, { status: 400 })
       default:
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     }

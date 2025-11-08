@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { prisma } from '@/lib/prisma';
+import { IS_BUILD } from '@/lib/isBuild';
 
 const BASE_URL = 'https://testology.me';
 const LANGS = ['en', 'fa', 'ar', 'fr', 'ru', 'tr', 'es'];
@@ -11,6 +12,19 @@ const LANGS = ['en', 'fa', 'ar', 'fr', 'ru', 'tr', 'es'];
  */
 export async function updateSitemap() {
   try {
+    if (IS_BUILD) {
+      return {
+        success: true,
+        stats: {
+          languages: LANGS.length,
+          articles: 0,
+          tests: 0,
+          exercises: 0,
+          totalUrls: LANGS.length
+        }
+      }
+    }
+
     console.log('🔄 Updating sitemap...');
     
     // دریافت مقالات منتشر شده
@@ -18,21 +32,21 @@ export async function updateSitemap() {
       where: { published: true },
       select: { slug: true, updatedAt: true },
       orderBy: { updatedAt: 'desc' }
-    });
+    }).catch(() => []);
 
     // دریافت تست‌های منتشر شده
     const tests = await prisma.test.findMany({
-      where: { published: true },
-      select: { slug: true, updatedAt: true },
+      where: { isActive: true },
+      select: { id: true, testSlug: true, updatedAt: true },
       orderBy: { updatedAt: 'desc' }
-    });
+    }).catch(() => []);
 
     // دریافت تمرین‌های منتشر شده
     const exercises = await prisma.exercise.findMany({
-      where: { published: true },
-      select: { slug: true, updatedAt: true },
+      where: { isActive: true },
+      select: { id: true, updatedAt: true },
       orderBy: { updatedAt: 'desc' }
-    });
+    }).catch(() => []);
 
     // تولید XML
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -116,7 +130,7 @@ export async function updateSitemap() {
       for (const test of tests) {
         xml += `
   <url>
-    <loc>${BASE_URL}/${lang}/tests/${test.slug}</loc>
+    <loc>${BASE_URL}/${lang}/tests/${test.testSlug}</loc>
     <lastmod>${test.updatedAt.toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>`;
@@ -124,7 +138,7 @@ export async function updateSitemap() {
         // Hreflang برای تست‌ها
         for (const altLang of LANGS) {
           xml += `
-    <xhtml:link rel="alternate" hreflang="${altLang}" href="${BASE_URL}/${altLang}/tests/${test.slug}" />`;
+    <xhtml:link rel="alternate" hreflang="${altLang}" href="${BASE_URL}/${altLang}/tests/${test.testSlug}" />`;
         }
         xml += `
   </url>`;
@@ -134,7 +148,7 @@ export async function updateSitemap() {
       for (const exercise of exercises) {
         xml += `
   <url>
-    <loc>${BASE_URL}/${lang}/exercises/${exercise.slug}</loc>
+    <loc>${BASE_URL}/${lang}/exercises/${exercise.id}</loc>
     <lastmod>${exercise.updatedAt.toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>`;
@@ -142,7 +156,7 @@ export async function updateSitemap() {
         // Hreflang برای تمرین‌ها
         for (const altLang of LANGS) {
           xml += `
-    <xhtml:link rel="alternate" hreflang="${altLang}" href="${BASE_URL}/${altLang}/exercises/${exercise.slug}" />`;
+    <xhtml:link rel="alternate" hreflang="${altLang}" href="${BASE_URL}/${altLang}/exercises/${exercise.id}" />`;
         }
         xml += `
   </url>`;
@@ -169,7 +183,7 @@ export async function updateSitemap() {
         articles: articles.length,
         tests: tests.length,
         exercises: exercises.length,
-        totalUrls: LANGS.length * (1 + staticPages.length + articles.length + tests.length + exercises.length)
+        totalUrls: LANGS.length * (1 + articles.length + tests.length + exercises.length)
       }
     };
 
@@ -177,7 +191,7 @@ export async function updateSitemap() {
     console.error('❌ Sitemap update error:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Sitemap update failed'
+      error: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Sitemap update failed'
     };
   }
 }
@@ -191,17 +205,21 @@ export async function generateLanguageSitemap(lang: string) {
       throw new Error(`Unsupported language: ${lang}`);
     }
 
+    if (IS_BUILD) {
+      return { success: true }
+    }
+
     const articles = await prisma.article.findMany({
       where: { published: true },
       select: { slug: true, updatedAt: true },
       orderBy: { updatedAt: 'desc' }
-    });
+    }).catch(() => []);
 
     const tests = await prisma.test.findMany({
-      where: { published: true },
-      select: { slug: true, updatedAt: true },
+      where: { isActive: true },
+      select: { id: true, testSlug: true, updatedAt: true },
       orderBy: { updatedAt: 'desc' }
-    });
+    }).catch(() => []);
 
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
@@ -232,7 +250,7 @@ export async function generateLanguageSitemap(lang: string) {
     for (const test of tests) {
       xml += `
   <url>
-    <loc>${BASE_URL}/${lang}/tests/${test.slug}</loc>
+    <loc>${BASE_URL}/${lang}/tests/${test.testSlug}</loc>
     <lastmod>${test.updatedAt.toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -251,7 +269,7 @@ export async function generateLanguageSitemap(lang: string) {
 
   } catch (error) {
     console.error(`❌ ${lang} sitemap error:`, error);
-    return { success: false, error: error instanceof Error ? error.message : 'Sitemap generation failed' };
+    return { success: false, error: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Sitemap generation failed' };
   }
 }
 
@@ -274,7 +292,7 @@ export function cleanupOldSitemaps() {
     return { success: true };
   } catch (error) {
     console.error('❌ Cleanup error:', error);
-    return { success: false, error: error instanceof Error ? error.message : 'Cleanup failed' };
+    return { success: false, error: error instanceof Error ? (error instanceof Error ? error.message : String(error)) : 'Cleanup failed' };
   }
 }
 

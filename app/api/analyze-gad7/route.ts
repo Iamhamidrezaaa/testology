@@ -28,12 +28,11 @@ export async function POST(req: NextRequest) {
     await prisma.testResult.create({
       data: {
         userId: user.id,
-        testSlug: "gad7",
+        testId: "gad7",
         testName: "تست اضطراب GAD-7",
         score,
-        resultText,
-        rawAnswers: answers,
-        completed: true
+        result: resultText,
+        answers: JSON.stringify(answers)
       },
     })
 

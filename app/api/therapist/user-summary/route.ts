@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions)
-  if (!session?.user?.id || session.user.role !== 'therapist') {
+  if (!session?.user?.id || session.user.role !== 'THERAPIST') {
     return new Response(JSON.stringify({ error: 'دسترسی غیرمجاز' }), { status: 403 })
   }
 
@@ -33,14 +33,11 @@ export async function GET(request: Request) {
       select: {
         id: true,
         testName: true,
-        testSlug: true,
-        type: true,
+        testId: true,
         score: true,
-        totalScore: true,
         result: true,
-        completed: true,
-        createdAt: true,
-        extraData: true
+        analysis: true,
+        createdAt: true
       }
     })
 
@@ -48,15 +45,13 @@ export async function GET(request: Request) {
     const formattedResults = results.map(test => ({
       id: test.id,
       testName: test.testName,
-      testSlug: test.testSlug,
-      type: test.type,
+      testId: test.testId,
       score: test.score,
-      totalScore: test.totalScore,
       result: test.result,
-      completed: test.completed,
+      analysis: test.analysis,
       completedAt: test.createdAt,
       summary: test.result?.slice(0, 100) + (test.result && test.result.length > 100 ? '...' : ''),
-      label: getTestLabel(test.type, test.score, test.totalScore)
+      label: getTestLabel(test.score)
     }))
 
     return NextResponse.json({ results: formattedResults })
@@ -66,25 +61,13 @@ export async function GET(request: Request) {
   }
 }
 
-function getTestLabel(type: string, score?: number | null, totalScore?: number | null): string {
-  if (!score || !totalScore) return '-'
+function getTestLabel(score?: number | null): string {
+  if (!score) return '-'
   
-  const percentage = (score / totalScore) * 100
-  
-  switch (type) {
-    case 'psychological':
-      if (percentage >= 80) return 'نمره بالا'
-      if (percentage >= 60) return 'نمره متوسط'
-      return 'نمره پایین'
-    case 'personality':
-      if (percentage >= 70) return 'قوی'
-      if (percentage >= 40) return 'متوسط'
-      return 'ضعیف'
-    default:
-      if (percentage >= 70) return 'خوب'
-      if (percentage >= 40) return 'متوسط'
-      return 'نیاز به بهبود'
-  }
+  if (score >= 80) return 'نمره بالا'
+  if (score >= 60) return 'نمره متوسط'
+  if (score >= 40) return 'نمره پایین'
+  return 'نیاز به بهبود'
 }
 
 

@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const isiQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "چقدر مشکل دارید که به خواب بروید؟",
     options: [
       "هیچ مشکل",
@@ -13,7 +17,6 @@ export const isiQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "چقدر مشکل دارید که خواب بمانید؟",
     options: [
       "هیچ مشکل",
@@ -24,7 +27,6 @@ export const isiQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "چقدر مشکل دارید که زود از خواب بیدار می‌شوید؟",
     options: [
       "هیچ مشکل",
@@ -35,7 +37,6 @@ export const isiQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "چقدر از خواب خود راضی هستید؟",
     options: [
       "خیلی راضی",
@@ -46,7 +47,6 @@ export const isiQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "چقدر مشکل خواب بر عملکرد روزانه شما تأثیر می‌گذارد؟",
     options: [
       "هیچ تأثیر",
@@ -57,7 +57,6 @@ export const isiQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "چقدر مشکل خواب بر کیفیت زندگی شما تأثیر می‌گذارد؟",
     options: [
       "هیچ تأثیر",
@@ -68,7 +67,6 @@ export const isiQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "چقدر مشکل خواب بر خلق و خوی شما تأثیر می‌گذارد؟",
     options: [
       "هیچ تأثیر",
@@ -79,6 +77,15 @@ export const isiQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const isiQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'isi',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const isiOptions = [
   { label: "هیچ مشکل", value: 0 },

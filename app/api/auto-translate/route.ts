@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import OpenAI from 'openai';
+import prisma from '@/lib/prisma';
+import { getOpenAIClient } from '@/lib/openai-client';
 import fs from 'fs';
 import path from 'path';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
 
 const targetLanguages = ['en', 'ar', 'fr', 'ru', 'tr', 'es'];
 
@@ -41,18 +38,18 @@ export async function POST(req: NextRequest) {
     for (const targetLang of targetLanguages) {
       try {
         // چک کردن وجود ترجمه قبلی
+        const key = `${type}_${id}`;
         const existing = await prisma.translation.findUnique({
           where: {
-            type_referenceId_language: {
-              type,
-              referenceId: id,
-              language: targetLang
+            key_lang: {
+              key,
+              lang: targetLang
             }
           }
         });
 
         if (existing) {
-          results[targetLang] = existing.content;
+          results[targetLang] = existing.text;
           continue;
         }
 
@@ -65,6 +62,13 @@ Content:
 ${content}
 
 Translation:`;
+
+        const openai = getOpenAIClient();
+        if (!openai) {
+          errors.push(`${targetLang}: OpenAI API key is not configured`);
+          results[targetLang] = content; // Fallback
+          continue;
+        }
 
         const completion = await openai.chat.completions.create({
           model: 'gpt-4',
@@ -88,11 +92,9 @@ Translation:`;
         // ذخیره در دیتابیس
         await prisma.translation.create({
           data: {
-            type,
-            referenceId: id,
-            language: targetLang,
-            content: translated,
-            translated: true
+            key,
+            lang: targetLang,
+            text: translated
           }
         });
 
@@ -153,12 +155,12 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    const key = `${type}_${id}`;
     const translation = await prisma.translation.findUnique({
       where: {
-        type_referenceId_language: {
-          type,
-          referenceId: id,
-          language
+        key_lang: {
+          key,
+          lang: language
         }
       }
     });
@@ -171,7 +173,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({
-      translation: translation.content
+      translation: translation.text
     });
 
   } catch (error) {

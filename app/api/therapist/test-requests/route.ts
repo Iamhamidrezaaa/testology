@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma'
 // POST: ایجاد درخواست تست برای کاربر توسط مشاور
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions)
-  if (!session?.user?.id || session.user.role !== 'therapist') {
+  if (!session?.user?.id || session.user.role !== 'THERAPIST') {
     return new Response(JSON.stringify({ error: 'دسترسی غیرمجاز' }), { status: 403 })
   }
 
@@ -31,17 +31,35 @@ export async function POST(request: Request) {
 // GET: لیست درخواست‌های تست برای کاربران یک مشاور
 export async function GET() {
   const session = await getServerSession(authOptions)
-  if (!session?.user?.id || session.user.role !== 'therapist') {
+  if (!session?.user?.id || session.user.role !== 'THERAPIST') {
     return new Response(JSON.stringify({ error: 'دسترسی غیرمجاز' }), { status: 403 })
   }
 
-  const rows = await prisma.testRequest.findMany({
-    where: { user: { assignedTherapistId: session.user.id } },
-    orderBy: { createdAt: 'desc' },
-    include: { user: { select: { id: true, name: true, email: true } } }
+  // دریافت کاربرانی که به این درمانگر اختصاص دارند
+  const assignedUsers = await prisma.user.findMany({
+    where: { assignedTherapistId: session.user.id },
+    select: { id: true }
   })
+  
+  const userIds = assignedUsers.map(u => u.id)
+  
+  const rows = await prisma.testRequest.findMany({
+    where: { userId: { in: userIds } },
+    orderBy: { createdAt: 'desc' }
+  })
+  
+  // دریافت اطلاعات کاربران
+  const rowsWithUsers = await Promise.all(
+    rows.map(async (row) => {
+      const user = await prisma.user.findUnique({
+        where: { id: row.userId },
+        select: { id: true, name: true, email: true }
+      })
+      return { ...row, user }
+    })
+  )
 
-  return NextResponse.json({ requests: rows })
+  return NextResponse.json({ requests: rowsWithUsers })
 }
 
 

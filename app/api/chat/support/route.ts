@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 const MODEL = "gpt-4o-mini";
 
@@ -10,19 +10,21 @@ export async function POST(req: NextRequest) {
   try {
     const { userId, messages = [] } = await req.json();
 
-    if (Array.isArray(messages)) {
-      await prisma.$transaction(
-        messages.map((m: any) =>
-          prisma.chatHistory.create({
-            data: {
-              userId: userId || null,
+    if (Array.isArray(messages) && messages.length > 0) {
+      // ذخیره همه پیام‌ها در یک رکورد به صورت JSON
+      await prisma.chatHistory.create({
+        data: {
+          userId: userId || null,
+          messages: JSON.stringify({
+            channel: "support",
+            messages: messages.map((m: any) => ({
               role: m.role || "user",
               content: m.content || "",
-              channel: "support",
-            },
+              timestamp: new Date().toISOString()
+            }))
           })
-        )
-      );
+        }
+      });
     }
 
     const r = await fetch(OPENAI_URL, {
@@ -44,9 +46,12 @@ export async function POST(req: NextRequest) {
     await prisma.chatHistory.create({
       data: {
         userId: userId || null,
-        role: "assistant",
-        content: answer,
-        channel: "support",
+        messages: JSON.stringify({
+          channel: "support",
+          role: "assistant",
+          content: answer,
+          timestamp: new Date().toISOString()
+        })
       },
     });
 

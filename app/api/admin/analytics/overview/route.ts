@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function GET(req: NextRequest) {
   try {
     // دریافت آمار کلی
@@ -17,20 +20,20 @@ export async function GET(req: NextRequest) {
       hourlyData,
       weeklyData
     ] = await Promise.all([
-      prisma.userAnalytics.findFirst(),
-      prisma.testAnalytics.findFirst(),
-      prisma.articleAnalytics.findFirst(),
-      prisma.monthlyAnalytics.findMany({ orderBy: { month: 'asc' } }),
-      prisma.categoryAnalytics.findMany(),
+      prisma.userAnalytics.findFirst().catch(() => null),
+      prisma.testAnalytics.findFirst().catch(() => null),
+      prisma.articleAnalytics.findFirst().catch(() => null),
+      prisma.monthlyAnalytics.findMany({ orderBy: { month: 'asc' } }).catch(() => []),
+      prisma.categoryAnalytics.findMany().catch(() => []),
       prisma.dailyAnalytics.findMany({ 
         orderBy: { date: 'desc' },
         take: 30 
-      }),
-      prisma.geoAnalytics.findMany({ orderBy: { users: 'desc' } }),
-      prisma.deviceAnalytics.findMany({ orderBy: { users: 'desc' } }),
-      prisma.browserAnalytics.findMany({ orderBy: { users: 'desc' } }),
-      prisma.hourlyAnalytics.findMany({ orderBy: { hour: 'asc' } }),
-      prisma.weeklyAnalytics.findMany()
+      }).catch(() => []),
+      prisma.geoAnalytics.findMany({ orderBy: { users: 'desc' } }).catch(() => []),
+      prisma.deviceAnalytics.findMany({ orderBy: { users: 'desc' } }).catch(() => []),
+      prisma.browserAnalytics.findMany({ orderBy: { users: 'desc' } }).catch(() => []),
+      prisma.hourlyAnalytics.findMany({ orderBy: { hour: 'asc' } }).catch(() => []),
+      prisma.weeklyAnalytics.findMany().catch(() => [])
     ])
 
     // محاسبه آمار کلی

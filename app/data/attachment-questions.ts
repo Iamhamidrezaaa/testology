@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const attachmentQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "وقتی با کسی صمیمی می‌شوم، نگران می‌شوم که به من آسیب برساند.",
     options: [
       "کاملاً موافقم",
@@ -13,7 +17,6 @@ export const attachmentQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "نزدیک شدن به دیگران برایم سخت است.",
     options: [
       "کاملاً موافقم",
@@ -24,7 +27,6 @@ export const attachmentQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "نگرانم که اگر به کسی نزدیک شوم، مرا رها کند.",
     options: [
       "کاملاً موافقم",
@@ -35,7 +37,6 @@ export const attachmentQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "دیگران اغلب از من انتظار دارند که بیشتر از آنچه راحت هستم، به آنها نزدیک شوم.",
     options: [
       "کاملاً موافقم",
@@ -46,7 +47,6 @@ export const attachmentQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "در روابطم، اغلب نگرانم که طرف مقابل واقعاً مرا دوست نداشته باشد.",
     options: [
       "کاملاً موافقم",
@@ -57,7 +57,6 @@ export const attachmentQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "وقتی کسی به من نزدیک می‌شود، احساس ناراحتی می‌کنم.",
     options: [
       "کاملاً موافقم",
@@ -68,7 +67,6 @@ export const attachmentQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "نگرانم که اگر به کسی اعتماد کنم، از اعتمادم سوءاستفاده کند.",
     options: [
       "کاملاً موافقم",
@@ -79,7 +77,6 @@ export const attachmentQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "در روابطم، اغلب احساس می‌کنم که طرف مقابل می‌خواهد از من دور شود.",
     options: [
       "کاملاً موافقم",
@@ -90,7 +87,6 @@ export const attachmentQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "ترجیح می‌دهم به کسی وابسته نباشم.",
     options: [
       "کاملاً موافقم",
@@ -101,7 +97,6 @@ export const attachmentQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "وقتی کسی به من نزدیک می‌شود، احساس می‌کنم که می‌خواهد چیزی از من بگیرد.",
     options: [
       "کاملاً موافقم",
@@ -112,6 +107,15 @@ export const attachmentQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const attachmentQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'attachment',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const attachmentOptions = [
   { label: "کاملاً مخالفم", value: 1 },

@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const bisBasQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "من از تجربه‌های جدید لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -13,7 +17,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "من اغلب نگران اشتباه کردن هستم",
     options: [
       "کاملاً مخالفم",
@@ -24,7 +27,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "من دوست دارم در مرکز توجه باشم",
     options: [
       "کاملاً مخالفم",
@@ -35,7 +37,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "من از موقعیت‌های خطرناک اجتناب می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -46,7 +47,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "من از موفقیت لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -57,7 +57,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "من اغلب احساس گناه می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -68,7 +67,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "من دوست دارم با افراد جدید آشنا شوم",
     options: [
       "کاملاً مخالفم",
@@ -79,7 +77,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "من از تنبیه می‌ترسم",
     options: [
       "کاملاً مخالفم",
@@ -90,7 +87,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "من از پاداش لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -101,7 +97,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "من اغلب احساس اضطراب می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -112,7 +107,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 11,
     text: "من از رقابت لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -123,7 +117,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 12,
     text: "من از انتقاد می‌ترسم",
     options: [
       "کاملاً مخالفم",
@@ -134,7 +127,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 13,
     text: "من از تحسین لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -145,7 +137,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 14,
     text: "من اغلب احساس نگرانی می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -156,7 +147,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 15,
     text: "من از چالش‌ها لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -167,7 +157,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 16,
     text: "من از شکست می‌ترسم",
     options: [
       "کاملاً مخالفم",
@@ -178,7 +167,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 17,
     text: "من از پیشرفت لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -189,7 +177,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 18,
     text: "من اغلب احساس استرس می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -200,7 +187,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 19,
     text: "من از ماجراجویی لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -211,7 +197,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 20,
     text: "من از اشتباه کردن می‌ترسم",
     options: [
       "کاملاً مخالفم",
@@ -222,7 +207,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 21,
     text: "من از موفقیت‌هایم لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -233,7 +217,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 22,
     text: "من اغلب احساس ناراحتی می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -244,7 +227,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 23,
     text: "من از فرصت‌های جدید لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -255,7 +237,6 @@ export const bisBasQuestions: Question[] = [
     ]
   },
   {
-    id: 24,
     text: "من از تنبیه شدن می‌ترسم",
     options: [
       "کاملاً مخالفم",
@@ -266,6 +247,15 @@ export const bisBasQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const bisBasQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'bis-bas',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const bisBasOptions = [
   { label: "کاملاً مخالفم", value: "1" },

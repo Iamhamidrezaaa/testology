@@ -1,10 +1,7 @@
-import OpenAI from 'openai'
+import { getOpenAI } from '@/lib/openai'
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
 
 interface AnalyzeParams {
   message: string
@@ -60,6 +57,11 @@ ${history
 4. به زبان فارسی و با لحن دوستانه پاسخ دهد`
 
   try {
+    const openai = getOpenAI();
+    if (!openai) {
+      return 'متأسفانه در حال حاضر قادر به پاسخگویی نیستم. لطفاً کمی بعد دوباره تلاش کنید.';
+    }
+
     const completion = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [

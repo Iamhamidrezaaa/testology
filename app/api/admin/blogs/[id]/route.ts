@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function DELETE(
   request: NextRequest,
@@ -45,9 +45,7 @@ export async function PUT(
         content,
         imageUrl,
         tags: JSON.stringify(tags),
-        metaTitle: meta.title,
-        metaDescription: meta.description,
-        ogImage: meta.ogImage,
+        metaDescription: meta?.description || meta?.title || undefined,
         updatedAt: new Date()
       }
     });

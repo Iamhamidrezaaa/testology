@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
@@ -9,9 +9,13 @@ export async function GET(
     const blog = await prisma.blog.findUnique({
       where: { slug: params.slug },
       include: {
-        comments: {
-          where: { approved: true },
-          orderBy: { createdAt: 'desc' }
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true
+          }
         }
       }
     });
@@ -23,7 +27,7 @@ export async function GET(
     // افزایش تعداد بازدید
     await prisma.blog.update({
       where: { id: blog.id },
-      data: { views: blog.views + 1 }
+      data: { viewCount: blog.viewCount + 1 }
     });
 
     return NextResponse.json({ blog });

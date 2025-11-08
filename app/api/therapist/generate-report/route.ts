@@ -1,18 +1,18 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 import PDFDocument from 'pdfkit'
 
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions)
-  if (!session?.user?.id || session.user.role !== 'therapist') {
+  if (!session?.user?.id || session?.user?.role !== 'THERAPIST') {
     return new Response(JSON.stringify({ error: 'دسترسی غیرمجاز' }), { status: 403 })
   }
 
   try {
     const url = new URL(request.url)
-    const userId = url.searchParams.get('userId')
+    const userId = url.searchParams?.get('userId')
     
     if (!userId) {
       return new Response(JSON.stringify({ error: 'userId الزامی است' }), { status: 400 })
@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 
     // بررسی اینکه کاربر متعلق به این مشاور است
     const isOwnClient = await prisma.user.count({ 
-      where: { id: userId, assignedTherapistId: session.user.id } 
+      where: { id: userId, assignedTherapistId: session?.user?.id } 
     })
     
     if (!isOwnClient) {
@@ -32,10 +32,7 @@ export async function GET(request: Request) {
       where: { id: userId },
       select: {
         name: true,
-        firstName: true,
         lastName: true,
-        gender: true,
-        country: true,
         birthDate: true,
         email: true,
         phone: true,
@@ -43,14 +40,11 @@ export async function GET(request: Request) {
           orderBy: { createdAt: 'desc' },
           select: {
             testName: true,
-            testSlug: true,
-            type: true,
+            testId: true,
             score: true,
-            totalScore: true,
             result: true,
-            completed: true,
-            createdAt: true,
-            extraData: true
+            analysis: true,
+            createdAt: true
           }
         }
       }
@@ -85,9 +79,7 @@ export async function GET(request: Request) {
     doc.moveDown(0.5)
     
     doc.fontSize(12)
-    doc.text(`نام: ${user.name || user.firstName + ' ' + user.lastName || 'نامشخص'}`)
-    doc.text(`جنسیت: ${user.gender || 'نامشخص'}`)
-    doc.text(`کشور: ${user.country || 'نامشخص'}`)
+    doc.text(`نام: ${user.name || (user.lastName ? `${user.name || ''} ${user.lastName}`.trim() : 'نامشخص') || 'نامشخص'}`)
     doc.text(`تاریخ تولد: ${user.birthDate ? new Date(user.birthDate).toLocaleDateString('fa-IR') : 'نامشخص'}`)
     doc.text(`ایمیل: ${user.email || 'نامشخص'}`)
     doc.text(`تلفن: ${user.phone || 'نامشخص'}`)
@@ -95,16 +87,15 @@ export async function GET(request: Request) {
     doc.moveDown(1)
 
     // نتایج تست‌ها
-    if (user.testResults.length > 0) {
+    const testResults = user.testResults || [];
+    if (testResults.length > 0) {
       doc.fontSize(16).text('🧠 نتایج تست‌های روان‌شناختی', { underline: true })
       doc.moveDown(0.5)
 
-      user.testResults.forEach((test, index) => {
+      testResults.forEach((test: any, index: number) => {
         doc.fontSize(14).text(`${index + 1}. ${test.testName}`, { underline: true })
         doc.fontSize(11)
-        doc.text(`نوع تست: ${test.type}`)
-        doc.text(`نمره: ${test.score !== null ? `${test.score}${test.totalScore ? `/${test.totalScore}` : ''}` : 'نامشخص'}`)
-        doc.text(`وضعیت: ${test.completed ? 'تکمیل شده' : 'ناتمام'}`)
+        doc.text(`نمره: ${test.score !== null ? test.score : 'نامشخص'}`)
         doc.text(`تاریخ انجام: ${new Date(test.createdAt).toLocaleDateString('fa-IR')}`)
         
         if (test.result) {

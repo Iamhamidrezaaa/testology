@@ -33,6 +33,9 @@ model User {
   bio           String?   // بیوگرافی کاربر
   twoFactorSecret String? // کلید مخفی برای 2FA
   twoFactorEnabled Boolean @default(false) // وضعیت فعال بودن 2FA
+  backupCodes   String?   // JSON array of backup codes for 2FA
+  preferences   String?   // JSON object of user preferences
+  assignedTherapistId String? // ID of assigned therapist
   role          Role      @default(USER)
   isActive      Boolean   @default(true)
   emailVerified DateTime?
@@ -48,6 +51,7 @@ model User {
   userTests     UserTest[] // رابطه با تست‌های انجام شده توسط کاربر
   blogs         Blog[] // رابطه با مقالات نوشته شده توسط کاربر
   userExercises UserExercise[] // رابطه با تمرینات کاربر
+  marketplaceItems MarketplaceItem[] // رابطه با آیتم‌های مارکت‌پلیس
   // screeningResults ScreeningResult[] // رابطه با نتایج غربالگری - حذف شد
 }
 
@@ -113,12 +117,21 @@ model TestResult {
   user        User?    @relation(fields: [userId], references: [id])
   testName    String
   testId      String?
+  testSlug      String?  // slug of the test
   score       Float
   result      String?
+  resultText  String?  // full result text
+  rawAnswers  String?  // raw answers as JSON
   analysis    String?
   answers     String?  // JSON string of answers
+  completed   Boolean  @default(false)
+  severity    String?  // severity level
+  interpretation String? // interpretation text
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  @@index([testSlug])
+  @@index([completed])
 }
 
 model Comment {
@@ -136,9 +149,15 @@ model Notification {
   user      User     @relation(fields: [userId], references: [id])
   title     String
   message   String
+  type      String?  // notification type
+  priority  String?  // priority level
+  actionUrl String?  // URL for action
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  @@index([type])
+  @@index([read])
 }
 
 model UserRole {
@@ -204,9 +223,12 @@ model UserExercise {
 model Test {
   id          String     @id @default(cuid())
   testSlug    String     @unique
+  slug        String?    // alias for testSlug (for backward compatibility)
   testName    String
+  title       String?    // alias for testName (for backward compatibility)
   description String?
   category    String?
+  published   Boolean    @default(false) // alias for isActive (for backward compatibility)
   isActive    Boolean    @default(true)
   deletedAt   DateTime?  // برای soft delete
   createdAt   DateTime   @default(now())
@@ -296,25 +318,31 @@ model NewsletterSubscriber {
 }
 
 model Blog {
-  id              String   @id @default(cuid())
+  id              String        @id @default(cuid())
   title           String
-  slug            String   @unique
+  slug            String        @unique
   metaDescription String?
+  description     String?       // full description
+  excerpt         String?       // short excerpt
   content         String
-  category        String   @default("general")
+  category        String        @default("general")
   imageUrl        String?
   tags            String?
-  published       Boolean  @default(false)
-  featured        Boolean  @default(false)
-  viewCount       Int      @default(0)
+  published       Boolean       @default(false)
+  publishedAt     DateTime?     // publication date
+  featured        Boolean       @default(false)
+  viewCount       Int           @default(0)
+  views           Int           @default(0) // alias for viewCount
   authorId        String
-  author          User     @relation(fields: [authorId], references: [id])
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  author          User          @relation(fields: [authorId], references: [id])
+  comments        BlogComment[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
   
   @@index([slug])
   @@index([category])
   @@index([published])
+  @@index([publishedAt])
   @@index([featured])
 }
 
@@ -442,4 +470,545 @@ model ScreeningResult {
   updatedAt       DateTime    @updatedAt
   
   @@index([userEmail, createdAt])
+}
+
+model SystemConfig {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}
+
+model BlogCategory {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  color       String?
+  icon        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model HumanFeedback {
+  id            String   @id @default(cuid())
+  userId        String?
+  clinicianId   String?
+  reportId      String?
+  feedbackType  String   // "approved" | "revised" | etc.
+  feedbackNote  String?
+  aiConfidence  Float?
+  timeTaken     Int?     // seconds
+  feedbackScore Float?   // 0-1
+  reliability   Float?   // 0-1
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([clinicianId])
+  @@index([reportId])
+  @@index([createdAt])
+}
+
+model PerformanceMetric {
+  id            String   @id @default(cuid())
+  layer         String   @unique
+  avgLatencyMs  Float
+  successRate   Float
+  divergence    Float
+  updatedAt     DateTime @updatedAt
+  createdAt     DateTime @default(now())
+}
+
+model SystemLog {
+  id        String   @id @default(cuid())
+  layer     String
+  action    String?  // action name
+  latencyMs Int?
+  status    String   // "success" | "error" | etc.
+  meta      String?  // JSON metadata
+  createdAt DateTime @default(now())
+  
+  @@index([layer])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model ModelWeight {
+  id        String   @id @default(cuid())
+  modelName String   @unique
+  weight    Float
+  accuracy  Float?
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model RiskFlag {
+  id            String   @id @default(cuid())
+  clinicianId   String?
+  reportId      String?
+  level         String   // "critical" | "high" | "medium" | "low"
+  category      String?
+  aiSummary     String?
+  humanReviewed Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([clinicianId])
+  @@index([reportId])
+  @@index([humanReviewed])
+  @@index([createdAt])
+}
+
+model TherapyMemory {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  summary     String
+  keyInsights String
+  emotionTags String   // JSON string array
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([userId])
+}
+
+model MarketplaceItem {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  price       Float    @default(0)
+  imageUrl    String?
+  type        String   @default("exercise") // "exercise" | "test" | "article" | etc.
+  category    String   @default("general")
+  difficulty  String?  // "beginner" | "intermediate" | "advanced"
+  duration    Int?     // minutes
+  fileUrl     String?
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([authorId])
+  @@index([category])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model SeoMeta {
+  id            String   @id @default(cuid())
+  key           String   // ترکیب type_id مثل "article_123"
+  lang          String   // زبان مثل "fa", "en", "ar"
+  title         String
+  description   String
+  keywords      String?
+  ogTitle       String?
+  ogDescription String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([key, lang], name: "key_lang")
+  @@index([key])
+  @@index([lang])
+}
+
+model Translation {
+  id        String   @id @default(cuid())
+  key       String   // ترکیب type_id مثل "article_123"
+  lang      String   // زبان مثل "fa", "ar", "fr", "ru", "tr", "es"
+  text      String   // متن ترجمه شده
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([key, lang], name: "key_lang")
+  @@index([key])
+  @@index([lang])
+}
+
+model BehaviorPattern {
+  id           String   @id @default(cuid())
+  keyword      String
+  frequency    Int
+  sentiment    Float    // -1 to 1
+  meaning      String
+  relatedTests String?  // JSON string array
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@index([keyword])
+  @@index([createdAt])
+}
+
+model MoodTrend {
+  id        String   @id @default(cuid())
+  userId    String
+  category  String   // "mood" | "anxiety" | "focus" | "selfEsteem" | "motivation"
+  score     Float    // 0-100
+  source    String?  // "test" | "clinicalReport" | etc.
+  createdAt DateTime @default(now())
+  
+  @@index([userId])
+  @@index([category])
+  @@index([createdAt])
+}
+
+model Dream {
+  id            String   @id @default(cuid())
+  title         String
+  content       String
+  interpretation String?
+  inspiration   String?
+  sourceData    String?  // JSON string
+  moodContext   String?
+  date          DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([date])
+  @@index([moodContext])
+  @@index([createdAt])
+}
+
+model DreamPattern {
+  id           String   @id @default(cuid())
+  symbol       String
+  frequency    Int
+  meaning      String
+  sentiment    Float?   // -1 to 1
+  relatedTests String?  // JSON string array
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@index([symbol])
+  @@index([frequency])
+  @@index([createdAt])
+}
+
+model EmotionLog {
+  id          String   @id @default(cuid())
+  userId      String
+  message     String
+  emotion     String   // "joy" | "sadness" | "anger" | "anxiety" | "calm" | "hope"
+  intensity   Float    // 0.0 to 1.0
+  typingScore Float?   // 0.0 to 1.0
+  createdAt   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([emotion])
+  @@index([createdAt])
+}
+
+model ClinicalReport {
+  id            String   @id @default(cuid())
+  userId        String
+  summary       String
+  mood          String?
+  anxiety       String?
+  motivation    String?
+  relationships String?
+  selfEsteem    String?
+  focus         String?
+  recommendation String?
+  versionCode   String?  // version code for verification
+  digitalSignature String? // digital signature for verification
+  verificationUrl String? // URL for verification
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model ConsensusReview {
+  id            String   @id @default(cuid())
+  reportId      String
+  modelsUsed    String   // JSON string array
+  consensusText String
+  confidence    Float    // 0.0 to 1.0
+  divergence    Float
+  riskLevel     String   // "low" | "medium" | "high"
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([reportId])
+  @@index([createdAt])
+}
+
+model MoodEntry {
+  id        String    @id @default(cuid())
+  userId    String
+  mood      String    // mood value
+  note      String?
+  date      DateTime
+  sentiment Float?    // -1 to 1
+  content   String?   // optional content/message
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([date])
+  @@index([createdAt])
+}
+
+model MoodLog {
+  id          String   @id @default(cuid())
+  userId      String
+  date        DateTime @default(now())
+  mood        String   // mood value
+  sleepHour   Int?
+  energy      Int?     // 0-100
+  stress      Int?     // 0-100
+  note        String?
+  activities  String?  // JSON array
+  weather     String?
+  social      String?
+  exercise    Boolean  @default(false)
+  meditation  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  role      String   // "user" | "assistant" | "system"
+  content   String
+  userId    String?
+  createdAt DateTime @default(now())
+  
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model UserProgress {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  xp           Int      @default(0)
+  level        Int      @default(1)
+  totalTests   Int      @default(0)
+  streakDays   Int      @default(0)
+  achievements String?  // JSON array of achievements
+  lastActivity DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@index([userId])
+}
+
+model SessionPlan {
+  id            String   @id @default(cuid())
+  userId        String
+  topic         String
+  focusArea     String
+  suggestedTest String?
+  dailyPractice String
+  aiConfidence  Float    // 0.0 to 1.0
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model VoiceProfile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  tone      String   @default("warm") // "calm" | "warm" | "supportive" | "hopeful"
+  rate      Float    @default(1.0)    // 0.5 to 2.0
+  pitch     Float    @default(1.0)    // 0.5 to 2.0
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([userId])
+}
+
+model UserTestRecommendation {
+  id        String   @id @default(cuid())
+  userId    String
+  testName  String
+  score     Float    // priority/relevance score
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([testName])
+  @@index([score])
+  @@index([createdAt])
+}
+
+model TestRecommendationWeight {
+  id        String   @id @default(cuid())
+  testName  String
+  weight    Float    // 0.0 to 1.0
+  source    String?  // "BehaviorPattern" | etc.
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([testName])
+  @@index([weight])
+  @@index([createdAt])
+}
+
+model ClinicalReview {
+  id            String   @id @default(cuid())
+  reportId      String
+  reviewerAI    String   // "GPT-4o-mini" | etc.
+  reviewSummary String
+  reviewScore   Float    // 0.0 to 1.0
+  riskLevel     String   // "low" | "medium" | "high"
+  revisionNotes String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([reportId])
+  @@index([createdAt])
+}
+
+model TherapySession {
+  id        String   @id @default(cuid())
+  userId    String
+  messages  String   // JSON string array of messages
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// مدل‌های جدید برای سیستم پیشنهادات و درمانگر
+model SuggestedContent {
+  id          String   @id @default(cuid())
+  userId      String
+  contentId   String
+  reason      String?
+  priority    Int      @default(3) // 1-5
+  expiresAt   DateTime?
+  isViewed    Boolean  @default(false)
+  isAccepted  Boolean  @default(false)
+  feedback    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([contentId])
+  @@index([createdAt])
+}
+
+model Therapist {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  specialty   String?
+  license     String?
+  bio         String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([userId])
+}
+
+model TherapistAssignment {
+  id          String   @id @default(cuid())
+  therapistId String
+  userId      String
+  contentId   String
+  status      String   @default("assigned") // "assigned" | "in_progress" | "completed" | "skipped"
+  priority    Int      @default(3) // 1-5
+  dueDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([therapistId])
+  @@index([userId])
+  @@index([contentId])
+  @@index([status])
+}
+
+model TherapistPatient {
+  id          String   @id @default(cuid())
+  therapistId String
+  patientId   String
+  notes       String?
+  status      String   @default("active") // "active" | "inactive"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([therapistId, patientId])
+  @@index([therapistId])
+  @@index([patientId])
+}
+
+model VideoLog {
+  id           String   @id @default(cuid())
+  userId       String
+  videoUrl     String
+  thumbnailUrl String?
+  caption      String?
+  duration     Int?     // seconds
+  fileSize     Int?     // bytes
+  week         Int
+  year         Int
+  mood         String?
+  tags         String?  // JSON array
+  isPrivate    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([week, year])
+  @@index([createdAt])
+}
+
+model WeeklyAssignment {
+  id          String   @id @default(cuid())
+  userId      String
+  contentId   String
+  title       String
+  description String?
+  note        String?
+  week        Int
+  year        Int
+  status      String   @default("assigned") // "assigned" | "in_progress" | "completed" | "skipped"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([userId, week, year, contentId])
+  @@index([userId])
+  @@index([week, year])
+  @@index([status])
+}
+
+model TestRequest {
+  id            String   @id @default(cuid())
+  userId        String
+  testName      String
+  reason        String?
+  suggestedById String
+  status        String   @default("pending") // "pending" | "accepted" | "rejected"
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([suggestedById])
+  @@index([status])
+}
+
+model BlogComment {
+  id          String   @id @default(cuid())
+  blogId      String
+  blog        Blog     @relation(fields: [blogId], references: [id])
+  userId      String?
+  authorName  String?
+  authorEmail String?
+  content     String
+  approved    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([blogId])
+  @@index([userId])
+  @@index([approved])
 }

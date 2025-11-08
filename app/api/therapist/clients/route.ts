@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   const session = await getServerSession(authOptions)
-  if (!session?.user?.id || session.user.role !== 'therapist') {
+  if (!session?.user?.id || session.user.role !== 'THERAPIST') {
     return new Response(JSON.stringify({ error: 'دسترسی غیرمجاز' }), { status: 403 })
   }
 

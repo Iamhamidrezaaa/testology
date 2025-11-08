@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { prisma } from '@/lib/prisma'
+import { IS_BUILD } from '@/lib/isBuild'
 
 const languages = ['en', 'fa', 'ar', 'fr', 'ru', 'tr', 'es'];
 const base = 'https://testology.me';
@@ -9,18 +10,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     // دریافت مقالات
-    const articles = await prisma.article.findMany({
+    const articles = IS_BUILD ? [] : await prisma.article.findMany({
       where: { published: true },
       select: { slug: true, updatedAt: true },
       orderBy: { updatedAt: 'desc' }
-    });
+    }).catch(() => []);
 
     // دریافت تست‌ها
-    const tests = await prisma.test.findMany({
-      where: { published: true },
-      select: { slug: true, updatedAt: true },
+    const tests = IS_BUILD ? [] : await prisma.test.findMany({
+      where: { isActive: true },
+      select: { testSlug: true, updatedAt: true },
       orderBy: { updatedAt: 'desc' }
-    });
+    }).catch(() => []);
 
     // صفحات اصلی برای هر زبان
     for (const lang of languages) {
@@ -31,7 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'daily',
         priority: 1,
         alternates: {
-          languages: languages.reduce((acc, l) => {
+          languages: languages.reduce((acc: any, l: any) => {
             acc[l] = `${base}/${l}`;
             return acc;
           }, {} as Record<string, string>)
@@ -64,7 +65,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           changeFrequency: 'monthly',
           priority: page.priority,
           alternates: {
-            languages: languages.reduce((acc, l) => {
+            languages: languages.reduce((acc: any, l: any) => {
               acc[l] = `${base}/${l}${page.path}`;
               return acc;
             }, {} as Record<string, string>)
@@ -80,7 +81,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           changeFrequency: 'weekly',
           priority: 0.8,
           alternates: {
-            languages: languages.reduce((acc, l) => {
+            languages: languages.reduce((acc: any, l: any) => {
               acc[l] = `${base}/${l}/blog/${article.slug}`;
               return acc;
             }, {} as Record<string, string>)
@@ -91,13 +92,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       // تست‌ها برای هر زبان
       for (const test of tests) {
         urls.push({
-          url: `${base}/${lang}/tests/${test.slug}`,
+          url: `${base}/${lang}/tests/${test.testSlug}`,
           lastModified: test.updatedAt,
           changeFrequency: 'weekly',
           priority: 0.9,
           alternates: {
-            languages: languages.reduce((acc, l) => {
-              acc[l] = `${base}/${l}/tests/${test.slug}`;
+            languages: languages.reduce((acc: any, l: any) => {
+              acc[l] = `${base}/${l}/tests/${test.testSlug}`;
               return acc;
             }, {} as Record<string, string>)
           }

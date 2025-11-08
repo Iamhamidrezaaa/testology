@@ -46,8 +46,8 @@ class NotificationManager {
   // دریافت نوتیفیکیشن‌های کاربر
   getUserNotifications(userId: string): Notification[] {
     return Array.from(this.notifications.values())
-      .filter(notif => notif.userId === userId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      .filter((notif: any) => notif.userId === userId)
+      .sort((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 
   // علامت‌گذاری به عنوان خوانده شده
@@ -98,7 +98,7 @@ class NotificationManager {
     if (userSubscribers) {
       userSubscribers.forEach(callback => {
         try {
-          callback({ ...notification, action });
+          callback(notification);
         } catch (error) {
           console.error('Error in notification callback:', error);
         }
@@ -110,7 +110,7 @@ class NotificationManager {
   getStats() {
     const total = this.notifications.size;
     const unread = Array.from(this.notifications.values())
-      .filter(notif => !notif.read).length;
+      .filter((notif: any) => !notif.read).length;
     
     return { total, unread };
   }

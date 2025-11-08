@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 export async function PATCH(req: Request) {
   try {
@@ -14,21 +14,12 @@ export async function PATCH(req: Request) {
 
     console.log(`📝 بروزرسانی یادداشت بالینی ${noteId}...`);
 
-    const updated = await prisma.clientClinicalNote.update({
-      where: { id: noteId },
-      data: { 
-        clinicianNote, 
-        verified: verified || false 
-      },
-    });
-
-    console.log("✅ یادداشت بالینی با موفقیت بروزرسانی شد");
-
+    // ClientClinicalNote model doesn't exist in schema
     return NextResponse.json({ 
-      success: true, 
-      updated,
-      message: "یادداشت بالینی با موفقیت بروزرسانی شد"
-    });
+      success: false,
+      error: "ClientClinicalNote model is not in schema",
+      message: "این قابلیت در حال حاضر در دسترس نیست"
+    }, { status: 400 });
 
   } catch (err) {
     console.error("❌ خطا در بروزرسانی یادداشت بالینی:", err);

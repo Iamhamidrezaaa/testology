@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 
 export async function GET() {
   try {
@@ -15,14 +15,14 @@ export async function GET() {
     const results = await prisma.testResult.findMany({
       select: { 
         testName: true,
-        testSlug: true,
+        testId: true,
         score: true
       },
     })
 
     // محاسبه آمار
     const summary = results.reduce((acc: any, r) => {
-      const key = r.testName || r.testSlug
+      const key = r.testName || r.testId || 'Unknown'
       if (!acc[key]) {
         acc[key] = { 
           testName: key, 

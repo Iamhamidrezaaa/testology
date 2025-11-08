@@ -44,7 +44,7 @@ export async function PUT(
       data: {
         ...(caption !== undefined && { caption }),
         ...(mood !== undefined && { mood }),
-        ...(tags !== undefined && { tags: parsedTags }),
+        ...(tags !== undefined && { tags: parsedTags ? JSON.stringify(parsedTags) : null }),
         ...(isPrivate !== undefined && { isPrivate })
       }
     })

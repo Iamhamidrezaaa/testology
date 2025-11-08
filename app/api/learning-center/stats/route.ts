@@ -37,17 +37,29 @@ export async function GET(req: NextRequest) {
       }
     })
 
-    const totalStudyTime = await prisma.userExercise.aggregate({
+    // Cannot aggregate on relation in Prisma
+    // Get exercises with include and calculate manually
+    const completedUserExercises = await prisma.userExercise.findMany({
       where: {
         userId: user.id,
         isCompleted: true
       },
-      _sum: {
+      include: {
         exercise: {
-          duration: true
+          select: {
+            duration: true
+          }
         }
       }
     })
+    
+    const totalStudyTime = {
+      _sum: {
+        exercise: {
+          duration: completedUserExercises.reduce((sum, ue) => sum + (ue.exercise?.duration || 0), 0)
+        }
+      }
+    }
 
     // محاسبه روزهای متوالی مطالعه
     const studyDays = await prisma.userExercise.findMany({
@@ -64,7 +76,7 @@ export async function GET(req: NextRequest) {
     })
 
     let consecutiveDays = 0
-    if (studyDays.length > 0) {
+    if (studyDays.length > 0 && studyDays[0].completedAt) {
       const today = new Date()
       const yesterday = new Date(today)
       yesterday.setDate(yesterday.getDate() - 1)
@@ -73,7 +85,9 @@ export async function GET(req: NextRequest) {
       consecutiveDays = 1
       
       for (let i = 1; i < studyDays.length; i++) {
-        const exerciseDate = new Date(studyDays[i].completedAt)
+        const completedAt = studyDays[i].completedAt
+        if (!completedAt) continue
+        const exerciseDate = new Date(completedAt)
         const diffTime = currentDate.getTime() - exerciseDate.getTime()
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
         
@@ -108,7 +122,9 @@ export async function GET(req: NextRequest) {
         }
       })
 
-      const weekStudyTime = await prisma.userExercise.aggregate({
+      // Cannot aggregate on relation in Prisma
+      // Get exercises with include and calculate manually
+      const weekUserExercises = await prisma.userExercise.findMany({
         where: {
           userId: user.id,
           isCompleted: true,
@@ -117,12 +133,22 @@ export async function GET(req: NextRequest) {
             lte: weekEnd
           }
         },
-        _sum: {
+        include: {
           exercise: {
-            duration: true
+            select: {
+              duration: true
+            }
           }
         }
       })
+      
+      const weekStudyTime = {
+        _sum: {
+          exercise: {
+            duration: weekUserExercises.reduce((sum, ue) => sum + (ue.exercise?.duration || 0), 0)
+          }
+        }
+      }
 
       weeklyProgress.push({
         week: `هفته ${6 - i}`,
@@ -143,7 +169,9 @@ export async function GET(req: NextRequest) {
       const dayEnd = new Date(dayStart)
       dayEnd.setHours(23, 59, 59, 999)
 
-      const dayStudyTime = await prisma.userExercise.aggregate({
+      // Cannot aggregate on relation in Prisma
+      // Get exercises with include and calculate manually
+      const dayUserExercises = await prisma.userExercise.findMany({
         where: {
           userId: user.id,
           isCompleted: true,
@@ -152,12 +180,22 @@ export async function GET(req: NextRequest) {
             lte: dayEnd
           }
         },
-        _sum: {
+        include: {
           exercise: {
-            duration: true
+            select: {
+              duration: true
+            }
           }
         }
       })
+      
+      const dayStudyTime = {
+        _sum: {
+          exercise: {
+            duration: dayUserExercises.reduce((sum, ue) => sum + (ue.exercise?.duration || 0), 0)
+          }
+        }
+      }
 
       dailyStudyTime.push({
         day: days[6 - i],

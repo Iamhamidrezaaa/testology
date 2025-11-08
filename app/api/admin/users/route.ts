@@ -127,10 +127,9 @@ export async function POST(req: NextRequest) {
     }
 
     // بررسی نقش کاربر
-    const isAdmin = session.user.role === 'admin' || 
+    const isAdmin = session.user.role === 'ADMIN' || 
                    session.user.role === 'ADMIN' || 
-                   session.user.email === 'h.asgarizade@gmail.com' ||
-                   session.user.isAdmin === true
+                   session.user.email === 'h.asgarizade@gmail.com'
 
     console.log('🔐 Is admin:', isAdmin)
 

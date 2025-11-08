@@ -138,25 +138,25 @@ export default function MoodTrackerPage() {
       };
     }
 
-    const moodValues = entries.map(entry => {
-      const moodMap = { 'very-sad': 1, 'sad': 2, 'neutral': 3, 'happy': 4, 'very-sad': 5 };
-      return moodMap[entry.mood] || 3;
+    const moodValues = entries.map((entry: any) => {
+      const moodMap: Record<string, number> = { 'very-sad': 1, 'sad': 2, 'neutral': 3, 'happy': 4, 'very-happy': 5 };
+      return moodMap[entry.mood as keyof typeof moodMap] || 3;
     });
 
-    const averageMood = moodValues.reduce((sum, val) => sum + val, 0) / moodValues.length;
+    const averageMood = moodValues.reduce((sum: any, val: any) => sum + val, 0) / moodValues.length;
     
     // محاسبه روند هفتگی
     const recentWeek = entries.slice(0, 7);
     const previousWeek = entries.slice(7, 14);
     
-    const recentAvg = recentWeek.reduce((sum, entry) => {
+    const recentAvg = recentWeek.reduce((sum: any, entry: any) => {
       const moodMap = { 'very-sad': 1, 'sad': 2, 'neutral': 3, 'happy': 4, 'very-happy': 5 };
-      return sum + (moodMap[entry.mood] || 3);
+      return sum + (moodMap[entry.mood as keyof typeof moodMap] || 3);
     }, 0) / recentWeek.length;
     
-    const previousAvg = previousWeek.reduce((sum, entry) => {
+    const previousAvg = previousWeek.reduce((sum: any, entry: any) => {
       const moodMap = { 'very-sad': 1, 'sad': 2, 'neutral': 3, 'happy': 4, 'very-happy': 5 };
-      return sum + (moodMap[entry.mood] || 3);
+      return sum + (moodMap[entry.mood as keyof typeof moodMap] || 3);
     }, 0) / previousWeek.length;
 
     let weeklyTrend: 'improving' | 'declining' | 'stable' = 'stable';
@@ -167,16 +167,16 @@ export default function MoodTrackerPage() {
       averageMood,
       totalEntries: entries.length,
       streak: calculateStreak(entries),
-      bestMood: entries.reduce((best, entry) => {
+      bestMood: entries.reduce((best: any, entry: any) => {
         const moodMap = { 'very-sad': 1, 'sad': 2, 'neutral': 3, 'happy': 4, 'very-happy': 5 };
-        const bestValue = moodMap[best.mood] || 3;
-        const currentValue = moodMap[entry.mood] || 3;
+        const bestValue = moodMap[best.mood as keyof typeof moodMap] || 3;
+        const currentValue = moodMap[entry.mood as keyof typeof moodMap] || 3;
         return currentValue > bestValue ? entry : best;
       }, entries[0]).mood,
-      worstMood: entries.reduce((worst, entry) => {
+      worstMood: entries.reduce((worst: any, entry: any) => {
         const moodMap = { 'very-sad': 1, 'sad': 2, 'neutral': 3, 'happy': 4, 'very-happy': 5 };
-        const worstValue = moodMap[worst.mood] || 3;
-        const currentValue = moodMap[entry.mood] || 3;
+        const worstValue = moodMap[worst.mood as keyof typeof moodMap] || 3;
+        const currentValue = moodMap[entry.mood as keyof typeof moodMap] || 3;
         return currentValue < worstValue ? entry : worst;
       }, entries[0]).mood,
       weeklyTrend

@@ -597,7 +597,7 @@ export default function SettingsPage() {
                     <Label htmlFor="email" className="text-white">ایمیل</Label>
                     <Input
                       id="email"
-                      value={profile.email || userEmail}
+                      value={profile.email || ''}
                       disabled
                       className="bg-gray-500/20 border-gray-400/20 text-gray-300"
                     />

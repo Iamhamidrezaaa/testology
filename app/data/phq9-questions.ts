@@ -1,8 +1,11 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const phq9Questions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "در دو هفته گذشته، چقدر احساس کرده‌اید که علاقه‌ای به کار یا فعالیت‌هایتان ندارید؟",
     options: [
       "اصلاً",
@@ -12,7 +15,6 @@ export const phq9Questions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "در دو هفته گذشته، چقدر احساس کرده‌اید که غمگین، افسرده یا ناامید هستید؟",
     options: [
       "اصلاً",
@@ -22,7 +24,6 @@ export const phq9Questions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "در دو هفته گذشته، چقدر مشکل خواب داشته‌اید (مشکل در به خواب رفتن، بیدار شدن زود یا خواب زیاد)؟",
     options: [
       "اصلاً",
@@ -32,7 +33,6 @@ export const phq9Questions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "در دو هفته گذشته، چقدر احساس کرده‌اید که خسته یا کم‌انرژی هستید؟",
     options: [
       "اصلاً",
@@ -42,7 +42,6 @@ export const phq9Questions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "در دو هفته گذشته، چقدر اشتهایتان کم یا زیاد شده است؟",
     options: [
       "اصلاً",
@@ -52,7 +51,6 @@ export const phq9Questions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "در دو هفته گذشته، چقدر احساس کرده‌اید که در مورد خودتان بد فکر می‌کنید یا احساس می‌کنید که شکست خورده‌اید؟",
     options: [
       "اصلاً",
@@ -62,7 +60,6 @@ export const phq9Questions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "در دو هفته گذشته، چقدر مشکل تمرکز داشته‌اید (مثل خواندن روزنامه یا تماشای تلویزیون)؟",
     options: [
       "اصلاً",
@@ -72,7 +69,6 @@ export const phq9Questions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "در دو هفته گذشته، چقدر آهسته صحبت کرده‌اید یا حرکت کرده‌اید که دیگران متوجه شده‌اند؟ یا برعکس، چقدر بی‌قرار یا ناآرام بوده‌اید که بیش از حد معمول حرکت کرده‌اید؟",
     options: [
       "اصلاً",
@@ -82,7 +78,6 @@ export const phq9Questions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "در دو هفته گذشته، چقدر فکر کرده‌اید که بهتر است بمیرید یا به خودتان آسیب برسانید؟",
     options: [
       "اصلاً",
@@ -92,6 +87,15 @@ export const phq9Questions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const phq9Questions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'phq9',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const phq9Options = [
   { label: "اصلاً", value: 0 },

@@ -54,6 +54,12 @@ export interface Question {
   updatedAt: Date
 }
 
+// Helper type for static questions (without database fields)
+export type StaticQuestion = Omit<Question, 'createdAt' | 'updatedAt'> & {
+  createdAt?: Date
+  updatedAt?: Date
+}
+
 export interface TestResult {
   id: string
   userId: string

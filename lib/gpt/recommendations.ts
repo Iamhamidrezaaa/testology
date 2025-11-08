@@ -18,25 +18,19 @@ export async function analyzeUserHistory(userId: string): Promise<Recommendation
     })
 
     // دریافت mood log های اخیر
-    const recentMoods = await prisma.moodLog.findMany({
-      where: { userId },
-      orderBy: { date: 'desc' },
-      take: 7 // آخرین 7 روز
-    })
+    // مدل moodLog در schema وجود ندارد
+    const recentMoods: any[] = []
 
     // دریافت نتایج تست‌های اخیر
     const recentTests = await prisma.testResult.findMany({
-      where: { userId, completed: true },
+      where: { userId },
       orderBy: { createdAt: 'desc' },
       take: 5
     })
 
     // دریافت تمرین‌های قبلی
-    const previousAssignments = await prisma.weeklyAssignment.findMany({
-      where: { userId },
-      orderBy: { createdAt: 'desc' },
-      take: 10
-    })
+    // مدل weeklyAssignment در schema وجود ندارد
+    const previousAssignments: any[] = []
 
     // تحلیل وضعیت کاربر
     const analysis = analyzeUserState(recentMoods, recentTests, previousAssignments)
@@ -60,26 +54,26 @@ export async function analyzeUserHistory(userId: string): Promise<Recommendation
 function analyzeUserState(moods: any[], tests: any[], assignments: any[]) {
   // تحلیل mood ها
   const moodAnalysis = {
-    averageEnergy: moods.reduce((sum, mood) => sum + (mood.energy || 5), 0) / moods.length || 5,
-    averageStress: moods.reduce((sum, mood) => sum + (mood.stress || 5), 0) / moods.length || 5,
-    averageSleep: moods.reduce((sum, mood) => sum + (mood.sleepHour || 8), 0) / moods.length || 8,
-    exerciseDays: moods.filter(mood => mood.exercise).length,
-    meditationDays: moods.filter(mood => mood.meditation).length,
+    averageEnergy: moods.reduce((sum: any, mood: any) => sum + (mood.energy || 5), 0) / moods.length || 5,
+    averageStress: moods.reduce((sum: any, mood: any) => sum + (mood.stress || 5), 0) / moods.length || 5,
+    averageSleep: moods.reduce((sum: any, mood: any) => sum + (mood.sleepHour || 8), 0) / moods.length || 8,
+    exerciseDays: moods.filter((mood: any) => mood.exercise).length,
+    meditationDays: moods.filter((mood: any) => mood.meditation).length,
     dominantMood: getDominantMood(moods)
   }
 
   // تحلیل تست‌ها
   const testAnalysis = {
-    averageScore: tests.reduce((sum, test) => sum + test.score, 0) / tests.length || 0,
-    testTypes: tests.map(test => test.testName),
+    averageScore: tests.reduce((sum: any, test: any) => sum + test.score, 0) / tests.length || 0,
+    testTypes: tests.map((test: any) => test.testName),
     recentTrend: getTestTrend(tests)
   }
 
   // تحلیل تمرین‌ها
   const assignmentAnalysis = {
-    completedCount: assignments.filter(a => a.status === 'completed').length,
-    inProgressCount: assignments.filter(a => a.status === 'in_progress').length,
-    categories: assignments.map(a => a.contentId)
+    completedCount: assignments.filter((a: any) => a.status === 'completed').length,
+    inProgressCount: assignments.filter((a: any) => a.status === 'in_progress').length,
+    categories: assignments.map((a: any) => a.contentId)
   }
 
   return {
@@ -91,12 +85,12 @@ function analyzeUserState(moods: any[], tests: any[], assignments: any[]) {
 }
 
 function getDominantMood(moods: any[]): string {
-  const moodCounts = moods.reduce((acc, mood) => {
+  const moodCounts = moods.reduce((acc: any, mood: any) => {
     acc[mood.mood] = (acc[mood.mood] || 0) + 1
     return acc
   }, {} as Record<string, number>)
 
-  return Object.entries(moodCounts).sort(([,a], [,b]) => b - a)[0]?.[0] || '😐'
+  return Object.entries(moodCounts).sort(([,a]: any, [,b]: any) => (b as number) - (a as number))[0]?.[0] || '😐'
 }
 
 function getTestTrend(tests: any[]): string {
@@ -107,8 +101,8 @@ function getTestTrend(tests: any[]): string {
   
   if (recent.length === 0 || older.length === 0) return 'stable'
   
-  const recentAvg = recent.reduce((sum, test) => sum + test.score, 0) / recent.length
-  const olderAvg = older.reduce((sum, test) => sum + test.score, 0) / older.length
+  const recentAvg = recent.reduce((sum: any, test: any) => sum + test.score, 0) / recent.length
+  const olderAvg = older.reduce((sum: any, test: any) => sum + test.score, 0) / older.length
   
   if (recentAvg > olderAvg + 5) return 'improving'
   if (recentAvg < olderAvg - 5) return 'declining'

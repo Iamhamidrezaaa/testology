@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const psqiQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "در طول ماه گذشته، معمولاً چه ساعتی به رختخواب می‌رفتید؟",
     options: [
       "قبل از ساعت 10 شب",
@@ -12,7 +16,6 @@ export const psqiQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "چقدر طول می‌کشید تا به خواب بروید؟",
     options: [
       "کمتر از 15 دقیقه",
@@ -22,7 +25,6 @@ export const psqiQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "در طول ماه گذشته، معمولاً چه ساعتی از خواب بیدار می‌شدید؟",
     options: [
       "قبل از ساعت 6 صبح",
@@ -32,7 +34,6 @@ export const psqiQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "چقدر از خواب شبانه خود راضی هستید؟",
     options: [
       "خیلی راضی",
@@ -42,7 +43,6 @@ export const psqiQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "چقدر مشکل خواب دارید؟",
     options: [
       "هیچ مشکل",
@@ -52,7 +52,6 @@ export const psqiQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "چقدر مشکل در به خواب رفتن دارید؟",
     options: [
       "هیچ مشکل",
@@ -62,7 +61,6 @@ export const psqiQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "چقدر مشکل در حفظ خواب دارید؟",
     options: [
       "هیچ مشکل",
@@ -72,7 +70,6 @@ export const psqiQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "چقدر مشکل در بیدار شدن زود از خواب دارید؟",
     options: [
       "هیچ مشکل",
@@ -82,7 +79,6 @@ export const psqiQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "چقدر مشکل در نفس کشیدن یا سرفه کردن دارید؟",
     options: [
       "هیچ مشکل",
@@ -92,7 +88,6 @@ export const psqiQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "چقدر مشکل در سرفه کردن یا خروپف کردن دارید؟",
     options: [
       "هیچ مشکل",
@@ -102,7 +97,6 @@ export const psqiQuestions: Question[] = [
     ]
   },
   {
-    id: 11,
     text: "چقدر مشکل در احساس سرما یا گرما دارید؟",
     options: [
       "هیچ مشکل",
@@ -112,7 +106,6 @@ export const psqiQuestions: Question[] = [
     ]
   },
   {
-    id: 12,
     text: "چقدر مشکل در کابوس دیدن دارید؟",
     options: [
       "هیچ مشکل",
@@ -122,7 +115,6 @@ export const psqiQuestions: Question[] = [
     ]
   },
   {
-    id: 13,
     text: "چقدر مشکل در درد داشتن دارید؟",
     options: [
       "هیچ مشکل",
@@ -132,7 +124,6 @@ export const psqiQuestions: Question[] = [
     ]
   },
   {
-    id: 14,
     text: "چقدر مشکل در استفاده از داروهای خواب‌آور دارید؟",
     options: [
       "هیچ مشکل",
@@ -142,7 +133,6 @@ export const psqiQuestions: Question[] = [
     ]
   },
   {
-    id: 15,
     text: "چقدر مشکل در خوابیدن در طول روز دارید؟",
     options: [
       "هیچ مشکل",
@@ -152,7 +142,6 @@ export const psqiQuestions: Question[] = [
     ]
   },
   {
-    id: 16,
     text: "چقدر مشکل در حفظ انرژی در طول روز دارید؟",
     options: [
       "هیچ مشکل",
@@ -162,7 +151,6 @@ export const psqiQuestions: Question[] = [
     ]
   },
   {
-    id: 17,
     text: "چقدر مشکل در حفظ تمرکز در طول روز دارید؟",
     options: [
       "هیچ مشکل",
@@ -172,7 +160,6 @@ export const psqiQuestions: Question[] = [
     ]
   },
   {
-    id: 18,
     text: "چقدر مشکل در حفظ خلق و خوی خوب در طول روز دارید؟",
     options: [
       "هیچ مشکل",
@@ -182,6 +169,15 @@ export const psqiQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const psqiQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'psqi',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const psqiOptions = [
   { label: "هیچ مشکل", value: 0 },

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 const MODEL = "gpt-4o-mini"; // سبک، سریع، مناسب چت
@@ -12,20 +12,22 @@ export async function POST(req: NextRequest) {
     console.log("📝 Messages:", messages);
 
     // ایمنی: همیشه پیام‌ها را ذخیره کنیم
-    if (Array.isArray(messages)) {
+    if (Array.isArray(messages) && messages.length > 0) {
       try {
-        await prisma.$transaction(
-          messages.map((m: any) =>
-            prisma.chatHistory.create({
-              data: {
-                userId: userId || null,
+        // ذخیره همه پیام‌ها در یک رکورد به صورت JSON
+        await prisma.chatHistory.create({
+          data: {
+            userId: userId || null,
+            messages: JSON.stringify({
+              channel: "psychologist",
+              messages: messages.map((m: any) => ({
                 role: m.role || "user",
                 content: m.content || "",
-                channel: "psychologist",
-              },
+                timestamp: new Date().toISOString()
+              }))
             })
-          )
-        );
+          }
+        });
       } catch (dbError) {
         console.log("⚠️ Database error:", dbError);
         // ادامه می‌دهیم حتی اگر DB کار نکنه
@@ -79,9 +81,12 @@ export async function POST(req: NextRequest) {
       await prisma.chatHistory.create({
         data: {
           userId: userId || null,
-          role: "assistant",
-          content: answer,
-          channel: "psychologist",
+          messages: JSON.stringify({
+            channel: "psychologist",
+            role: "assistant",
+            content: answer,
+            timestamp: new Date().toISOString()
+          })
         },
       });
     } catch (dbError) {

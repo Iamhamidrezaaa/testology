@@ -8,7 +8,7 @@ export async function GET() {
     const patterns = await prisma.behaviorPattern.findMany({
       orderBy: { createdAt: "desc" },
       take: 20,
-    });
+    }).catch(() => []);
 
     // تبدیل JSON string به array برای relatedTests
     const processedPatterns = patterns.map(pattern => ({

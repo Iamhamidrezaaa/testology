@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const creativityQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "من ایده‌های جدید و نوآورانه دارم",
     options: [
       "کاملاً مخالفم",
@@ -13,7 +17,6 @@ export const creativityQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "من از حل مسائل به روش‌های جدید لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -24,7 +27,6 @@ export const creativityQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "من از هنر و زیبایی لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -35,7 +37,6 @@ export const creativityQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "من از تجربه‌های جدید لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -46,7 +47,6 @@ export const creativityQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "من از مطالعه و یادگیری لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -57,7 +57,6 @@ export const creativityQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "من از حل مسائل پیچیده لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -68,7 +67,6 @@ export const creativityQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "من از ماجراجویی لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -79,7 +77,6 @@ export const creativityQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "من از چالش‌ها لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -90,7 +87,6 @@ export const creativityQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "من از فرصت‌های جدید لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -101,7 +97,6 @@ export const creativityQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "من از رقابت لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -112,7 +107,6 @@ export const creativityQuestions: Question[] = [
     ]
   },
   {
-    id: 11,
     text: "من از همکاری لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -123,7 +117,6 @@ export const creativityQuestions: Question[] = [
     ]
   },
   {
-    id: 12,
     text: "من از یادگیری مهارت‌های جدید لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -134,7 +127,6 @@ export const creativityQuestions: Question[] = [
     ]
   },
   {
-    id: 13,
     text: "من از کشف چیزهای جدید لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -145,7 +137,6 @@ export const creativityQuestions: Question[] = [
     ]
   },
   {
-    id: 14,
     text: "من از حل مسائل به روش‌های خلاقانه لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -156,7 +147,6 @@ export const creativityQuestions: Question[] = [
     ]
   },
   {
-    id: 15,
     text: "من از ارائه ایده‌های جدید لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -167,6 +157,15 @@ export const creativityQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const creativityQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'creativity',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const creativityOptions = [
   { label: "کاملاً مخالفم", value: "1" },

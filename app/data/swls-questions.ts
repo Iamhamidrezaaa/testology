@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const swlsQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "در بیشتر موارد، زندگی من به ایده‌آل‌هایم نزدیک است.",
     options: [
       "کاملاً مخالفم",
@@ -13,7 +17,6 @@ export const swlsQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "شرایط زندگی من عالی است.",
     options: [
       "کاملاً مخالفم",
@@ -24,7 +27,6 @@ export const swlsQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "از زندگی خود راضی هستم.",
     options: [
       "کاملاً مخالفم",
@@ -35,7 +37,6 @@ export const swlsQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "تا کنون چیزهای مهمی که در زندگی می‌خواستم را به دست آورده‌ام.",
     options: [
       "کاملاً مخالفم",
@@ -46,7 +47,6 @@ export const swlsQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "اگر می‌توانستم زندگی خود را دوباره شروع کنم، تقریباً هیچ چیز را تغییر نمی‌دادم.",
     options: [
       "کاملاً مخالفم",
@@ -57,6 +57,15 @@ export const swlsQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const swlsQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'swls',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const swlsOptions = [
   { label: "کاملاً مخالفم", value: 1 },

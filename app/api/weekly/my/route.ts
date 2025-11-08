@@ -23,10 +23,10 @@ export async function GET() {
     })
 
     // گروه‌بندی تمرین‌ها بر اساس وضعیت
-    const assignedAssignments = assignments.filter(a => a.status === 'assigned')
-    const inProgressAssignments = assignments.filter(a => a.status === 'in_progress')
-    const completedAssignments = assignments.filter(a => a.status === 'completed')
-    const skippedAssignments = assignments.filter(a => a.status === 'skipped')
+    const assignedAssignments = assignments.filter((a: typeof assignments[0]) => a.status === 'assigned')
+    const inProgressAssignments = assignments.filter((a: typeof assignments[0]) => a.status === 'in_progress')
+    const completedAssignments = assignments.filter((a: typeof assignments[0]) => a.status === 'completed')
+    const skippedAssignments = assignments.filter((a: typeof assignments[0]) => a.status === 'skipped')
 
     // آمار کلی
     const stats = {
@@ -42,7 +42,7 @@ export async function GET() {
     const currentWeek = getWeekNumber(today)
     const currentYear = today.getFullYear()
 
-    const currentWeekAssignments = assignments.filter(a => 
+    const currentWeekAssignments = assignments.filter((a: typeof assignments[0]) => 
       a.week === currentWeek && a.year === currentYear
     )
 

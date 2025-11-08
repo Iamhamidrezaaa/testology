@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import OpenAI from 'openai'
+import { getOpenAIClient } from '@/lib/openai-client';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
 
 export async function POST(req: NextRequest) {
   try {
@@ -26,7 +23,7 @@ export async function POST(req: NextRequest) {
       name: test.testName,
       score: test.score,
       date: new Date(test.createdAt).toLocaleDateString('fa-IR'),
-      result: test.resultText?.substring(0, 200) + '...' || 'تحلیل در دسترس نیست'
+      result: test.result?.substring(0, 200) + '...' || test.analysis?.substring(0, 200) + '...' || 'تحلیل در دسترس نیست'
     }))
 
     const prompt = `
@@ -54,6 +51,11 @@ ${testSummary.map(test => `
 - عملی و قابل اجرا باشد
 - حرفه‌ای و علمی باشد
 `
+
+    const openai = getOpenAIClient();
+    if (!openai) {
+      return NextResponse.json({ success: false, error: "OpenAI API key is not configured" }, { status: 500 });
+    }
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',

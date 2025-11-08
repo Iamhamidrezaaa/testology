@@ -22,7 +22,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
       // بدون ریدایرکت به صفحه signin؛ جریان ورود داخل داشبورد مدیریت می‌شود
 
-      if (session.user.role === 'USER') {
+      if (session && session.user && session.user.role === 'USER') {
         const hasSeenTips = localStorage.getItem('onboarding_done')
         if (!hasSeenTips) {
           setShowTips(true)

@@ -1,18 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
+import { getOpenAI } from '@/lib/openai';
 import prisma from '@/lib/prisma';
 
-// ⚙️ اتصال به API GPT (اگر API key وجود داشته باشد)
-let openai: OpenAI | null = null;
-if (process.env.OPENAI_API_KEY) {
-  try {
-    openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-  } catch (error) {
-    console.warn('OpenAI initialization failed:', error);
-  }
-}
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,7 +28,9 @@ export async function POST(request: NextRequest) {
     let insights: string[] = [];
     let recommendations: string[] = [];
 
-    if (openai && process.env.OPENAI_API_KEY) {
+    const openai = getOpenAI();
+    
+    if (openai) {
       try {
         const systemPrompt = `شما یک روان‌شناس متخصص هستید که باید گفت‌وگوی یک کاربر با یک روان‌شناس هوش مصنوعی را تحلیل کنید.
 
@@ -109,10 +102,10 @@ ${conversationText}
         await prisma.chatHistory.create({
           data: {
             userId: user.id,
-            chatType: 'psychologist',
-            role: 'system',
-            message: JSON.stringify({
+            messages: JSON.stringify({
               type: 'analysis',
+              chatType: 'psychologist',
+              role: 'system',
               summary: analysis,
               insights,
               recommendations,

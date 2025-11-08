@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
-import { prisma } from "@/lib/prisma";
+import { getOpenAIClient } from '@/lib/openai-client';
+import prisma from "@/lib/prisma";
 import { withMonitoring } from "@/middleware/withMonitoring";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function generateVoiceHandler(req: Request) {
   try {

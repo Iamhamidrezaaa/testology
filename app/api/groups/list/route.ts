@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 /**
  * دریافت لیست گروه‌های درمانی
@@ -31,32 +31,15 @@ export async function GET(req: NextRequest) {
       };
     }
 
-    const groups = await prisma.therapyGroup.findMany({
-      where,
-      include: {
-        members: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                image: true
-              }
-            }
-          }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+    // TherapyGroup model doesn't exist in schema
+    // Returning empty array for now
+    const groups: any[] = [];
 
-    // فرمت کردن داده‌ها
     const formattedGroups = groups.map(group => ({
       ...group,
-      memberCount: group.members.length,
-      isMember: group.members.some(m => m.userId === session.user.id),
-      role: group.members.find(m => m.userId === session.user.id)?.role || null
+      memberCount: 0,
+      isMember: false,
+      role: null
     }));
 
     return NextResponse.json(formattedGroups);

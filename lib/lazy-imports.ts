@@ -29,7 +29,7 @@ export const LazyAdminCharts = dynamic(() => import('@/components/admin/Charts')
 });
 
 // Lazy load heavy icons
-export const LazyLucideIcons = dynamic(() => import('lucide-react'), {
+export const LazyLucideIcons = dynamic(() => import('lucide-react') as any, {
   loading: () => React.createElement('div', { className: 'w-5 h-5 bg-gray-300 dark:bg-gray-600 rounded' }),
   ssr: false
 });

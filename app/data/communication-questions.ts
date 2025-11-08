@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const communicationQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "من در گفتگو با دیگران راحت هستم",
     options: [
       "کاملاً مخالفم",
@@ -13,7 +17,6 @@ export const communicationQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "من به راحتی نظراتم را بیان می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -24,7 +27,6 @@ export const communicationQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "من به صحبت‌های دیگران خوب گوش می‌دهم",
     options: [
       "کاملاً مخالفم",
@@ -35,7 +37,6 @@ export const communicationQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "من در حل تعارض مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -46,7 +47,6 @@ export const communicationQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "من در ارائه مطالب مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -57,7 +57,6 @@ export const communicationQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "من در نوشتن مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -68,7 +67,6 @@ export const communicationQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "من در تیم‌ها خوب کار می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -79,7 +77,6 @@ export const communicationQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "من در مذاکره مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -90,7 +87,6 @@ export const communicationQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "من در ارائه بازخورد مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -101,7 +97,6 @@ export const communicationQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "من در دریافت بازخورد مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -112,7 +107,6 @@ export const communicationQuestions: Question[] = [
     ]
   },
   {
-    id: 11,
     text: "من در ارتباطات غیرکلامی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -123,7 +117,6 @@ export const communicationQuestions: Question[] = [
     ]
   },
   {
-    id: 12,
     text: "من در ارتباطات بین‌فرهنگی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -134,7 +127,6 @@ export const communicationQuestions: Question[] = [
     ]
   },
   {
-    id: 13,
     text: "من در ارتباطات دیجیتال مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -145,7 +137,6 @@ export const communicationQuestions: Question[] = [
     ]
   },
   {
-    id: 14,
     text: "من در ارتباطات عمومی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -156,7 +147,6 @@ export const communicationQuestions: Question[] = [
     ]
   },
   {
-    id: 15,
     text: "من در ارتباطات خصوصی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -167,6 +157,15 @@ export const communicationQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const communicationQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'communication',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const communicationOptions = [
   { label: "کاملاً مخالفم", value: "1" },

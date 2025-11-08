@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import OpenAI from "openai";
+import prisma from "@/lib/prisma";
+import { getOpenAIClient } from '@/lib/openai-client';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function POST() {
   try {
@@ -33,13 +32,20 @@ Time spent: ${f.timeTaken || "N/A"} seconds
 `;
 
       try {
+        const openai = getOpenAIClient();
+        if (!openai) {
+          console.warn(`OpenAI API key not configured, skipping feedback ${f.id}`);
+          continue;
+        }
+
         const res = await openai.chat.completions.create({
           model: "gpt-4o-mini",
           messages: [{ role: "user", content: prompt }],
           temperature: 0.3,
         });
 
-        const output = JSON.parse(res.choices[0].message.content || "{}");
+        const content = res.choices[0]?.message?.content || "{}";
+        const output = JSON.parse(content);
 
         await prisma.humanFeedback.update({
           where: { id: f.id },
@@ -70,6 +76,8 @@ Time spent: ${f.timeTaken || "N/A"} seconds
     return NextResponse.json({ error: err.message || String(err) }, { status: 500 });
   }
 }
+
+
 
 
 

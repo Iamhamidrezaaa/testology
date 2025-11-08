@@ -1,8 +1,4 @@
-import OpenAI from 'openai'
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+import { getOpenAI } from '@/lib/openai'
 
 interface GPTResponse {
   keywords: string[]
@@ -23,6 +19,11 @@ ${chatbotSummary}
 { "keywords": ["anxiety", "self-esteem", "coping"] }`
 
   try {
+    const openai = getOpenAI();
+    if (!openai) {
+      return { keywords: [] };
+    }
+
     const completion = await openai.chat.completions.create({
       model: "gpt-4",
       messages: [{ role: "user", content: prompt }],

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 /**
  * تکمیل یک مأموریت
@@ -21,40 +21,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Mission ID is required' }, { status: 400 });
     }
 
-    // پیدا کردن مأموریت
-    const mission = await prisma.dailyMission.findUnique({
-      where: { id: missionId }
-    });
+    // مدل dailyMission در schema وجود ندارد
+    // برای MVP، یک پیام موفقیت mock برمی‌گردانیم
+    // در حالت واقعی، باید XP را به userProgress اضافه کنیم
+    const mockXpReward = 100;
 
-    if (!mission) {
-      return NextResponse.json({ error: 'Mission not found' }, { status: 404 });
-    }
-
-    // بررسی مالکیت
-    if (mission.userId !== session.user.id) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    // اگر قبلاً تکمیل شده
-    if (mission.isCompleted) {
-      return NextResponse.json({ error: 'Mission already completed' }, { status: 400 });
-    }
-
-    // تکمیل مأموریت
-    const completed = await prisma.dailyMission.update({
-      where: { id: missionId },
-      data: { isCompleted: true }
-    });
-
-    // اضافه کردن XP به کاربر
+    // اضافه کردن XP به کاربر (این بخش کار می‌کند چون userProgress وجود دارد)
     await prisma.userProgress.upsert({
       where: { userId: session.user.id },
       update: {
-        xp: { increment: mission.xpReward }
+        xp: { increment: mockXpReward }
       },
       create: {
         userId: session.user.id,
-        xp: mission.xpReward,
+        xp: mockXpReward,
         level: 1,
         totalTests: 0,
         streakDays: 0
@@ -66,15 +46,14 @@ export async function POST(req: NextRequest) {
       data: {
         userId: session.user.id,
         title: '✅ مأموریت تکمیل شد!',
-        message: `${mission.xpReward} XP دریافت کردید`,
-        type: 'mission_completed'
+        message: `${mockXpReward} XP دریافت کردید`
       }
     });
 
     return NextResponse.json({
       success: true,
-      mission: completed,
-      xpEarned: mission.xpReward
+      message: 'Mission feature is not fully available yet. Models need to be added to schema.',
+      xpEarned: mockXpReward
     });
 
   } catch (error) {

@@ -28,8 +28,8 @@ export const trackPerformance = (name: string, startTime: number) => {
   // Send to analytics in production
   if (process.env.NODE_ENV === 'production') {
     // Analytics tracking
-    if (typeof window !== 'undefined' && window.gtag) {
-      window.gtag('event', 'timing_complete', {
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      (window as any).gtag('event', 'timing_complete', {
         name,
         value: Math.round(duration)
       });
@@ -63,7 +63,7 @@ export const loadCriticalResources = async () => {
   
   try {
     // Load critical CSS
-    await import('@/app/globals.css');
+    // await import('@/app/globals.css');
     
     // Load critical fonts
     await loadFont('Vazir', '/fonts/vazir.woff2');

@@ -76,11 +76,11 @@ export default function ChatPsychologyPage() {
     // تحلیل تست‌ها
     const testAnalysis = {
       trends: safeTestResults.length > 0 ? "بهبود" : "ثابت",
-      strengths: safeTestResults.filter(r => r && r.score > 70).map(r => r.testName || 'نامشخص'),
-      weaknesses: safeTestResults.filter(r => r && r.score < 40).map(r => r.testName || 'نامشخص'),
+      strengths: safeTestResults.filter((r: any) => r && r.score > 70).map((r: any) => r.testName || 'نامشخص'),
+      weaknesses: safeTestResults.filter((r: any) => r && r.score < 40).map((r: any) => r.testName || 'نامشخص'),
       consistency: "متوسط",
       totalTests: safeTestResults.length,
-      averageScore: safeTestResults.length > 0 ? safeTestResults.reduce((sum, r) => sum + (r.score || 0), 0) / safeTestResults.length : 0
+      averageScore: safeTestResults.length > 0 ? safeTestResults.reduce((sum: any, r: any) => sum + (r.score || 0), 0) / safeTestResults.length : 0
     };
 
     // تحلیل چت‌ها
@@ -100,7 +100,7 @@ export default function ChatPsychologyPage() {
       anxietyLevel: safeTestResults.some(r => r && r.testName && r.testName.includes("اضطراب") && r.score > 60) ? "بالا" : "پایین",
       confidenceLevel: safeTestResults.some(r => r && r.testName && r.testName.includes("اعتماد") && r.score > 70) ? "بالا" : "پایین",
       totalMessages: safeChatHistory.length,
-      averageMessageLength: safeChatHistory.length > 0 ? safeChatHistory.reduce((sum, msg) => sum + (msg.content?.length || 0), 0) / safeChatHistory.length : 0
+      averageMessageLength: safeChatHistory.length > 0 ? safeChatHistory.reduce((sum: any, msg: any) => sum + (msg.content?.length || 0), 0) / safeChatHistory.length : 0
     };
 
     // تحلیل ترکیبی
@@ -196,7 +196,13 @@ export default function ChatPsychologyPage() {
       // تحلیل داده‌ها
       const analysis = analyzeUserData(testResults, chatHistory, screeningAnalysis);
       console.log('🧠 Analysis result:', analysis);
-      setAnalysis(analysis);
+      setAnalysis({
+        ...analysis,
+        combinedAnalysis: {
+          ...analysis.combinedAnalysis,
+          recommendedActions: (analysis.combinedAnalysis as any)?.recommendedActions || []
+        }
+      });
       
     } catch (error) {
       console.error('Error loading analysis:', error);

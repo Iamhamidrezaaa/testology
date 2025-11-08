@@ -74,8 +74,8 @@ export function TestCard({ test }: TestCardProps) {
           <CardTitle className="text-lg font-semibold text-gray-800">
             {test.testName}
           </CardTitle>
-          <Badge className={getScoreColor(test.score, test.testSlug)}>
-            {getScoreLabel(test.score, test.testSlug)}
+          <Badge className={getScoreColor(test.score, test.testSlug || "")}>
+            {getScoreLabel(test.score, test.testSlug || "")}
           </Badge>
         </div>
       </CardHeader>

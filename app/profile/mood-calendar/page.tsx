@@ -151,7 +151,7 @@ export default function MoodCalendarPage() {
           energy: moodForm.energy ? parseInt(moodForm.energy) : null,
           stress: moodForm.stress ? parseInt(moodForm.stress) : null,
           social: moodForm.social ? parseInt(moodForm.social) : null,
-          activities: moodForm.activities ? moodForm.activities.split(',').map(a => a.trim()) : []
+          activities: moodForm.activities ? moodForm.activities.split(',').map((a: any) => a.trim()) : []
         })
       })
 
@@ -317,7 +317,11 @@ export default function MoodCalendarPage() {
           <div className="flex justify-center">
             <Calendar
               value={selectedDate}
-              onChange={handleDateSelect}
+              onChange={(value) => {
+                if (value instanceof Date) {
+                  handleDateSelect(value);
+                }
+              }}
               tileContent={({ date }) => {
                 const dateKey = date.toISOString().split('T')[0]
                 const mood = moodMap[dateKey]
@@ -359,7 +363,7 @@ export default function MoodCalendarPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {['😊', '😐', '😢', '😠', '😴', '😌', '🤔', '😤'].map(mood => (
+              {['😊', '😐', '😢', '😠', '😴', '😌', '🤔', '😤'].map((mood: any) => (
                 <button
                   key={mood}
                   onClick={() => setMoodForm({ ...moodForm, mood })}
@@ -496,6 +500,14 @@ export default function MoodCalendarPage() {
     </ResponsiveContainer>
   )
 }
+
+
+
+
+
+
+
+
 
 
 

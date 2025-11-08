@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
       console.log('No session found, allowing access for admin reports (temporary)')
     } else {
       // اگر session داریم، بررسی نقش
-      if (session.user.role !== 'ADMIN' && session.user.role !== 'admin') {
+      if (session.user.role !== 'ADMIN') {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
       }
     }
@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
         const testPopularity = await prisma.testResult.groupBy({
           by: ['testName'],
           _count: {
-            testName: true
+            id: true
           },
           where: {
             createdAt: {
@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
           },
           orderBy: {
             _count: {
-              testName: 'desc'
+              id: 'desc'
             }
           },
           take: 5
@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
 
         testPopularityWithNames = testPopularity.map((t: any) => ({
           testName: t.testName || 'نامشخص',
-          count: t._count.testName,
+          count: t._count.id,
           percentage: 0
         }))
 
@@ -248,7 +248,7 @@ export async function POST(req: NextRequest) {
     }
 
     // فقط ادمین مجاز است
-    if (session.user.role !== 'admin') {
+    if (session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
         contentId,
         title,
         description: description || '',
-        note,
+        note: note || null,
         week,
         year,
         status: 'assigned'
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
     })
 
     // ایجاد نوتیفیکیشن برای کاربر
-    await prisma.smartNotification.create({
+    await prisma.notification.create({
       data: {
         userId,
         title: '📦 تمرین هفتگی جدید',

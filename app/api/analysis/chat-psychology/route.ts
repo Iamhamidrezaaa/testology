@@ -204,7 +204,7 @@ function identifyStrengths(scores: any[]) {
     }
   })
   
-  return [...new Set(strengths)]
+  return Array.from(new Set(strengths))
 }
 
 // شناسایی نقاط ضعف
@@ -217,7 +217,7 @@ function identifyWeaknesses(scores: any[]) {
     }
   })
   
-  return [...new Set(weaknesses)]
+  return Array.from(new Set(weaknesses))
 }
 
 // تحلیل سازگاری

@@ -33,20 +33,14 @@ export async function PUT(
     }
 
     // به‌روزرسانی وضعیت تمرین
-    const updateData: any = { status }
-    
-    if (status === 'completed') {
-      updateData.completedAt = new Date()
-    }
-
     const updatedAssignment = await prisma.weeklyAssignment.update({
       where: { id },
-      data: updateData
+      data: { status }
     })
 
     // ایجاد نوتیفیکیشن در صورت تکمیل تمرین
     if (status === 'completed') {
-      await prisma.smartNotification.create({
+      await prisma.notification.create({
         data: {
           userId: session.user.id,
           title: '🎉 تمرین تکمیل شد!',

@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
+import { getOpenAIClient } from '@/lib/openai-client';
 
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY 
-});
 
 export async function POST(req: Request) {
   try {
@@ -46,6 +43,11 @@ Respond in JSON format:
 }
 `;
 
+    const openai = getOpenAIClient();
+    if (!openai) {
+      return NextResponse.json({ success: false, error: "OpenAI API key is not configured" }, { status: 500 });
+    }
+
     const privacyRes = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: privacyPrompt }],
@@ -55,7 +57,11 @@ Respond in JSON format:
 
     let privacyAnalysis;
     try {
-      privacyAnalysis = JSON.parse(privacyRes.choices[0].message.content);
+      const content = privacyRes.choices[0]?.message?.content;
+      if (!content) {
+        throw new Error("Empty response from OpenAI");
+      }
+      privacyAnalysis = JSON.parse(content);
     } catch (error) {
       console.error("خطا در پارس تحلیل حریم خصوصی:", error);
       privacyAnalysis = {

@@ -1,8 +1,11 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const staiQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "من احساس آرامش می‌کنم",
     options: [
       "اصلاً",
@@ -13,7 +16,6 @@ export const staiQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "من احساس امنیت می‌کنم",
     options: [
       "اصلاً",
@@ -24,7 +26,6 @@ export const staiQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "من احساس تنش می‌کنم",
     options: [
       "اصلاً",
@@ -35,7 +36,6 @@ export const staiQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "من احساس نگرانی می‌کنم",
     options: [
       "اصلاً",
@@ -46,7 +46,6 @@ export const staiQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "من احساس اضطراب می‌کنم",
     options: [
       "اصلاً",
@@ -57,7 +56,6 @@ export const staiQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "من احساس استرس می‌کنم",
     options: [
       "اصلاً",
@@ -68,7 +66,6 @@ export const staiQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "من احساس ناراحتی می‌کنم",
     options: [
       "اصلاً",
@@ -79,7 +76,6 @@ export const staiQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "من احساس خستگی می‌کنم",
     options: [
       "اصلاً",
@@ -90,7 +86,6 @@ export const staiQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "من احساس عصبانیت می‌کنم",
     options: [
       "اصلاً",
@@ -101,7 +96,6 @@ export const staiQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "من احساس غم می‌کنم",
     options: [
       "اصلاً",
@@ -112,7 +106,6 @@ export const staiQuestions: Question[] = [
     ]
   },
   {
-    id: 11,
     text: "من احساس ترس می‌کنم",
     options: [
       "اصلاً",
@@ -123,7 +116,6 @@ export const staiQuestions: Question[] = [
     ]
   },
   {
-    id: 12,
     text: "من احساس ناامیدی می‌کنم",
     options: [
       "اصلاً",
@@ -134,7 +126,6 @@ export const staiQuestions: Question[] = [
     ]
   },
   {
-    id: 13,
     text: "من احساس بی‌قراری می‌کنم",
     options: [
       "اصلاً",
@@ -145,7 +136,6 @@ export const staiQuestions: Question[] = [
     ]
   },
   {
-    id: 14,
     text: "من احساس بی‌خوابی می‌کنم",
     options: [
       "اصلاً",
@@ -156,7 +146,6 @@ export const staiQuestions: Question[] = [
     ]
   },
   {
-    id: 15,
     text: "من احساس بی‌اشتهایی می‌کنم",
     options: [
       "اصلاً",
@@ -167,7 +156,6 @@ export const staiQuestions: Question[] = [
     ]
   },
   {
-    id: 16,
     text: "من احساس بی‌انگیزگی می‌کنم",
     options: [
       "اصلاً",
@@ -178,7 +166,6 @@ export const staiQuestions: Question[] = [
     ]
   },
   {
-    id: 17,
     text: "من احساس بی‌اعتمادی می‌کنم",
     options: [
       "اصلاً",
@@ -189,7 +176,6 @@ export const staiQuestions: Question[] = [
     ]
   },
   {
-    id: 18,
     text: "من احساس بی‌صبری می‌کنم",
     options: [
       "اصلاً",
@@ -200,7 +186,6 @@ export const staiQuestions: Question[] = [
     ]
   },
   {
-    id: 19,
     text: "من احساس بی‌قراری می‌کنم",
     options: [
       "اصلاً",
@@ -211,7 +196,6 @@ export const staiQuestions: Question[] = [
     ]
   },
   {
-    id: 20,
     text: "من احساس بی‌خوابی می‌کنم",
     options: [
       "اصلاً",
@@ -222,6 +206,13 @@ export const staiQuestions: Question[] = [
     ]
   }
 ]
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const staiQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'stai',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const staiOptions = [
   { label: "اصلاً", value: "1" },

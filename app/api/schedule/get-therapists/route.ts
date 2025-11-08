@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 export async function GET(req: Request) {
   try {
@@ -7,33 +7,11 @@ export async function GET(req: Request) {
     const specialty = searchParams.get("specialty");
     const verified = searchParams.get("verified");
 
-    const whereClause: any = {};
-    
-    if (specialty) {
-      whereClause.specialty = { contains: specialty, mode: "insensitive" };
-    }
-    
-    if (verified !== null) {
-      whereClause.verified = verified === "true";
-    }
-
-    const therapists = await prisma.humanTherapist.findMany({
-      where: whereClause,
-      orderBy: [
-        { verified: "desc" },
-        { name: "asc" }
-      ]
-    });
-
-    // تبدیل availableSlots از JSON string به object
-    const therapistsWithParsedSlots = therapists.map(therapist => ({
-      ...therapist,
-      availableSlots: therapist.availableSlots ? JSON.parse(therapist.availableSlots) : null
-    }));
-
+    // مدل humanTherapist در schema وجود ندارد
+    // برای MVP، لیست خالی برمی‌گردانیم
     return NextResponse.json({ 
-      therapists: therapistsWithParsedSlots,
-      count: therapists.length
+      therapists: [],
+      count: 0
     });
   } catch (err: any) {
     console.error("Get therapists failed:", err);

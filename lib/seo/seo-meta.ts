@@ -54,7 +54,7 @@ export function generateTestSEO(slug: string): Metadata {
       canonical: testData.canonical,
     },
     other: {
-      'application/ld+json': testData.structuredData ? JSON.stringify(testData.structuredData) : undefined,
+      ...(testData.structuredData ? { 'application/ld+json': JSON.stringify(testData.structuredData) } : {}),
     },
   };
 }

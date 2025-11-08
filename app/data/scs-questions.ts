@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const scsQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "وقتی احساس می‌کنم که در زندگی شکست خورده‌ام، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -13,7 +17,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "وقتی چیزهای دردناکی را تجربه می‌کنم، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -24,7 +27,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "وقتی احساس می‌کنم که در زندگی شکست خورده‌ام، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -35,7 +37,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "وقتی چیزهای دردناکی را تجربه می‌کنم، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -46,7 +47,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "وقتی احساس می‌کنم که در زندگی شکست خورده‌ام، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -57,7 +57,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "وقتی چیزهای دردناکی را تجربه می‌کنم، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -68,7 +67,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "وقتی احساس می‌کنم که در زندگی شکست خورده‌ام، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -79,7 +77,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "وقتی چیزهای دردناکی را تجربه می‌کنم، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -90,7 +87,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "وقتی احساس می‌کنم که در زندگی شکست خورده‌ام، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -101,7 +97,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "وقتی چیزهای دردناکی را تجربه می‌کنم، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -112,7 +107,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 11,
     text: "وقتی احساس می‌کنم که در زندگی شکست خورده‌ام، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -123,7 +117,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 12,
     text: "وقتی چیزهای دردناکی را تجربه می‌کنم، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -134,7 +127,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 13,
     text: "وقتی احساس می‌کنم که در زندگی شکست خورده‌ام، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -145,7 +137,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 14,
     text: "وقتی چیزهای دردناکی را تجربه می‌کنم، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -156,7 +147,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 15,
     text: "وقتی احساس می‌کنم که در زندگی شکست خورده‌ام، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -167,7 +157,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 16,
     text: "وقتی چیزهای دردناکی را تجربه می‌کنم، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -178,7 +167,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 17,
     text: "وقتی احساس می‌کنم که در زندگی شکست خورده‌ام، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -189,7 +177,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 18,
     text: "وقتی چیزهای دردناکی را تجربه می‌کنم، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -200,7 +187,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 19,
     text: "وقتی احساس می‌کنم که در زندگی شکست خورده‌ام، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -211,7 +197,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 20,
     text: "وقتی چیزهای دردناکی را تجربه می‌کنم، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -222,7 +207,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 21,
     text: "وقتی احساس می‌کنم که در زندگی شکست خورده‌ام، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -233,7 +217,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 22,
     text: "وقتی چیزهای دردناکی را تجربه می‌کنم، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -244,7 +227,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 23,
     text: "وقتی احساس می‌کنم که در زندگی شکست خورده‌ام، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -255,7 +237,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 24,
     text: "وقتی چیزهای دردناکی را تجربه می‌کنم، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -266,7 +247,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 25,
     text: "وقتی احساس می‌کنم که در زندگی شکست خورده‌ام، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -277,7 +257,6 @@ export const scsQuestions: Question[] = [
     ]
   },
   {
-    id: 26,
     text: "وقتی چیزهای دردناکی را تجربه می‌کنم، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -288,6 +267,15 @@ export const scsQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const scsQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'scs',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const scsOptions = [
   { label: "کاملاً مخالفم", value: 1 },

@@ -1,14 +1,12 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 
 export async function GET() {
   try {
     // دریافت تست‌های محبوب بر اساس تعداد انجام
     const popularTests = await prisma.testResult.groupBy({
-      by: ['testSlug', 'testName'],
-      where: {
-        completed: true
-      },
+      by: ['testName'],
+      where: {},
       _count: {
         id: true
       },
@@ -25,20 +23,20 @@ export async function GET() {
       popularTests.map(async (test) => {
         const testDetails = await prisma.test.findFirst({
           where: {
-            slug: test.testSlug
+            testSlug: test.testName.toLowerCase().replace(/\s+/g, '-') || test.testName
           },
           select: {
             id: true,
-            title: true,
+            testSlug: true,
+            testName: true,
             description: true,
             category: true,
-            estimatedTime: true,
-            difficulty: true
+            isActive: true
           }
         })
 
         return {
-          slug: test.testSlug,
+          slug: testDetails?.testSlug || test.testName.toLowerCase().replace(/\s+/g, '-'),
           name: test.testName,
           completionCount: test._count.id,
           details: testDetails

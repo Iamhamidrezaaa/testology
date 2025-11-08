@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
 
         testPopularityWithNames = testPopularity.map((t: any) => ({
           testName: t.testName || 'نامشخص',
-          count: t._count.testName,
+          count: t._count.id,
           percentage: 0
         }))
 

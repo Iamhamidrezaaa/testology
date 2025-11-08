@@ -2,7 +2,13 @@ import { Question } from '../types/test'
 
 export const mbtiQuestions: Question[] = [
   {
-    id: 1,
+    id: "1",
+    type: 'SINGLE_CHOICE',
+    order: 1,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "در مهمانی‌ها، معمولاً:",
     options: [
       "با افراد جدید آشنا می‌شوید",
@@ -10,7 +16,13 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
+    id: "2",
+    type: 'SINGLE_CHOICE',
+    order: 2,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "کدام یک را ترجیح می‌دهید؟",
     options: [
       "اطلاعات جدید و نوآورانه",
@@ -18,7 +30,13 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
+    id: "3",
+    type: 'SINGLE_CHOICE',
+    order: 3,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "وقتی تصمیم می‌گیرید، بیشتر:",
     options: [
       "از منطق و تحلیل استفاده می‌کنید",
@@ -26,7 +44,13 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
+    id: "4",
+    type: 'SINGLE_CHOICE',
+    order: 4,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "در کار، ترجیح می‌دهید:",
     options: [
       "کارهای جدید و متنوع",
@@ -34,7 +58,13 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
+    id: "5",
+    type: 'SINGLE_CHOICE',
+    order: 5,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "وقتی با مشکل مواجه می‌شوید:",
     options: [
       "سریع تصمیم می‌گیرید",
@@ -42,7 +72,13 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
+    id: "6",
+    type: 'SINGLE_CHOICE',
+    order: 6,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "در روابط، بیشتر:",
     options: [
       "مستقل عمل می‌کنید",
@@ -50,7 +86,13 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
+    id: "7",
+    type: 'SINGLE_CHOICE',
+    order: 7,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "کدام یک را ترجیح می‌دهید؟",
     options: [
       "جزئیات دقیق",
@@ -58,7 +100,13 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
+    id: "8",
+    type: 'SINGLE_CHOICE',
+    order: 8,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "وقتی برنامه‌ریزی می‌کنید:",
     options: [
       "برنامه‌های دقیق و منظم",
@@ -66,7 +114,13 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
+    id: "9",
+    type: 'SINGLE_CHOICE',
+    order: 9,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "در بحث‌ها، معمولاً:",
     options: [
       "مستقیماً نظر خود را می‌گویید",
@@ -74,7 +128,13 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
+    id: "10",
+    type: 'SINGLE_CHOICE',
+    order: 10,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "وقتی انرژی می‌گیرید:",
     options: [
       "از بودن با دیگران",
@@ -82,7 +142,13 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 11,
+    id: "11",
+    type: 'SINGLE_CHOICE',
+    order: 11,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "کدام یک را ترجیح می‌دهید؟",
     options: [
       "امکانات و احتمالات",
@@ -90,7 +156,13 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 12,
+    id: "12",
+    type: 'SINGLE_CHOICE',
+    order: 12,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "وقتی کار می‌کنید:",
     options: [
       "با دیگران همکاری می‌کنید",
@@ -98,7 +170,13 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 13,
+    id: "13",
+    type: 'SINGLE_CHOICE',
+    order: 13,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "در تصمیم‌گیری:",
     options: [
       "از منطق و تحلیل استفاده می‌کنید",
@@ -106,7 +184,13 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 14,
+    id: "14",
+    type: 'SINGLE_CHOICE',
+    order: 14,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "وقتی یاد می‌گیرید:",
     options: [
       "از تجربه و عمل",
@@ -114,7 +198,13 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 15,
+    id: "15",
+    type: 'SINGLE_CHOICE',
+    order: 15,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "در روابط:",
     options: [
       "مستقل عمل می‌کنید",
@@ -122,7 +212,13 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 16,
+    id: "16",
+    type: 'SINGLE_CHOICE',
+    order: 16,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "وقتی برنامه‌ریزی می‌کنید:",
     options: [
       "برنامه‌های دقیق و منظم",
@@ -130,7 +226,13 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 17,
+    id: "17",
+    type: 'SINGLE_CHOICE',
+    order: 17,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "در بحث‌ها:",
     options: [
       "مستقیماً نظر خود را می‌گویید",
@@ -138,7 +240,13 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 18,
+    id: "18",
+    type: 'SINGLE_CHOICE',
+    order: 18,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "وقتی انرژی می‌گیرید:",
     options: [
       "از بودن با دیگران",
@@ -146,7 +254,13 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 19,
+    id: "19",
+    type: 'SINGLE_CHOICE',
+    order: 19,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "کدام یک را ترجیح می‌دهید؟",
     options: [
       "امکانات و احتمالات",
@@ -154,7 +268,13 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 20,
+    id: "20",
+    type: 'SINGLE_CHOICE',
+    order: 20,
+    testId: 'mbti',
+    required: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
     text: "وقتی کار می‌کنید:",
     options: [
       "با دیگران همکاری می‌کنید",

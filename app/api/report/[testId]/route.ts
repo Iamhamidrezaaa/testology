@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
 /**
@@ -41,8 +41,8 @@ export async function GET(
     // بررسی دسترسی (فقط خود کاربر یا درمانگر/ادمین)
     if (
       testResult.userId !== session.user.id &&
-      session.user.role !== 'therapist' &&
-      session.user.role !== 'admin'
+      session.user.role !== 'THERAPIST' &&
+      session.user.role !== 'ADMIN'
     ) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
@@ -89,7 +89,7 @@ export async function GET(
     yPosition -= 25;
 
     const testInfo = [
-      `Test Name: ${testResult.testName || testResult.testSlug}`,
+      `Test Name: ${testResult.testName || testResult.testId || 'Unknown'}`,
       `Test ID: ${testResult.id}`,
       `Date: ${new Date(testResult.createdAt).toLocaleDateString('en-US')}`,
       `User: ${testResult.user?.name || 'N/A'}`,
@@ -122,7 +122,7 @@ export async function GET(
     yPosition -= 25;
 
     // تقسیم متن تحلیل به خطوط
-    const interpretation = testResult.interpretation || testResult.resultText || 'No interpretation available';
+    const interpretation = testResult.interpretation || testResult.result || testResult.analysis || 'No interpretation available';
     const lines = wrapText(interpretation, 75);
 
     lines.forEach((line) => {

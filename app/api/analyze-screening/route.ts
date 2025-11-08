@@ -1,20 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import OpenAI from 'openai';
+import { getOpenAI } from '@/lib/openai';
 
-// ⚙️ اتصال به API GPT (اگر API key وجود داشته باشد)
-let openai: OpenAI | null = null;
-if (process.env.OPENAI_API_KEY) {
-  try {
-    openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-  } catch (error) {
-    console.warn('OpenAI initialization failed:', error);
-  }
-}
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<Response> {
   try {
     const { userEmail, screeningSetId, answers } = await req.json();
 
@@ -123,8 +114,10 @@ export async function POST(req: NextRequest) {
 }
 
 async function analyzeScreeningWithGPT(answers: { [key: number]: string }) {
+  const openai = getOpenAI();
+  
   // اگر OpenAI API key وجود ندارد، از fallback استفاده کن
-  if (!openai || !process.env.OPENAI_API_KEY) {
+  if (!openai) {
     console.log('OpenAI API key not found, using fallback analysis');
     return {
       analysis: generateFallbackAnalysis(answers),

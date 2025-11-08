@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import OpenAI from "openai";
+import prisma from "@/lib/prisma";
+import { getOpenAIClient } from '@/lib/openai-client';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 export async function POST() {
   try {
@@ -79,6 +76,11 @@ Make the dream feel like a real dream - surreal, symbolic, and meaningful.
     console.log("🧠 تولید خواب با GPT...");
 
     // مرحله ۴: فراخوانی GPT
+    const openai = getOpenAIClient();
+    if (!openai) {
+      return NextResponse.json({ success: false, error: "OpenAI API key is not configured" }, { status: 500 });
+    }
+
     const gptRes = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "user", content: dreamPrompt }],
@@ -86,7 +88,7 @@ Make the dream feel like a real dream - surreal, symbolic, and meaningful.
       max_tokens: 1000,
     });
 
-    const output = gptRes.choices[0].message.content;
+    const output = gptRes.choices[0]?.message?.content;
     
     if (!output) {
       throw new Error("GPT response is empty");
@@ -114,7 +116,7 @@ Make the dream feel like a real dream - surreal, symbolic, and meaningful.
         content: dream.content || output,
         interpretation: dream.interpretation || "تفسیر خودکار",
         inspiration: dream.inspiration || "بینش استخراج شده",
-        sourceData: sourceData,
+        sourceData: JSON.stringify(sourceData),
         moodContext: moodContext,
       },
     });

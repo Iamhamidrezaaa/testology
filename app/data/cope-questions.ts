@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const copeQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "وقتی با مشکل بزرگی مواجه می‌شی، اولین واکنش‌ت چیه؟",
     options: [
       "سعی می‌کنم یه برنامه برای حلش بریزم",
@@ -12,7 +16,6 @@ export const copeQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "اگه اتفاق بدی بیفته که کنترلی روش نداری، چه می‌کنی؟",
     options: [
       "دعا می‌کنم یا به قدرت بالاتری تکیه می‌کنم",
@@ -22,7 +25,6 @@ export const copeQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "چطور خودتو آرام می‌کنی وقتی اضطراب داری؟",
     options: [
       "نفس عمیق می‌کشم یا مدیتیشن می‌کنم",
@@ -32,7 +34,6 @@ export const copeQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "وقتی اشتباهی کردی، معمولاً چی کار می‌کنی؟",
     options: [
       "سریع عذرخواهی می‌کنم",
@@ -42,7 +43,6 @@ export const copeQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "در موقعیت‌های دشوار معمولاً...",
     options: [
       "از دیگران کمک می‌خوام",
@@ -52,7 +52,6 @@ export const copeQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "وقتی ناراحتی طول می‌کشه، چه روشی برای عبور داری؟",
     options: [
       "ورزش یا تحرک فیزیکی",
@@ -62,7 +61,6 @@ export const copeQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "برای تصمیم‌گیری‌های سخت معمولاً...",
     options: [
       "نظر دیگران رو می‌پرسم",
@@ -72,7 +70,6 @@ export const copeQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "در لحظات بحران، بیشتر چه حسی داری؟",
     options: [
       "تمرکز بالا و عملیاتی",
@@ -82,7 +79,6 @@ export const copeQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "واکنشت به شکست چیه؟",
     options: [
       "درس می‌گیرم و ادامه می‌دم",
@@ -92,7 +88,6 @@ export const copeQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "وقتی از آینده می‌ترسی، چه کاری می‌کنی؟",
     options: [
       "برنامه‌ریزی می‌کنم تا آمادگی داشته باشم",
@@ -102,7 +97,6 @@ export const copeQuestions: Question[] = [
     ]
   },
   {
-    id: 11,
     text: "موقع فشار روانی شدید چه کاری بیشتر انجام می‌دی؟",
     options: [
       "زیاد می‌خوابم",
@@ -112,7 +106,6 @@ export const copeQuestions: Question[] = [
     ]
   },
   {
-    id: 12,
     text: "برای تقویت روحیه‌ت در روزهای سخت، چه می‌کنی؟",
     options: [
       "موسیقی گوش می‌دم",
@@ -122,6 +115,15 @@ export const copeQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const copeQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'cope',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const copeOptions = [
   { label: "اصلاً", value: 1 },

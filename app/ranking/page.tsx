@@ -2,6 +2,9 @@ import React from 'react'
 import RankingList from '@/components/ranking/RankingList'
 import { UserRanking } from '@/lib/services/ranking'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function getRankings(): Promise<UserRanking[]> {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/ranking`, {

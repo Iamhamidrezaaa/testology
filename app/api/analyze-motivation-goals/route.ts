@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
+import { getOpenAIClient } from '@/lib/openai-client';
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+
+
 
 export async function POST(req: NextRequest) {
   try {
@@ -25,6 +24,11 @@ export async function POST(req: NextRequest) {
     
     پاسخ را به فارسی و با لحن دوستانه و انگیزه‌بخش ارائه دهید.
     `;
+
+    const client = getOpenAIClient();
+    if (!client) {
+      return NextResponse.json({ success: false, error: "OpenAI API key is not configured" }, { status: 500 });
+    }
 
     const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",

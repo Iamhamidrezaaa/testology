@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 /**
  * دریافت ترجمه از دیتابیس
@@ -21,12 +21,12 @@ export async function GET(
       );
     }
 
+    const key = `${type}_${id}`;
     const translation = await prisma.translation.findUnique({
       where: {
-        type_referenceId_language: {
-          type,
-          referenceId: id,
-          language
+        key_lang: {
+          key,
+          lang: language
         }
       }
     });
@@ -39,8 +39,8 @@ export async function GET(
     }
 
     return NextResponse.json({
-      content: translation.content,
-      language: translation.language,
+      content: translation.text,
+      language: translation.lang,
       updatedAt: translation.updatedAt,
       available: true
     });
@@ -73,24 +73,22 @@ export async function PUT(
       );
     }
 
+    const key = `${type}_${id}`;
     const translation = await prisma.translation.upsert({
       where: {
-        type_referenceId_language: {
-          type,
-          referenceId: id,
-          language
+        key_lang: {
+          key,
+          lang: language
         }
       },
       update: {
-        content,
+        text: content,
         updatedAt: new Date()
       },
       create: {
-        type,
-        referenceId: id,
-        language,
-        content,
-        translated: true
+        key,
+        lang: language,
+        text: content
       }
     });
 

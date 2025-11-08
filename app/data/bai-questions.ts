@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const baiQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "چقدر احساس می‌کنید که نگران یا مضطرب هستید؟",
     options: [
       "اصلاً",
@@ -13,7 +17,6 @@ export const baiQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "چقدر احساس می‌کنید که ترسیده هستید؟",
     options: [
       "اصلاً",
@@ -24,7 +27,6 @@ export const baiQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "چقدر احساس می‌کنید که نگران یا مضطرب هستید؟",
     options: [
       "اصلاً",
@@ -35,7 +37,6 @@ export const baiQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "چقدر احساس می‌کنید که ترسیده هستید؟",
     options: [
       "اصلاً",
@@ -46,7 +47,6 @@ export const baiQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "چقدر احساس می‌کنید که نگران یا مضطرب هستید؟",
     options: [
       "اصلاً",
@@ -57,7 +57,6 @@ export const baiQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "چقدر احساس می‌کنید که ترسیده هستید؟",
     options: [
       "اصلاً",
@@ -68,7 +67,6 @@ export const baiQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "چقدر احساس می‌کنید که نگران یا مضطرب هستید؟",
     options: [
       "اصلاً",
@@ -79,7 +77,6 @@ export const baiQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "چقدر احساس می‌کنید که ترسیده هستید؟",
     options: [
       "اصلاً",
@@ -90,7 +87,6 @@ export const baiQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "چقدر احساس می‌کنید که نگران یا مضطرب هستید؟",
     options: [
       "اصلاً",
@@ -101,7 +97,6 @@ export const baiQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "چقدر احساس می‌کنید که ترسیده هستید؟",
     options: [
       "اصلاً",
@@ -112,6 +107,15 @@ export const baiQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const baiQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'bai',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const baiOptions = [
   { label: "اصلاً", value: 0 },

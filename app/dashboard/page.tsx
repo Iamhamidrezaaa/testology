@@ -51,7 +51,7 @@ export default function DashboardPage() {
     }
 
     // بررسی نقش کاربر
-    if (role === "admin") {
+    if (role === "ADMIN") {
       router.push("/admin/dashboard");
       return;
     } else if (role === "psychologist") {
@@ -100,7 +100,7 @@ export default function DashboardPage() {
       }
 
       // بررسی نقش کاربر
-      if (session.user.role === "admin") {
+      if (session.user.role === "ADMIN") {
         router.push("/admin/dashboard");
         return;
       } else if (session.user.role === "psychologist") {

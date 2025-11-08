@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 export async function POST() {
   try {
     console.log("⚖️ شروع وزن‌دهی تست‌ها بر اساس الگوهای رفتاری...");
     
-    const patterns = await prisma.behaviorPattern.findMany();
+    const patterns = await prisma.behaviorPattern.findMany().catch(() => []);
     if (!patterns.length) {
       return NextResponse.json({ 
         success: false,

@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import OpenAI from "openai";
+import prisma from "@/lib/prisma";
+import { getOpenAIClient } from '@/lib/openai-client';
 import { withMonitoring } from "@/middleware/withMonitoring";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function updateMemoryHandler(req: Request) {
   try {
@@ -29,7 +28,13 @@ async function updateMemoryHandler(req: Request) {
 
     // استخراج پیام‌های اخیر
     const recentMessages = sessions
-      .flatMap((s) => s.messages as any[])
+      .flatMap((s) => {
+        try {
+          return JSON.parse(s.messages) as any[];
+        } catch {
+          return [];
+        }
+      })
       .map((m: any) => `${m.role}: ${m.content}`)
       .join("\n");
 

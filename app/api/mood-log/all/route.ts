@@ -21,19 +21,19 @@ export async function GET() {
     // آمار کلی
     const stats = {
       totalEntries: moodLogs.length,
-      averageEnergy: moodLogs.reduce((sum, log) => sum + (log.energy || 0), 0) / moodLogs.length || 0,
-      averageStress: moodLogs.reduce((sum, log) => sum + (log.stress || 0), 0) / moodLogs.length || 0,
-      averageSleep: moodLogs.reduce((sum, log) => sum + (log.sleepHour || 0), 0) / moodLogs.length || 0,
-      exerciseDays: moodLogs.filter(log => log.exercise).length,
-      meditationDays: moodLogs.filter(log => log.meditation).length,
-      moodCounts: moodLogs.reduce((acc, log) => {
+      averageEnergy: moodLogs.reduce((sum: number, log: typeof moodLogs[0]) => sum + (log.energy || 0), 0) / moodLogs.length || 0,
+      averageStress: moodLogs.reduce((sum: number, log: typeof moodLogs[0]) => sum + (log.stress || 0), 0) / moodLogs.length || 0,
+      averageSleep: moodLogs.reduce((sum: number, log: typeof moodLogs[0]) => sum + (log.sleepHour || 0), 0) / moodLogs.length || 0,
+      exerciseDays: moodLogs.filter((log: typeof moodLogs[0]) => log.exercise).length,
+      meditationDays: moodLogs.filter((log: typeof moodLogs[0]) => log.meditation).length,
+      moodCounts: moodLogs.reduce((acc: Record<string, number>, log: typeof moodLogs[0]) => {
         acc[log.mood] = (acc[log.mood] || 0) + 1
         return acc
       }, {} as Record<string, number>)
     }
 
     // گروه‌بندی بر اساس ماه
-    const monthlyData = moodLogs.reduce((acc, log) => {
+    const monthlyData = moodLogs.reduce((acc: Record<string, typeof moodLogs>, log: typeof moodLogs[0]) => {
       const monthKey = log.date.toISOString().substring(0, 7) // YYYY-MM
       if (!acc[monthKey]) {
         acc[monthKey] = []

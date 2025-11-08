@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const problemSolvingQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "من در شناسایی مسائل مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -13,7 +17,6 @@ export const problemSolvingQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "من در تحلیل مسائل مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -24,7 +27,6 @@ export const problemSolvingQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "من در تولید راه‌حل‌ها مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -35,7 +37,6 @@ export const problemSolvingQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "من در ارزیابی راه‌حل‌ها مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -46,7 +47,6 @@ export const problemSolvingQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "من در اجرای راه‌حل‌ها مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -57,7 +57,6 @@ export const problemSolvingQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "من در نظارت بر راه‌حل‌ها مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -68,7 +67,6 @@ export const problemSolvingQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "من در خلاقیت مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -79,7 +77,6 @@ export const problemSolvingQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "من در تفکر انتقادی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -90,7 +87,6 @@ export const problemSolvingQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "من در تفکر منطقی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -101,7 +97,6 @@ export const problemSolvingQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "من در تفکر تحلیلی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -112,7 +107,6 @@ export const problemSolvingQuestions: Question[] = [
     ]
   },
   {
-    id: 11,
     text: "من در تفکر خلاق مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -123,7 +117,6 @@ export const problemSolvingQuestions: Question[] = [
     ]
   },
   {
-    id: 12,
     text: "من در تفکر استراتژیک مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -134,7 +127,6 @@ export const problemSolvingQuestions: Question[] = [
     ]
   },
   {
-    id: 13,
     text: "من در تفکر سیستمی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -145,7 +137,6 @@ export const problemSolvingQuestions: Question[] = [
     ]
   },
   {
-    id: 14,
     text: "من در تفکر نوآورانه مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -156,7 +147,6 @@ export const problemSolvingQuestions: Question[] = [
     ]
   },
   {
-    id: 15,
     text: "من در تفکر حل مسئله مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -167,6 +157,15 @@ export const problemSolvingQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const problemSolvingQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'problem-solving',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const problemSolvingOptions = [
   { label: "کاملاً مخالفم", value: "1" },

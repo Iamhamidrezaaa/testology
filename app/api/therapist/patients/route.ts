@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     }
 
     // بررسی نقش درمانگر
-    if (session.user.role !== 'therapist' && session.user.role !== 'admin') {
+    if (session.user.role !== 'THERAPIST' && session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden - Therapist access required' }, { status: 403 });
     }
 
@@ -32,15 +32,12 @@ export async function GET(req: NextRequest) {
     // دریافت بیماران
     const patients = await prisma.therapistPatient.findMany({
       where: { therapistId: therapist.id },
-      include: {
-        // بیماران را از طریق Patient model می‌گیریم
-      },
       orderBy: { createdAt: 'desc' }
     });
 
     // دریافت اطلاعات کامل بیماران با تست‌ها و پیشرفت
     const patientsWithDetails = await Promise.all(
-      patients.map(async (patient) => {
+      patients.map(async (patient: typeof patients[0]) => {
         const userInfo = await prisma.user.findUnique({
           where: { id: patient.patientId },
           select: {
@@ -112,7 +109,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (session.user.role !== 'therapist' && session.user.role !== 'admin') {
+    if (session.user.role !== 'THERAPIST' && session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -141,12 +138,10 @@ export async function POST(req: NextRequest) {
     }
 
     // بررسی عدم تکراری بودن
-    const existing = await prisma.therapistPatient.findUnique({
+    const existing = await prisma.therapistPatient.findFirst({
       where: {
-        therapistId_patientId: {
-          therapistId: therapist.id,
-          patientId: patientId
-        }
+        therapistId: therapist.id,
+        patientId: patientId
       }
     });
 

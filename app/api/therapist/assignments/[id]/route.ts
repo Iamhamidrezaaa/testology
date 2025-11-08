@@ -41,39 +41,32 @@ export async function PUT(
     const updatedAssignment = await prisma.therapistAssignment.update({
       where: { id },
       data: {
-        ...(feedback !== undefined && { feedback }),
         ...(status !== undefined && { status })
-      },
-      include: {
-        content: {
-          select: {
-            id: true,
-            title: true,
-            description: true,
-            type: true,
-            category: true,
-            difficulty: true,
-            duration: true,
-            imageUrl: true
-          }
-        },
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true
-          }
-        }
+      }
+    })
+    
+    // دریافت محتوای تمرین
+    const content = await prisma.marketplaceItem.findUnique({
+      where: { id: assignment.contentId },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        type: true,
+        category: true,
+        difficulty: true,
+        duration: true,
+        imageUrl: true
       }
     })
 
     // اگر وضعیت تغییر کرد، نوتیفیکیشن ارسال کن
     if (status && status !== assignment.status) {
-      await prisma.smartNotification.create({
+      await prisma.notification.create({
         data: {
           userId: assignment.userId,
           title: '📋 به‌روزرسانی تمرین',
-          message: `وضعیت تمرین "${updatedAssignment.content.title}" به‌روزرسانی شد.`,
+          message: `وضعیت تمرین "${content?.title || 'تمرین'}" به‌روزرسانی شد.`,
           type: 'assignment_update',
           priority: 'normal',
           actionUrl: '/profile/assignments'
@@ -83,7 +76,7 @@ export async function PUT(
 
     return NextResponse.json({
       success: true,
-      assignment: updatedAssignment
+      assignment: { ...updatedAssignment, content }
     })
 
   } catch (error) {
@@ -131,7 +124,7 @@ export async function DELETE(
     })
 
     // نوتیفیکیشن حذف تمرین
-    await prisma.smartNotification.create({
+    await prisma.notification.create({
       data: {
         userId: assignment.userId,
         title: '🗑️ تمرین حذف شد',

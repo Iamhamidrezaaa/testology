@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'سیستم اخلاقی انجام شد',
-      ...result
+      ...(typeof result === 'object' && result !== null ? result : {})
     });
 
   } catch (error) {
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const action = searchParams.get('action');
+    const action = searchParams?.get('action');
 
     if (action === 'stats') {
       // دریافت آمار اخلاقی

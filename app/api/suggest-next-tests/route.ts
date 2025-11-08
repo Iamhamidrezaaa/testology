@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
-import OpenAI from 'openai'
+import prisma from '@/lib/prisma'
+import { getOpenAIClient } from '@/lib/openai-client';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions)
@@ -17,7 +16,7 @@ export async function POST(request: Request) {
     if (!userId) return new Response(JSON.stringify({ error: 'userId لازم است' }), { status: 400 })
 
     // فقط ادمین یا مشاور مجاز است
-    if (!(session.user.role === 'admin' || session.user.role === 'therapist')) {
+    if (!(session.user.role === 'ADMIN' || session.user.role === 'THERAPIST')) {
       return new Response(JSON.stringify({ error: 'دسترسی غیرمجاز' }), { status: 403 })
     }
 
@@ -26,13 +25,18 @@ export async function POST(request: Request) {
       where: { userId },
       orderBy: { createdAt: 'desc' },
       take: 10,
-      select: { testName: true, testSlug: true, type: true, score: true, totalScore: true, result: true, createdAt: true }
+      select: { testName: true, testId: true, score: true, result: true, createdAt: true }
     })
 
-    const summaryLines = results.map(r => `- ${r.testName} (${r.testSlug ?? r.type}): score=${r.score ?? '-'} / ${r.totalScore ?? '-'} | note=${r.result?.slice(0,120) ?? ''}`)
+    const summaryLines = results.map(r => `- ${r.testName} (${r.testId ?? 'unknown'}): score=${r.score ?? '-'} | note=${r.result?.slice(0,120) ?? ''}`)
     const summary = summaryLines.join('\n') || 'No previous tests.'
 
     const prompt = `You are a mental health assistant. A user has completed the following psychological tests with their results:\n\n${summary}\n\nBased on these, suggest 2 to 3 next psychological tests the user should take, and explain briefly why.\n\nFormat your output as:\n[\n  { "name": "Test Name", "reason": "Short reason" },\n  ...\n]`
+
+    const openai = getOpenAIClient();
+    if (!openai) {
+      return NextResponse.json({ success: false, error: "OpenAI API key is not configured" }, { status: 500 });
+    }
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o-mini',

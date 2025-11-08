@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const asrsQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "چقدر مشکل دارید که در کارهای روزمره خود منظم باشید؟",
     options: [
       "هیچ وقت",
@@ -13,7 +17,6 @@ export const asrsQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "چقدر مشکل دارید که روی کارهای مهم تمرکز کنید؟",
     options: [
       "هیچ وقت",
@@ -24,7 +27,6 @@ export const asrsQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "چقدر مشکل دارید که به یاد بیاورید قرارها یا تعهدات خود را انجام دهید؟",
     options: [
       "هیچ وقت",
@@ -35,7 +37,6 @@ export const asrsQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "چقدر مشکل دارید که کارهای پیچیده را شروع کنید؟",
     options: [
       "هیچ وقت",
@@ -46,7 +47,6 @@ export const asrsQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "چقدر مشکل دارید که کارها را به پایان برسانید؟",
     options: [
       "هیچ وقت",
@@ -57,7 +57,6 @@ export const asrsQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "چقدر مشکل دارید که کارهای روزمره را به یاد بیاورید؟",
     options: [
       "هیچ وقت",
@@ -68,7 +67,6 @@ export const asrsQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "چقدر مشکل دارید که در جلسات یا موقعیت‌هایی که باید آرام بنشینید، آرام باشید؟",
     options: [
       "هیچ وقت",
@@ -79,7 +77,6 @@ export const asrsQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "چقدر مشکل دارید که آرام باشید و آرامش داشته باشید؟",
     options: [
       "هیچ وقت",
@@ -90,7 +87,6 @@ export const asrsQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "چقدر مشکل دارید که احساس کنید در حال حرکت یا بی‌قرار هستید؟",
     options: [
       "هیچ وقت",
@@ -101,7 +97,6 @@ export const asrsQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "چقدر مشکل دارید که احساس کنید باید همیشه در حال انجام کاری باشید؟",
     options: [
       "هیچ وقت",
@@ -112,7 +107,6 @@ export const asrsQuestions: Question[] = [
     ]
   },
   {
-    id: 11,
     text: "چقدر مشکل دارید که احساس کنید ذهنتان در حال حرکت است؟",
     options: [
       "هیچ وقت",
@@ -123,7 +117,6 @@ export const asrsQuestions: Question[] = [
     ]
   },
   {
-    id: 12,
     text: "چقدر مشکل دارید که احساس کنید باید همیشه در حال انجام چند کار همزمان باشید؟",
     options: [
       "هیچ وقت",
@@ -134,7 +127,6 @@ export const asrsQuestions: Question[] = [
     ]
   },
   {
-    id: 13,
     text: "چقدر مشکل دارید که احساس کنید نمی‌توانید آرام باشید؟",
     options: [
       "هیچ وقت",
@@ -145,7 +137,6 @@ export const asrsQuestions: Question[] = [
     ]
   },
   {
-    id: 14,
     text: "چقدر مشکل دارید که احساس کنید نمی‌توانید آرام باشید؟",
     options: [
       "هیچ وقت",
@@ -156,7 +147,6 @@ export const asrsQuestions: Question[] = [
     ]
   },
   {
-    id: 15,
     text: "چقدر مشکل دارید که احساس کنید نمی‌توانید آرام باشید؟",
     options: [
       "هیچ وقت",
@@ -167,7 +157,6 @@ export const asrsQuestions: Question[] = [
     ]
   },
   {
-    id: 16,
     text: "چقدر مشکل دارید که احساس کنید نمی‌توانید آرام باشید؟",
     options: [
       "هیچ وقت",
@@ -178,7 +167,6 @@ export const asrsQuestions: Question[] = [
     ]
   },
   {
-    id: 17,
     text: "چقدر مشکل دارید که احساس کنید نمی‌توانید آرام باشید؟",
     options: [
       "هیچ وقت",
@@ -189,7 +177,6 @@ export const asrsQuestions: Question[] = [
     ]
   },
   {
-    id: 18,
     text: "چقدر مشکل دارید که احساس کنید نمی‌توانید آرام باشید؟",
     options: [
       "هیچ وقت",
@@ -200,6 +187,15 @@ export const asrsQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const asrsQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'asrs',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const asrsOptions = [
   { label: "هیچ وقت", value: 0 },

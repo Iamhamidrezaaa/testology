@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth'
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
 import { analyzeUserHistory } from '@/lib/gpt/recommendations'
 
@@ -51,28 +51,29 @@ export async function POST(req: NextRequest) {
       data: {
         userId,
         contentId: recommendation.contentId,
-        reason: recommendation.reason,
-        priority: recommendation.priority,
+        reason: recommendation.reason || null,
+        priority: recommendation.priority || 3,
         expiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 14 روز
-      },
-      include: {
-        content: {
-          select: {
-            id: true,
-            title: true,
-            description: true,
-            type: true,
-            category: true,
-            difficulty: true,
-            duration: true,
-            imageUrl: true
-          }
-        }
+      }
+    })
+    
+    // دریافت محتوای پیشنهادی
+    const suggestionContent = await prisma.marketplaceItem.findUnique({
+      where: { id: recommendation.contentId },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        type: true,
+        category: true,
+        difficulty: true,
+        duration: true,
+        imageUrl: true
       }
     })
 
     // ایجاد نوتیفیکیشن
-    await prisma.smartNotification.create({
+    await prisma.notification.create({
       data: {
         userId,
         title: '🎯 پیشنهاد جدید برای شما',
@@ -101,7 +102,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       suggestion: savedSuggestion,
-      content: savedSuggestion.content
+      content: suggestionContent
     })
 
   } catch (error) {
@@ -109,6 +110,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
+
 
 
 

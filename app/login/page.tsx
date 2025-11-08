@@ -1,15 +1,15 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import TestLoginHelper from '@/components/TestLoginHelper';
 import ClearDataButton from '@/components/ClearDataButton';
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
-  const callbackUrl = params.get('callbackUrl') || '/dashboard';
+  const callbackUrl = params?.get('callbackUrl') || '/dashboard';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -162,5 +162,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[100svh] bg-gradient-to-b from-[#6d35ff] via-[#6d35ff] to-[#2a6ef1] flex items-center justify-center"><div className="text-white">در حال بارگذاری...</div></div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

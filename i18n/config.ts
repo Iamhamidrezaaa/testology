@@ -38,7 +38,7 @@ export type Locale = typeof i18nConfig.locales[number];
  * تشخیص جهت متن (RTL/LTR)
  */
 export const getDirection = (lang: string): 'rtl' | 'ltr' => {
-  return i18nConfig.rtlLanguages.includes(lang) ? 'rtl' : 'ltr';
+  return i18nConfig.rtlLanguages.includes(lang as any) ? 'rtl' : 'ltr';
 };
 
 /**

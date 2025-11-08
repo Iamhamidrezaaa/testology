@@ -22,10 +22,9 @@ export async function POST(request: NextRequest) {
     const chatRecord = await prisma.chatHistory.create({
       data: {
         userId: user.id,
-        messages: chatHistory,
-        testResults: testResults || [],
-        screeningAnalysis: screeningAnalysis || '',
-        createdAt: new Date()
+        messages: typeof chatHistory === 'string' ? chatHistory : JSON.stringify(chatHistory),
+        testResults: typeof testResults === 'string' ? testResults : (testResults ? JSON.stringify(testResults) : null),
+        screeningAnalysis: screeningAnalysis || null
       }
     });
 

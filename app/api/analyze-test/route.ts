@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
+import { getOpenAIClient } from '@/lib/openai-client';
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+
+
 
 export async function POST(req: NextRequest) {
   try {
@@ -51,6 +50,11 @@ async function generateTestAnalysis(testId: string, testName: string, score: num
     
     پاسخ را به فارسی، دوستانه و انگیزه‌بخش ارائه دهید (حداکثر 300 کلمه).
     `;
+
+    const client = getOpenAIClient();
+    if (!client) {
+      return "تحلیل نتایج شما آماده است.";
+    }
 
     const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",

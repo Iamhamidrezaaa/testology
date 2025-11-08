@@ -16,17 +16,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid answers" }, { status: 400 });
     }
 
-    const result = await analyzeTestWithGPT("gse", answers);
+    const result = await analyzeTestWithGPT({ testSlug: "gse", answers });
 
     const savedResult = await prisma.testResult.create({
       data: {
         userId: session.user.id,
-        testSlug: "gse",
+        testId: "gse",
         testName: "تست خودکارآمدی GSE",
         score: result.score,
-        resultText: result.resultText,
-        rawAnswers: answers,
-        completed: true
+        result: result.resultText,
+        answers: JSON.stringify(answers)
       }
     });
 

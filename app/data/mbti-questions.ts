@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const mbtiQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "در مهمانی‌ها، معمولاً:",
     options: [
       "با افراد جدید آشنا می‌شوید",
@@ -12,7 +16,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "کدام یک را ترجیح می‌دهید؟",
     options: [
       "اطلاعات جدید و نوآورانه",
@@ -22,7 +25,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "وقتی تصمیم می‌گیرید، بیشتر:",
     options: [
       "از منطق و تحلیل استفاده می‌کنید",
@@ -32,7 +34,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "در کار، ترجیح می‌دهید:",
     options: [
       "کارهای جدید و متنوع",
@@ -42,7 +43,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "وقتی با مشکل مواجه می‌شوید:",
     options: [
       "سریع تصمیم می‌گیرید",
@@ -52,7 +52,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "در روابط، بیشتر:",
     options: [
       "مستقل عمل می‌کنید",
@@ -62,7 +61,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "کدام یک را ترجیح می‌دهید؟",
     options: [
       "جزئیات دقیق",
@@ -72,7 +70,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "وقتی برنامه‌ریزی می‌کنید:",
     options: [
       "برنامه‌های دقیق و منظم",
@@ -82,7 +79,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "در بحث‌ها، معمولاً:",
     options: [
       "مستقیماً نظر خود را می‌گویید",
@@ -92,7 +88,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "وقتی انرژی می‌گیرید:",
     options: [
       "از بودن با دیگران",
@@ -102,7 +97,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 11,
     text: "کدام یک را ترجیح می‌دهید؟",
     options: [
       "امکانات و احتمالات",
@@ -112,7 +106,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 12,
     text: "وقتی کار می‌کنید:",
     options: [
       "با دیگران همکاری می‌کنید",
@@ -122,7 +115,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 13,
     text: "در تصمیم‌گیری:",
     options: [
       "از منطق و تحلیل استفاده می‌کنید",
@@ -132,7 +124,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 14,
     text: "وقتی یاد می‌گیرید:",
     options: [
       "از تجربه و عمل",
@@ -142,7 +133,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 15,
     text: "در روابط:",
     options: [
       "مستقل عمل می‌کنید",
@@ -152,7 +142,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 16,
     text: "وقتی برنامه‌ریزی می‌کنید:",
     options: [
       "برنامه‌های دقیق و منظم",
@@ -162,7 +151,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 17,
     text: "در بحث‌ها:",
     options: [
       "مستقیماً نظر خود را می‌گویید",
@@ -172,7 +160,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 18,
     text: "وقتی انرژی می‌گیرید:",
     options: [
       "از بودن با دیگران",
@@ -182,7 +169,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 19,
     text: "کدام یک را ترجیح می‌دهید؟",
     options: [
       "امکانات و احتمالات",
@@ -192,7 +178,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 20,
     text: "وقتی کار می‌کنید:",
     options: [
       "با دیگران همکاری می‌کنید",
@@ -202,7 +187,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 21,
     text: "در تصمیم‌گیری:",
     options: [
       "از منطق و تحلیل استفاده می‌کنید",
@@ -212,7 +196,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 22,
     text: "وقتی یاد می‌گیرید:",
     options: [
       "از تجربه و عمل",
@@ -222,7 +205,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 23,
     text: "در روابط:",
     options: [
       "مستقل عمل می‌کنید",
@@ -232,7 +214,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 24,
     text: "وقتی برنامه‌ریزی می‌کنید:",
     options: [
       "برنامه‌های دقیق و منظم",
@@ -242,7 +223,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 25,
     text: "در بحث‌ها:",
     options: [
       "مستقیماً نظر خود را می‌گویید",
@@ -252,7 +232,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 26,
     text: "وقتی انرژی می‌گیرید:",
     options: [
       "از بودن با دیگران",
@@ -262,7 +241,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 27,
     text: "کدام یک را ترجیح می‌دهید؟",
     options: [
       "امکانات و احتمالات",
@@ -272,7 +250,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 28,
     text: "وقتی کار می‌کنید:",
     options: [
       "با دیگران همکاری می‌کنید",
@@ -282,7 +259,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 29,
     text: "در تصمیم‌گیری:",
     options: [
       "از منطق و تحلیل استفاده می‌کنید",
@@ -292,7 +268,6 @@ export const mbtiQuestions: Question[] = [
     ]
   },
   {
-    id: 30,
     text: "وقتی یاد می‌گیرید:",
     options: [
       "از تجربه و عمل",
@@ -302,6 +277,15 @@ export const mbtiQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const mbtiQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'mbti',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const mbtiOptions = [
   { label: "گزینه اول", value: "A" },

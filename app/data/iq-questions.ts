@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const iqQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "من در حل مسائل منطقی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -13,7 +17,6 @@ export const iqQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "من در ریاضیات مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -24,7 +27,6 @@ export const iqQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "من در زبان‌ها مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -35,7 +37,6 @@ export const iqQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "من در علوم مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -46,7 +47,6 @@ export const iqQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "من در تاریخ مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -57,7 +57,6 @@ export const iqQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "من در جغرافیا مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -68,7 +67,6 @@ export const iqQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "من در هنر مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -79,7 +77,6 @@ export const iqQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "من در موسیقی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -90,7 +87,6 @@ export const iqQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "من در ورزش مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -101,7 +97,6 @@ export const iqQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "من در تکنولوژی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -112,7 +107,6 @@ export const iqQuestions: Question[] = [
     ]
   },
   {
-    id: 11,
     text: "من در برنامه‌نویسی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -123,7 +117,6 @@ export const iqQuestions: Question[] = [
     ]
   },
   {
-    id: 12,
     text: "من در طراحی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -134,7 +127,6 @@ export const iqQuestions: Question[] = [
     ]
   },
   {
-    id: 13,
     text: "من در نویسندگی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -145,7 +137,6 @@ export const iqQuestions: Question[] = [
     ]
   },
   {
-    id: 14,
     text: "من در سخنرانی مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -156,7 +147,6 @@ export const iqQuestions: Question[] = [
     ]
   },
   {
-    id: 15,
     text: "من در تحقیق مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -167,6 +157,15 @@ export const iqQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const iqQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'iq',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const iqOptions = [
   { label: "کاملاً مخالفم", value: "1" },

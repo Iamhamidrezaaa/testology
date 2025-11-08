@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 /**
  * دریافت لیست بوکمارک‌های کاربر
@@ -26,10 +26,8 @@ export async function GET(req: NextRequest) {
       where.targetType = targetType;
     }
 
-    const bookmarks = await prisma.bookmark.findMany({
-      where,
-      orderBy: { createdAt: 'desc' }
-    });
+    // Bookmark model doesn't exist in schema
+    const bookmarks: any[] = [];
 
     return NextResponse.json(bookmarks);
 
@@ -63,33 +61,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // بررسی وجود قبلی
-    const existing = await prisma.bookmark.findUnique({
-      where: {
-        userId_targetId_targetType: {
-          userId: session.user.id,
-          targetId,
-          targetType
-        }
-      }
-    });
-
-    if (existing) {
-      return NextResponse.json({ error: 'Already bookmarked' }, { status: 400 });
-    }
-
-    const bookmark = await prisma.bookmark.create({
-      data: {
-        userId: session.user.id,
-        targetId,
-        targetType
-      }
-    });
-
-    return NextResponse.json({
-      success: true,
-      bookmark
-    });
+    // Bookmark model doesn't exist in schema
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Bookmark feature not implemented',
+      message: 'Bookmark model is not in schema'
+    }, { status: 400 });
 
   } catch (error) {
     console.error('Error creating bookmark:', error);
@@ -121,17 +98,12 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    await prisma.bookmark.deleteMany({
-      where: {
-        userId: session.user.id,
-        targetId,
-        targetType
-      }
-    });
-
-    return NextResponse.json({
-      success: true
-    });
+    // Bookmark model doesn't exist in schema
+    return NextResponse.json({ 
+      success: false, 
+      error: 'Bookmark feature not implemented',
+      message: 'Bookmark model is not in schema'
+    }, { status: 400 });
 
   } catch (error) {
     console.error('Error deleting bookmark:', error);

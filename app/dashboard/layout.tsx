@@ -24,7 +24,7 @@ export default function DashboardLayout({
     
     if (!role) {
       router.push("/login");
-    } else if (role === "admin") {
+    } else if (role === "ADMIN") {
       router.push("/admin/dashboard");
     } else {
       setUserEmail(email || "");

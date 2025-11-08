@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const decisionMakingQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "من در تصمیم‌گیری سریع هستم",
     options: [
       "کاملاً مخالفم",
@@ -13,7 +17,6 @@ export const decisionMakingQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "من قبل از تصمیم‌گیری همه گزینه‌ها را بررسی می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -24,7 +27,6 @@ export const decisionMakingQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "من از دیگران مشورت می‌گیرم",
     options: [
       "کاملاً مخالفم",
@@ -35,7 +37,6 @@ export const decisionMakingQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "من از تجربه‌های گذشته درس می‌گیرم",
     options: [
       "کاملاً مخالفم",
@@ -46,7 +47,6 @@ export const decisionMakingQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "من از منطق و تحلیل استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -57,7 +57,6 @@ export const decisionMakingQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "من از احساسات و شهود استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -68,7 +67,6 @@ export const decisionMakingQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "من از اطلاعات و داده‌ها استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -79,7 +77,6 @@ export const decisionMakingQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "من از تجربه‌های دیگران استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -90,7 +87,6 @@ export const decisionMakingQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "من از مشاوره متخصصان استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -101,7 +97,6 @@ export const decisionMakingQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "من از روش‌های علمی استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -112,7 +107,6 @@ export const decisionMakingQuestions: Question[] = [
     ]
   },
   {
-    id: 11,
     text: "من از روش‌های خلاقانه استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -123,7 +117,6 @@ export const decisionMakingQuestions: Question[] = [
     ]
   },
   {
-    id: 12,
     text: "من از روش‌های سنتی استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -134,7 +127,6 @@ export const decisionMakingQuestions: Question[] = [
     ]
   },
   {
-    id: 13,
     text: "من از روش‌های نوآورانه استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -145,7 +137,6 @@ export const decisionMakingQuestions: Question[] = [
     ]
   },
   {
-    id: 14,
     text: "من از روش‌های عملی استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -156,7 +147,6 @@ export const decisionMakingQuestions: Question[] = [
     ]
   },
   {
-    id: 15,
     text: "من از روش‌های نظری استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -167,6 +157,15 @@ export const decisionMakingQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const decisionMakingQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'decision-making',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const decisionMakingOptions = [
   { label: "کاملاً مخالفم", value: "1" },

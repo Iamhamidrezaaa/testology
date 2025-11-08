@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 import { BADGE_DEFINITIONS, checkBadgeConditions } from '@/lib/services/badges'
 
 export async function GET() {
@@ -12,109 +12,69 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // دریافت پروفایل کاربر
-    const userProfile = await prisma.userProfile.findUnique({
-      where: { userId: session.user.id },
-      include: {
-        badges: {
-          include: {
-            badge: true
-          }
-        }
-      }
-    })
+    // UserProfile model doesn't exist in schema - using UserProgress instead
+    const userProgress = await prisma.userProgress.findUnique({
+      where: { userId: session.user.id }
+    });
 
-    if (!userProfile) {
-      return NextResponse.json({ error: 'User profile not found' }, { status: 404 })
-    }
+    const mockUserProfile = {
+      id: session.user.id,
+      userId: session.user.id,
+      xp: userProgress?.xp || 0,
+      level: userProgress?.level || 1,
+      badges: []
+    };
 
     // دریافت آمار کاربر
     const testResults = await prisma.testResult.findMany({
-      where: { userId: session.user.id, completed: true },
+      where: { userId: session.user.id },
       select: {
-        testSlug: true,
+        testId: true,
+        testName: true,
         createdAt: true
       }
     })
 
     const userStats = {
       totalTests: testResults.length,
-      differentTestTypes: new Set(testResults.map(t => t.testSlug)).size,
+      differentTestTypes: new Set(testResults.map(t => t.testId || t.testName)).size,
       analysesRead: 0, // TODO: پیاده‌سازی شمارش تحلیل‌ها
-      totalXP: userProfile.xp,
-      level: userProfile.level,
+      totalXP: mockUserProfile.xp,
+      level: mockUserProfile.level,
       streakDays: 0, // TODO: پیاده‌سازی محاسبه streak
-      profileCompleted: !!(userProfile.bio && userProfile.fullName),
+      profileCompleted: false, // UserProfile doesn't exist
       firstTestDate: testResults.length > 0 ? testResults[testResults.length - 1].createdAt : undefined
     }
 
     // بررسی دستاوردهای جدید
     const earnedConditions = checkBadgeConditions(userStats)
-    const currentBadgeConditions = userProfile.badges.map(ub => ub.badge.condition)
+    const currentBadgeConditions: string[] = []
     const newBadges = earnedConditions.filter(condition => !currentBadgeConditions.includes(condition))
 
     // ایجاد دستاوردهای جدید
     for (const condition of newBadges) {
       const badgeDef = BADGE_DEFINITIONS.find(b => b.condition === condition)
       if (badgeDef) {
-        // بررسی وجود badge در دیتابیس
-        let badge = await prisma.badge.findFirst({
-          where: { condition }
-        })
-
-        if (!badge) {
-          // ایجاد badge جدید
-          badge = await prisma.badge.create({
+        // Badge and UserBadge models don't exist in schema
+        // Update UserProgress instead
+        if (userProgress) {
+          await prisma.userProgress.update({
+            where: { userId: session.user.id },
             data: {
-              name: badgeDef.name,
-              description: badgeDef.description,
-              icon: badgeDef.icon,
-              condition: badgeDef.condition,
-              xpReward: badgeDef.xpReward,
-              rarity: badgeDef.rarity
+              xp: { increment: badgeDef.xpReward }
             }
           })
         }
-
-        // اتصال badge به کاربر
-        await prisma.userBadge.create({
-          data: {
-            userId: userProfile.id,
-            badgeId: badge.id
-          }
-        })
-
-        // اضافه کردن XP
-        await prisma.userProfile.update({
-          where: { id: userProfile.id },
-          data: {
-            xp: { increment: badgeDef.xpReward },
-            totalPoints: { increment: badgeDef.xpReward }
-          }
-        })
       }
     }
 
-    // دریافت دستاوردهای نهایی
-    const finalBadges = await prisma.userBadge.findMany({
-      where: { userId: userProfile.id },
-      include: {
-        badge: true
-      },
-      orderBy: { earnedAt: 'desc' }
-    })
+    // Badge and UserBadge models don't exist in schema
+    const finalBadges: any[] = [];
 
     return NextResponse.json({
-      badges: finalBadges.map(ub => ({
-        id: ub.id,
-        name: ub.badge.name,
-        description: ub.badge.description,
-        icon: ub.badge.icon,
-        rarity: ub.badge.rarity,
-        earnedAt: ub.earnedAt
-      })),
+      badges: finalBadges,
       newBadges: newBadges.length,
-      totalXP: userProfile.xp + (newBadges.length * 50) // تخمین XP جدید
+      totalXP: mockUserProfile.xp + (newBadges.length * 50) // تخمین XP جدید
     })
 
   } catch (error) {

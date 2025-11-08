@@ -11,7 +11,18 @@ export async function GET(req: NextRequest) {
       orderBy: {
         createdAt: 'desc'
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        metaDescription: true,
+        content: true,
+        category: true,
+        imageUrl: true,
+        tags: true,
+        featured: true,
+        viewCount: true,
+        createdAt: true,
         author: {
           select: {
             name: true,
@@ -19,7 +30,7 @@ export async function GET(req: NextRequest) {
           }
         }
       }
-    });
+    }).catch(() => []);
 
     // تبدیل فرمت داده‌ها به فرمت مورد انتظار
     const formattedArticles = articles.map(blog => ({

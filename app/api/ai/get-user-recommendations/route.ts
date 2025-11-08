@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 export async function GET(req: Request) {
   try {
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
     const testStats = await prisma.userTestRecommendation.groupBy({
       by: ['testName'],
       _count: {
-        testName: true
+        id: true
       },
       where: { userId }
     });
@@ -88,7 +88,7 @@ export async function POST(req: Request) {
       recentRecommendations: recentRecommendations.length,
       testStats: testStats.map(t => ({
         testName: t.testName,
-        count: t._count.testName
+        count: t._count.id
       })),
       priorityStats: {
         average: priorityStats._avg.score,

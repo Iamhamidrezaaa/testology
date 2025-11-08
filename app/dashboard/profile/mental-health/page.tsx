@@ -88,27 +88,27 @@ export default function MentalHealthProfilePage() {
 
   // آماده‌سازی داده‌ها برای نمودار تست‌ها
   const testChartData: MentalHealthData[] = tests
-    .filter(test => test.score !== null)
-    .map(test => ({
+    .filter((test: any) => test.score !== null && test.category)
+    .map((test: any) => ({
       date: new Date(test.createdAt).toLocaleDateString('fa-IR'),
       score: test.score!,
       testName: test.testName || 'نامشخص',
       category: test.testSlug
     }))
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
   // آماده‌سازی داده‌ها برای نمودار خلق‌وخو
-  const moodChartData = moodHistory?.map(entry => ({
+  const moodChartData = moodHistory?.map((entry: any) => ({
     date: new Date(entry.createdAt).toLocaleDateString('fa-IR'),
     score: entry.moodScore,
     summary: entry.summary
-  })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || []
+  })).sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime()) || []
 
   // محاسبه آمار کلی
   const totalTests = tests.length
   const averageScore = tests
-    .filter(test => test.score !== null)
-    .reduce((sum, test) => sum + (test.score || 0), 0) / tests.filter(test => test.score !== null).length
+    .filter((test: any) => test.score !== null)
+    .reduce((sum: any, test: any) => sum + (test.score || 0), 0) / tests.filter((test: any) => test.score !== null).length
 
   const latestMood = moodHistory?.[0]
 

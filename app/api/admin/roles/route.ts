@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
     }
 
     // فقط ادمین مجاز است
-    if (session.user.role !== 'admin') {
+    if (session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
     }
 
     // فقط ادمین مجاز است
-    if (session.user.role !== 'admin') {
+    if (session.user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

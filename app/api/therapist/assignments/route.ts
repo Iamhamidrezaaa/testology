@@ -22,8 +22,17 @@ export async function GET() {
     // دریافت تمرین‌های ارسال شده توسط درمانگر
     const assignments = await prisma.therapistAssignment.findMany({
       where: { therapistId: therapist.id },
-      include: {
-        content: {
+      orderBy: [
+        { priority: 'desc' },
+        { createdAt: 'desc' }
+      ]
+    })
+    
+    // دریافت محتوای هر تمرین
+    const assignmentsWithDetails = await Promise.all(
+      assignments.map(async (assignment) => {
+        const content = await prisma.marketplaceItem.findUnique({
+          where: { id: assignment.contentId },
           select: {
             id: true,
             title: true,
@@ -34,44 +43,42 @@ export async function GET() {
             duration: true,
             imageUrl: true
           }
-        },
-        user: {
+        })
+        const user = await prisma.user.findUnique({
+          where: { id: assignment.userId },
           select: {
             id: true,
             name: true,
             email: true
           }
-        }
-      },
-      orderBy: [
-        { priority: 'desc' },
-        { createdAt: 'desc' }
-      ]
-    })
+        })
+        return { ...assignment, content, user }
+      })
+    )
 
     // آمار تمرین‌ها
     const stats = {
-      total: assignments.length,
-      assigned: assignments.filter(a => a.status === 'assigned').length,
-      inProgress: assignments.filter(a => a.status === 'in_progress').length,
-      completed: assignments.filter(a => a.status === 'completed').length,
-      skipped: assignments.filter(a => a.status === 'skipped').length,
-      highPriority: assignments.filter(a => a.priority >= 4).length,
-      overdue: assignments.filter(a => 
+      total: assignmentsWithDetails.length,
+      assigned: assignmentsWithDetails.filter((a: typeof assignmentsWithDetails[0]) => a.status === 'assigned').length,
+      inProgress: assignmentsWithDetails.filter((a: typeof assignmentsWithDetails[0]) => a.status === 'in_progress').length,
+      completed: assignmentsWithDetails.filter((a: typeof assignmentsWithDetails[0]) => a.status === 'completed').length,
+      skipped: assignmentsWithDetails.filter((a: typeof assignmentsWithDetails[0]) => a.status === 'skipped').length,
+      highPriority: assignmentsWithDetails.filter((a: typeof assignmentsWithDetails[0]) => a.priority >= 4).length,
+      overdue: assignmentsWithDetails.filter((a: typeof assignmentsWithDetails[0]) => 
         a.dueDate && new Date(a.dueDate) < new Date() && a.status !== 'completed'
       ).length
     }
 
     // گروه‌بندی بر اساس وضعیت
     const groupedAssignments = {
-      assigned: assignments.filter(a => a.status === 'assigned'),
-      inProgress: assignments.filter(a => a.status === 'in_progress'),
-      completed: assignments.filter(a => a.status === 'completed'),
-      skipped: assignments.filter(a => a.status === 'skipped')
+      assigned: assignmentsWithDetails.filter((a: typeof assignmentsWithDetails[0]) => a.status === 'assigned'),
+      inProgress: assignmentsWithDetails.filter((a: typeof assignmentsWithDetails[0]) => a.status === 'in_progress'),
+      completed: assignmentsWithDetails.filter((a: typeof assignmentsWithDetails[0]) => a.status === 'completed'),
+      skipped: assignmentsWithDetails.filter((a: typeof assignmentsWithDetails[0]) => a.status === 'skipped')
     }
 
     return NextResponse.json({
-      assignments,
+      assignments: assignmentsWithDetails,
       stats,
       groupedAssignments
     })
@@ -81,6 +88,20 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -26,7 +26,7 @@ export default function AdminPanel() {
     }
 
     if (status === 'authenticated') {
-      if (session?.user?.role !== 'admin') {
+      if (session?.user?.role !== 'ADMIN') {
         console.log('⚠️ User is not admin');
         router.replace('/unauthorized');
         return;

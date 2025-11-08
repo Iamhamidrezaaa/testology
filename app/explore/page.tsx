@@ -5,6 +5,9 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { getLevelIcon, getLevelColor, getLevelTitle } from '@/lib/services/level'
 import { getRarityColor } from '@/lib/services/badges'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 interface ExploreUser {
   id: string
   username: string

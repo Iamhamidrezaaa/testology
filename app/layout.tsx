@@ -18,6 +18,7 @@ const vazirmatn = Vazirmatn({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://testology.me'),
   title: 'Testology - پلتفرم هوشمند روان‌شناسی',
   description: 'تست‌های روان‌شناسی علمی + تحلیل AI + مشاوره آنلاین',
   keywords: 'تست روان‌شناسی، مشاوره آنلاین، افسردگی، اضطراب، استرس',

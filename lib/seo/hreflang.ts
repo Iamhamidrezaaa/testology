@@ -17,7 +17,7 @@ export function generateHreflangTags(slug: string, baseUrl: string = 'https://te
   // افزودن x-default
   tags.push({
     rel: 'alternate',
-    hreflang: 'x-default',
+    hreflang: 'en',
     href: `${baseUrl}/${i18nConfig.defaultLocale}/${slug}`
   });
 

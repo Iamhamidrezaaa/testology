@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const gseQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "اگر تلاش کنم، می‌توانم مشکلات دشوار را حل کنم.",
     options: [
       "کاملاً مخالفم",
@@ -13,7 +17,6 @@ export const gseQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "اگر کسی مخالف من باشد، می‌توانم راه‌هایی برای به دست آوردن آنچه می‌خواهم پیدا کنم.",
     options: [
       "کاملاً مخالفم",
@@ -24,7 +27,6 @@ export const gseQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "به راحتی می‌توانم اهدافم را دنبال کنم.",
     options: [
       "کاملاً مخالفم",
@@ -35,7 +37,6 @@ export const gseQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "در شرایط غیرمنتظره، می‌توانم به خوبی عمل کنم.",
     options: [
       "کاملاً مخالفم",
@@ -46,7 +47,6 @@ export const gseQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "به توانایی خودم در حل مشکلات اعتماد دارم.",
     options: [
       "کاملاً مخالفم",
@@ -57,7 +57,6 @@ export const gseQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "می‌توانم با مشکلات متعدد کنار بیایم.",
     options: [
       "کاملاً مخالفم",
@@ -68,7 +67,6 @@ export const gseQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "اگر در موقعیت دشواری قرار بگیرم، می‌توانم راه‌حل مناسبی پیدا کنم.",
     options: [
       "کاملاً مخالفم",
@@ -79,7 +77,6 @@ export const gseQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "می‌توانم با مشکلات جدید کنار بیایم.",
     options: [
       "کاملاً مخالفم",
@@ -90,7 +87,6 @@ export const gseQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "می‌توانم با مشکلات غیرمنتظره کنار بیایم.",
     options: [
       "کاملاً مخالفم",
@@ -101,7 +97,6 @@ export const gseQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "می‌توانم با مشکلات پیچیده کنار بیایم.",
     options: [
       "کاملاً مخالفم",
@@ -112,6 +107,15 @@ export const gseQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const gseQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'gse',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const gseOptions = [
   { label: "کاملاً مخالفم", value: 1 },

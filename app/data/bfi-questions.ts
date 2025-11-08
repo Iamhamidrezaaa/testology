@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const bfiQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "من فردی خوش‌برخورد و دوستانه هستم",
     options: [
       "کاملاً مخالفم",
@@ -13,7 +17,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "من فردی منظم و دقیق هستم",
     options: [
       "کاملاً مخالفم",
@@ -24,7 +27,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "من اغلب نگران و مضطرب هستم",
     options: [
       "کاملاً مخالفم",
@@ -35,7 +37,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "من فردی خلاق و هنری هستم",
     options: [
       "کاملاً مخالفم",
@@ -46,7 +47,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "من فردی مهربان و دلسوز هستم",
     options: [
       "کاملاً مخالفم",
@@ -57,7 +57,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "من دوست دارم با افراد جدید آشنا شوم",
     options: [
       "کاملاً مخالفم",
@@ -68,7 +67,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "من کارهایم را به موقع انجام می‌دهم",
     options: [
       "کاملاً مخالفم",
@@ -79,7 +77,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "من اغلب احساس تنش و استرس می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -90,7 +87,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "من ایده‌های جدید و نوآورانه دارم",
     options: [
       "کاملاً مخالفم",
@@ -101,7 +97,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "من به دیگران کمک می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -112,7 +107,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 11,
     text: "من در مهمانی‌ها و جمع‌ها راحت هستم",
     options: [
       "کاملاً مخالفم",
@@ -123,7 +117,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 12,
     text: "من کارهایم را با دقت انجام می‌دهم",
     options: [
       "کاملاً مخالفم",
@@ -134,7 +127,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 13,
     text: "من اغلب نگران آینده هستم",
     options: [
       "کاملاً مخالفم",
@@ -145,7 +137,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 14,
     text: "من از هنر و زیبایی لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -156,7 +147,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 15,
     text: "من به احساسات دیگران توجه می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -167,7 +157,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 16,
     text: "من رهبری گروه‌ها را به عهده می‌گیرم",
     options: [
       "کاملاً مخالفم",
@@ -178,7 +167,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 17,
     text: "من برنامه‌هایم را به دقت دنبال می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -189,7 +177,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 18,
     text: "من به راحتی ناراحت می‌شوم",
     options: [
       "کاملاً مخالفم",
@@ -200,7 +187,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 19,
     text: "من از تجربه‌های جدید لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -211,7 +197,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 20,
     text: "من به دیگران اعتماد می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -222,7 +207,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 21,
     text: "من در گفتگو با دیگران راحت هستم",
     options: [
       "کاملاً مخالفم",
@@ -233,7 +217,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 22,
     text: "من کارهایم را منظم انجام می‌دهم",
     options: [
       "کاملاً مخالفم",
@@ -244,7 +227,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 23,
     text: "من اغلب احساس غم و افسردگی می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -255,7 +237,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 24,
     text: "من از مطالعه و یادگیری لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -266,7 +247,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 25,
     text: "من به دیگران احترام می‌گذارم",
     options: [
       "کاملاً مخالفم",
@@ -277,7 +257,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 26,
     text: "من دوست دارم در مرکز توجه باشم",
     options: [
       "کاملاً مخالفم",
@@ -288,7 +267,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 27,
     text: "من کارهایم را به موقع تمام می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -299,7 +277,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 28,
     text: "من به راحتی عصبانی می‌شوم",
     options: [
       "کاملاً مخالفم",
@@ -310,7 +287,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 29,
     text: "من از حل مسائل پیچیده لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -321,7 +297,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 30,
     text: "من با دیگران همکاری می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -332,7 +307,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 31,
     text: "من دوست دارم با افراد زیادی صحبت کنم",
     options: [
       "کاملاً مخالفم",
@@ -343,7 +317,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 32,
     text: "من کارهایم را با نظم انجام می‌دهم",
     options: [
       "کاملاً مخالفم",
@@ -354,7 +327,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 33,
     text: "من اغلب احساس نگرانی می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -365,7 +337,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 34,
     text: "من از هنر و موسیقی لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -376,7 +347,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 35,
     text: "من به دیگران کمک می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -387,7 +357,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 36,
     text: "من در جمع‌ها فعال هستم",
     options: [
       "کاملاً مخالفم",
@@ -398,7 +367,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 37,
     text: "من کارهایم را با دقت انجام می‌دهم",
     options: [
       "کاملاً مخالفم",
@@ -409,7 +377,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 38,
     text: "من به راحتی ناراحت می‌شوم",
     options: [
       "کاملاً مخالفم",
@@ -420,7 +387,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 39,
     text: "من از تجربه‌های جدید لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -431,7 +397,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 40,
     text: "من به دیگران اعتماد می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -442,7 +407,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 41,
     text: "من در گفتگو با دیگران راحت هستم",
     options: [
       "کاملاً مخالفم",
@@ -453,7 +417,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 42,
     text: "من کارهایم را منظم انجام می‌دهم",
     options: [
       "کاملاً مخالفم",
@@ -464,7 +427,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 43,
     text: "من اغلب احساس غم و افسردگی می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -475,7 +437,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 44,
     text: "من از مطالعه و یادگیری لذت می‌برم",
     options: [
       "کاملاً مخالفم",
@@ -486,7 +447,6 @@ export const bfiQuestions: Question[] = [
     ]
   },
   {
-    id: 45,
     text: "من به دیگران احترام می‌گذارم",
     options: [
       "کاملاً مخالفم",
@@ -497,6 +457,15 @@ export const bfiQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const bfiQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'bfi',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const bfiOptions = [
   { label: "کاملاً مخالفم", value: "1" },
@@ -583,7 +552,7 @@ export const calculateBfiScores = (answers: string[]): { [key: string]: number }
   
   // محاسبه میانگین
   Object.keys(scores).forEach(key => {
-    scores[key] = scores[key] / 9
+    scores[key as keyof typeof scores] = scores[key as keyof typeof scores] / 9
   })
   
   return scores

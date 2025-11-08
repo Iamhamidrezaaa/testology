@@ -57,9 +57,15 @@ export default function TranslationManagementPage() {
       ];
 
       // Filter content
+      const filterToTypeMap: Record<'articles' | 'tests' | 'exercises', 'article' | 'test' | 'exercise'> = {
+        articles: 'article',
+        tests: 'test',
+        exercises: 'exercise'
+      };
+      
       const filteredContent = filter === 'all' 
         ? allContent 
-        : allContent.filter(item => item.type === filter);
+        : allContent.filter(item => item.type === filterToTypeMap[filter as 'articles' | 'tests' | 'exercises']);
 
       setContent(filteredContent.sort((a, b) => 
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()

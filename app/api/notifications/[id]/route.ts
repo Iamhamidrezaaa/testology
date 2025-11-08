@@ -17,7 +17,7 @@ export async function PUT(
     const userId = session.user.id
 
     // بررسی اینکه نوتیفیکیشن متعلق به کاربر است
-    const notification = await prisma.smartNotification.findFirst({
+    const notification = await prisma.notification.findFirst({
       where: {
         id,
         userId
@@ -29,9 +29,9 @@ export async function PUT(
     }
 
     // علامت‌گذاری به عنوان خوانده شده
-    const updatedNotification = await prisma.smartNotification.update({
+    const updatedNotification = await prisma.notification.update({
       where: { id },
-      data: { seen: true }
+      data: { read: true }
     })
 
     return NextResponse.json({
@@ -59,7 +59,7 @@ export async function DELETE(
     const userId = session.user.id
 
     // بررسی اینکه نوتیفیکیشن متعلق به کاربر است
-    const notification = await prisma.smartNotification.findFirst({
+    const notification = await prisma.notification.findFirst({
       where: {
         id,
         userId
@@ -71,7 +71,7 @@ export async function DELETE(
     }
 
     // حذف نوتیفیکیشن
-    await prisma.smartNotification.delete({
+    await prisma.notification.delete({
       where: { id }
     })
 

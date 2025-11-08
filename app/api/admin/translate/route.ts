@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import OpenAI from 'openai';
+import prisma from '@/lib/prisma';
+import { getOpenAIClient } from '@/lib/openai-client';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
 
 // زبان‌های هدف برای ترجمه
 const TARGET_LANGUAGES = ['fa', 'ar', 'fr', 'ru', 'tr', 'es'];
@@ -54,10 +51,10 @@ export async function POST(req: NextRequest) {
     // بررسی دسترسی ادمین
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { role: true, isAdmin: true }
+      select: { role: true }
     });
 
-    if (!user || (user.role !== 'admin' && !user.isAdmin)) {
+    if (!user || user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
@@ -88,6 +85,15 @@ export async function POST(req: NextRequest) {
           description: description || '',
           content: content
         };
+
+        const openai = getOpenAIClient();
+        if (!openai) {
+          results[lang] = {
+            success: false,
+            error: 'OpenAI API key is not configured'
+          };
+          continue;
+        }
 
         const translationResponse = await openai.chat.completions.create({
           model: 'gpt-4o-mini',
@@ -177,10 +183,10 @@ export async function GET(req: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { role: true, isAdmin: true }
+      select: { role: true }
     });
 
-    if (!user || (user.role !== 'admin' && !user.isAdmin)) {
+    if (!user || user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
@@ -229,10 +235,10 @@ export async function PUT(req: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { role: true, isAdmin: true }
+      select: { role: true }
     });
 
-    if (!user || (user.role !== 'admin' && !user.isAdmin)) {
+    if (!user || user.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 

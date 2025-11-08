@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 
 export async function GET(
   req: Request,
@@ -16,7 +16,7 @@ export async function GET(
 
     const slug = params.slug
 
-    const item = await (prisma as any).marketplaceItem.findUnique({
+    const item = await prisma.marketplaceItem.findUnique({
       where: { slug },
       include: {
         author: {
@@ -56,7 +56,7 @@ export async function PUT(
     const data = await req.json()
     const { title, description, price, imageUrl } = data
 
-    const item = await (prisma as any).marketplaceItem.update({
+    const item = await prisma.marketplaceItem.update({
       where: { slug },
       data: {
         title,
@@ -96,7 +96,7 @@ export async function DELETE(
 
     const slug = params.slug
 
-    await (prisma as any).marketplaceItem.delete({
+    await prisma.marketplaceItem.delete({
       where: { slug }
     })
 

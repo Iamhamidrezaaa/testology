@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const rosenbergQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "به طور کلی، از خودم راضی هستم.",
     options: [
       "کاملاً موافقم",
@@ -12,7 +16,6 @@ export const rosenbergQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "گاهی احساس می‌کنم که اصلاً خوب نیستم.",
     options: [
       "کاملاً موافقم",
@@ -22,7 +25,6 @@ export const rosenbergQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "فکر می‌کنم که چندین ویژگی خوب دارم.",
     options: [
       "کاملاً موافقم",
@@ -32,7 +34,6 @@ export const rosenbergQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "می‌توانم کارها را به خوبی انجام دهم، مثل بیشتر مردم.",
     options: [
       "کاملاً موافقم",
@@ -42,7 +43,6 @@ export const rosenbergQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "احساس می‌کنم که چیزهای زیادی برای افتخار کردن ندارم.",
     options: [
       "کاملاً موافقم",
@@ -52,7 +52,6 @@ export const rosenbergQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "گاهی احساس می‌کنم که بی‌فایده هستم.",
     options: [
       "کاملاً موافقم",
@@ -62,7 +61,6 @@ export const rosenbergQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "فکر می‌کنم که یک فرد ارزشمند هستم، حداقل به اندازه دیگران.",
     options: [
       "کاملاً موافقم",
@@ -72,7 +70,6 @@ export const rosenbergQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "آرزو می‌کنم که بتوانم خودم را بیشتر احترام کنم.",
     options: [
       "کاملاً موافقم",
@@ -82,7 +79,6 @@ export const rosenbergQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "به طور کلی، تمایل دارم فکر کنم که شکست خورده‌ام.",
     options: [
       "کاملاً موافقم",
@@ -92,7 +88,6 @@ export const rosenbergQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "نگرش مثبتی نسبت به خودم دارم.",
     options: [
       "کاملاً موافقم",
@@ -102,6 +97,15 @@ export const rosenbergQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const rosenbergQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'rosenberg',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const rosenbergOptions = [
   { label: "کاملاً موافقم", value: 4 },

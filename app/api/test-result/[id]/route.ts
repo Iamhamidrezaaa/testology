@@ -15,8 +15,8 @@ export async function GET(
 
     const test = await prisma.testResult.findFirst({
       where: {
-        id: params.id,
-        userId: session.user.id
+        id: params?.id,
+        userId: session?.user?.id
       }
     })
 

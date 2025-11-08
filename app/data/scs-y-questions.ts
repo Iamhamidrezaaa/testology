@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const scsYQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "وقتی احساس می‌کنم که در زندگی شکست خورده‌ام، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -13,7 +17,6 @@ export const scsYQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "وقتی چیزهای دردناکی را تجربه می‌کنم، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -24,7 +27,6 @@ export const scsYQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "وقتی احساس می‌کنم که در زندگی شکست خورده‌ام، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -35,7 +37,6 @@ export const scsYQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "وقتی چیزهای دردناکی را تجربه می‌کنم، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -46,7 +47,6 @@ export const scsYQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "وقتی احساس می‌کنم که در زندگی شکست خورده‌ام، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -57,7 +57,6 @@ export const scsYQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "وقتی چیزهای دردناکی را تجربه می‌کنم، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -68,7 +67,6 @@ export const scsYQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "وقتی احساس می‌کنم که در زندگی شکست خورده‌ام، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -79,7 +77,6 @@ export const scsYQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "وقتی چیزهای دردناکی را تجربه می‌کنم، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -90,7 +87,6 @@ export const scsYQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "وقتی احساس می‌کنم که در زندگی شکست خورده‌ام، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -101,7 +97,6 @@ export const scsYQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "وقتی چیزهای دردناکی را تجربه می‌کنم، سعی می‌کنم که احساساتم را متعادل نگه دارم.",
     options: [
       "کاملاً مخالفم",
@@ -112,6 +107,15 @@ export const scsYQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const scsYQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'scs-y',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const scsYOptions = [
   { label: "کاملاً مخالفم", value: 1 },

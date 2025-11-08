@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import OpenAI from "openai";
+import prisma from "@/lib/prisma";
+import { getOpenAIClient } from '@/lib/openai-client';
 import { withMonitoring } from "@/middleware/withMonitoring";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function therapyChatHandler(req: Request) {
   try {
@@ -88,10 +87,10 @@ Respond with kindness, reflection, and helpful self-care suggestions that match 
     await prisma.therapySession.create({
       data: {
         userId,
-        messages: [
+        messages: JSON.stringify([
           { role: "user", content: message }, 
           { role: "assistant", content: reply }
-        ],
+        ]),
       },
     });
 

@@ -8,7 +8,7 @@ export default function SupportWidget({ userId }: { userId?: string }) {
 
   const send = async () => {
     if (!input.trim()) return;
-    const newMsgs = [...msgs, { role:"user", content: input }];
+    const newMsgs = [...msgs, { role: "user" as const, content: input }];
     setMsgs(newMsgs); setInput("");
 
     const r = await fetch("/api/chat/support", {

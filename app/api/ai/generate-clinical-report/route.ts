@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import OpenAI from "openai";
+import prisma from "@/lib/prisma";
+import { getOpenAIClient } from '@/lib/openai-client';
 import { withMonitoring } from "@/middleware/withMonitoring";
 
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY 
-});
 
 // تابع تحلیل احساسی متن
 function analyzeTextSentiment(text: string): number {
@@ -58,7 +55,7 @@ async function generateReportHandler(req: Request) {
 
     // مرحله ۲: داده خام
     const data = results.map(
-      (r) => `${r.testName}: score=${r.score}, summary=${r.summary || ""}`
+      (r) => `${r.testName}: score=${r.score}, result=${r.result || ""}, analysis=${r.analysis || ""}`
     );
 
     // مرحله ۳: پرامپت برای تحلیل GPT
@@ -99,7 +96,7 @@ Generate a comprehensive clinical report in Persian.
       max_tokens: 2000,
     });
 
-    const text = gptRes.choices[0].message.content || "خروجی GPT خالی است";
+    const text = gptRes.choices[0]?.message?.content || "خروجی GPT خالی است";
 
     console.log("💾 ذخیره گزارش بالینی...");
 

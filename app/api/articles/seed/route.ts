@@ -1740,7 +1740,7 @@ export async function POST(req: NextRequest) {
           content: article.content,
           excerpt: article.excerpt,
           category: article.category,
-          tags: article.tags,
+          tags: Array.isArray(article.tags) ? article.tags.join(',') : (article.tags || ''),
           author: article.author,
           published: article.published,
           featured: article.featured,

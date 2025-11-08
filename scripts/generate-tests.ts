@@ -28,7 +28,7 @@ export default ${slug}Questions;
 `
 
   const testPageContent = `import AnimatedTest from "@/components/layout/AnimatedTest";
-import ${slug}Questions from "@/pages/data/${slug}-questions";
+import ${slug}Questions from "@/data/${slug}-questions";
 
 export const metadata = { title: "تست ${slug}" };
 
@@ -56,11 +56,11 @@ export async function POST(req: NextRequest) {
 }
 `
 
-  await mkdir(path.join(base, 'pages/data'), { recursive: true });
+  await mkdir(path.join(base, 'data'), { recursive: true });
   await mkdir(path.join(base, 'pages/tests'), { recursive: true });
   await mkdir(path.join(base, 'pages/api'), { recursive: true });
 
-  await writeFile(path.join(base, `pages/data/${slug}-questions.ts`), questionContent);
+  await writeFile(path.join(base, `data/${slug}-questions.ts`), questionContent);
   await writeFile(path.join(base, `pages/tests/${slug}.tsx`), testPageContent);
   await writeFile(path.join(base, `pages/api/analyze-${slug}.ts`), apiContent);
 }

@@ -1,17 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
+import { getOpenAI } from '@/lib/openai';
 
-// ⚙️ اتصال به API GPT (اگر API key وجود داشته باشد)
-let openai: OpenAI | null = null;
-if (process.env.OPENAI_API_KEY) {
-  try {
-    openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-  } catch (error) {
-    console.warn('OpenAI initialization failed:', error);
-  }
-}
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 // تابع fallback برای پاسخ‌های ساده
 function generateFallbackResponse(message: string): string {
@@ -33,9 +24,12 @@ function generateFallbackResponse(message: string): string {
   return 'متشکرم که با من به اشتراک گذاشتید. من اینجا هستم تا در مسائل روان‌شناختی به شما کمک کنم.\n\nاگر می‌خواهید درباره موضوع خاصی صحبت کنیم، لطفاً بیشتر توضیح دهید. می‌توانم در زمینه‌های زیر به شما کمک کنم:\n- مدیریت اضطراب و استرس\n- بهبود خلق و خو\n- روابط بین فردی\n- اعتماد به نفس\n- و سایر مسائل روان‌شناختی\n\nهمچنین اگر نیاز به کمک فوری دارید، می‌توانید با مراکز مشاوره یا خطوط بحران تماس بگیرید.';
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<Response> {
+  let message = '';
   try {
-    const { message, history } = await request.json();
+    const body = await request.json();
+    message = body.message || '';
+    const history = body.history;
 
     if (!message) {
       return NextResponse.json(
@@ -46,8 +40,10 @@ export async function POST(request: NextRequest) {
 
     console.log('📨 Chat request received:', { messageLength: message.length, historyLength: history?.length || 0 });
 
+    const openai = getOpenAI();
+    
     // اگر OpenAI API key وجود ندارد، از fallback استفاده کن
-    if (!openai || !process.env.OPENAI_API_KEY) {
+    if (!openai) {
       console.log('⚠️ OpenAI API key not found, using fallback response');
       const fallbackResponse = generateFallbackResponse(message);
       return NextResponse.json({
@@ -119,7 +115,7 @@ export async function POST(request: NextRequest) {
     console.error('Error message:', error?.message);
     
     // حتی در صورت خطا، یک پاسخ fallback برگردان
-    const fallbackResponse = generateFallbackResponse(message || '');
+    const fallbackResponse = generateFallbackResponse(message || 'خطا در پردازش درخواست');
     return NextResponse.json({
       success: true,
       response: fallbackResponse,

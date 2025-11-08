@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { Card, CardHeader, CardContent } from '@/components/ui/card'
+import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -13,7 +13,7 @@ import { PDFDownload } from '@/components/ui/pdf-download'
 import { ChatBot } from '@/components/ui/chat-bot'
 
 export default function ResultPage() {
-  const { id } = useParams()
+  const params = useParams(); const { id } = params || {}
   const [result, setResult] = useState<TestResult | null>(null)
   const [loading, setLoading] = useState(true)
   const [combinedAnalysis, setCombinedAnalysis] = useState<string>('')
@@ -135,8 +135,8 @@ export default function ResultPage() {
             انجام‌شده در {format(new Date(result.createdAt), 'yyyy/MM/dd - HH:mm')}
           </p>
         </div>
-        <Badge className={getScoreColor(result.score, result.testSlug)}>
-          {getScoreLabel(result.score, result.testSlug)}
+        <Badge className={getScoreColor(result.score, result.testSlug || "")}>
+          {getScoreLabel(result.score, result.testSlug || "")}
         </Badge>
       </div>
 

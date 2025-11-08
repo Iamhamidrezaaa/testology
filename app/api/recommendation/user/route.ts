@@ -16,12 +16,22 @@ export async function GET() {
     const suggestions = await prisma.suggestedContent.findMany({
       where: { 
         userId,
-        expiresAt: {
-          gte: new Date() // فقط پیشنهادات منقضی نشده
-        }
+        OR: [
+          { expiresAt: { gte: new Date() } },
+          { expiresAt: null }
+        ]
       },
-      include: {
-        content: {
+      orderBy: [
+        { priority: 'desc' },
+        { createdAt: 'desc' }
+      ]
+    })
+    
+    // دریافت محتوای هر پیشنهاد
+    const suggestionsWithContent = await Promise.all(
+      suggestions.map(async (suggestion) => {
+        const content = await prisma.marketplaceItem.findUnique({
+          where: { id: suggestion.contentId },
           select: {
             id: true,
             title: true,
@@ -33,32 +43,29 @@ export async function GET() {
             imageUrl: true,
             price: true
           }
-        }
-      },
-      orderBy: [
-        { priority: 'desc' },
-        { createdAt: 'desc' }
-      ]
-    })
+        })
+        return { ...suggestion, content }
+      })
+    )
 
     // آمار پیشنهادات
     const stats = {
-      total: suggestions.length,
-      viewed: suggestions.filter(s => s.isViewed).length,
-      accepted: suggestions.filter(s => s.isAccepted).length,
-      pending: suggestions.filter(s => !s.isViewed && !s.isAccepted).length,
-      highPriority: suggestions.filter(s => s.priority >= 4).length
+      total: suggestionsWithContent.length,
+      viewed: suggestionsWithContent.filter(s => s.isViewed).length,
+      accepted: suggestionsWithContent.filter(s => s.isAccepted).length,
+      pending: suggestionsWithContent.filter(s => !s.isViewed && !s.isAccepted).length,
+      highPriority: suggestionsWithContent.filter(s => s.priority >= 4).length
     }
 
     // گروه‌بندی بر اساس اولویت
     const groupedSuggestions = {
-      high: suggestions.filter(s => s.priority >= 4),
-      medium: suggestions.filter(s => s.priority === 3),
-      low: suggestions.filter(s => s.priority <= 2)
+      high: suggestionsWithContent.filter(s => s.priority >= 4),
+      medium: suggestionsWithContent.filter(s => s.priority === 3),
+      low: suggestionsWithContent.filter(s => s.priority <= 2)
     }
 
     return NextResponse.json({
-      suggestions,
+      suggestions: suggestionsWithContent,
       stats,
       groupedSuggestions
     })
@@ -68,6 +75,20 @@ export async function GET() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

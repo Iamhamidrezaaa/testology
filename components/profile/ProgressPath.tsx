@@ -104,7 +104,7 @@ export function ProgressPath() {
           {data.overallProgress === 100 && "تبریک! مسیر رشد شما کامل شده است! 🎉"}
         </p>
         <div className="mt-4 text-xs text-gray-500">
-          {data.totalTests} تست انجام داده‌اید • {data.completedSteps} از {data.steps.length} مرحله تکمیل شده
+          {(data as any)?.totalTests || 0} تست انجام داده‌اید • {(data as any)?.completedSteps || 0} از {data.steps.length} مرحله تکمیل شده
         </div>
       </div>
 

@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
-import { prisma } from "@/lib/prisma";
+import { getOpenAIClient } from '@/lib/openai-client';
+import prisma from "@/lib/prisma";
 import fs from "fs";
 import path from "path";
 
-const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function POST(req: Request) {
   try {
@@ -26,9 +25,12 @@ export async function POST(req: Request) {
     await prisma.chatHistory.create({
       data: {
         userId,
-        chatType: "psychologist",
-        role: "user",
-        message: lastUserMessage,
+        messages: JSON.stringify({
+          chatType: "psychologist",
+          role: "user",
+          message: lastUserMessage,
+          timestamp: new Date().toISOString()
+        })
       },
     });
 
@@ -47,6 +49,11 @@ export async function POST(req: Request) {
     پاسخ بده با در نظر گرفتن شخصیت و وضعیت روانی او:
     `;
 
+    const client = getOpenAIClient();
+    if (!client) {
+      return NextResponse.json({ success: false, error: "OpenAI API key is not configured" }, { status: 500 });
+    }
+
     const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [{ role: "system", content: prompt }],
@@ -60,9 +67,12 @@ export async function POST(req: Request) {
     await prisma.chatHistory.create({
       data: {
         userId,
-        chatType: "psychologist",
-        role: "bot",
-        message: reply,
+        messages: JSON.stringify({
+          chatType: "psychologist",
+          role: "bot",
+          message: reply,
+          timestamp: new Date().toISOString()
+        })
       },
     });
 

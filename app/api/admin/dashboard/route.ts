@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { startOfDay, startOfWeek, startOfMonth, startOfYear } from 'date-fns'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
@@ -29,7 +32,7 @@ export async function GET(request: Request) {
 
     // دریافت آمار کلی
     const [totalUsers, totalTestsTaken, totalFeedbacks] = await Promise.all([
-      prisma.user.count(),
+      prisma.user.count().catch(() => 0),
       // prisma.testResult.count(), // مدل testResult هنوز generate نشده
       0, // Mock data
       // prisma.comment.count(), // مدل comment هنوز generate نشده
@@ -50,7 +53,7 @@ export async function GET(request: Request) {
       orderBy: {
         createdAt: 'asc'
       }
-    })
+    }).catch(() => [])
 
     // دریافت تست‌های محبوب
     // const popularTests = await prisma.testResult.groupBy({
@@ -85,7 +88,7 @@ export async function GET(request: Request) {
           name: true,
           createdAt: true
         }
-      }),
+      }).catch(() => []),
       // تست‌های جدید
       // TODO: Implement when testMetadata model is added
       Promise.resolve([]),

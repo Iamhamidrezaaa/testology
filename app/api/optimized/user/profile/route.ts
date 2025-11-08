@@ -12,7 +12,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
   if (rateLimitResponse) return rateLimitResponse;
 
   const { searchParams } = new URL(req.url);
-  const userEmail = searchParams.get('email');
+  const userEmail = searchParams?.get('email');
 
   if (!userEmail) {
     return NextResponse.json(
@@ -65,7 +65,7 @@ export const PUT = withErrorHandling(async (req: NextRequest) => {
   if (rateLimitResponse) return rateLimitResponse;
 
   const { searchParams } = new URL(req.url);
-  const userEmail = searchParams.get('email');
+  const userEmail = searchParams?.get('email');
   const body = await req.json();
 
   if (!userEmail) {
@@ -104,7 +104,7 @@ export const PUT = withErrorHandling(async (req: NextRequest) => {
         name: body.name,
         lastName: body.lastName,
         phone: body.phone,
-        birthDate: body.birthDate ? new Date(body.birthDate) : null,
+        birthDate: body.birthDate ? String(body.birthDate) : null,
         province: body.province,
         city: body.city,
         updatedAt: new Date()
@@ -159,7 +159,7 @@ export const DELETE = withErrorHandling(async (req: NextRequest) => {
   if (rateLimitResponse) return rateLimitResponse;
 
   const { searchParams } = new URL(req.url);
-  const userEmail = searchParams.get('email');
+  const userEmail = searchParams?.get('email');
 
   if (!userEmail) {
     return NextResponse.json(

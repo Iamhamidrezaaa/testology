@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     }
 
     // دریافت تحلیل غربالگری از دیتابیس
-    const screeningAnalysis = await prisma.screeningAnalysis.findFirst({
+    const screeningAnalysis = await prisma.screeningResult.findFirst({
       where: whereClause,
       orderBy: { createdAt: 'desc' }
     });

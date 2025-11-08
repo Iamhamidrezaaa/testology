@@ -11,7 +11,7 @@ export default function LanguageSwitcher() {
     switchLanguage(newLang);
     
     // تغییر URL برای حفظ مسیر فعلی
-    const segments = pathname.split('/');
+    const segments = (pathname || '').split('/');
     if (availableLanguages.some(lang => lang.code === segments[1])) {
       // اگر زبان در URL موجود است، آن را جایگزین کن
       segments[1] = newLang;

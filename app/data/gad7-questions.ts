@@ -1,8 +1,11 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const gad7Questions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "در دو هفته گذشته، چقدر احساس کرده‌اید که نمی‌توانید روی کار خود تمرکز کنید؟",
     options: [
       "اصلاً",
@@ -12,7 +15,6 @@ export const gad7Questions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "در دو هفته گذشته، چقدر احساس کرده‌اید که نگران یا مضطرب هستید؟",
     options: [
       "اصلاً",
@@ -22,7 +24,6 @@ export const gad7Questions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "در دو هفته گذشته، چقدر احساس کرده‌اید که نگرانی‌هایتان را نمی‌توانید کنترل کنید؟",
     options: [
       "اصلاً",
@@ -32,7 +33,6 @@ export const gad7Questions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "در دو هفته گذشته، چقدر احساس کرده‌اید که نگران چیزهای مختلف هستید؟",
     options: [
       "اصلاً",
@@ -42,7 +42,6 @@ export const gad7Questions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "در دو هفته گذشته، چقدر احساس کرده‌اید که آرامش ندارید؟",
     options: [
       "اصلاً",
@@ -52,7 +51,6 @@ export const gad7Questions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "در دو هفته گذشته، چقدر احساس کرده‌اید که بی‌قرار هستید؟",
     options: [
       "اصلاً",
@@ -62,7 +60,6 @@ export const gad7Questions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "در دو هفته گذشته، چقدر احساس کرده‌اید که به راحتی ناراحت می‌شوید؟",
     options: [
       "اصلاً",
@@ -72,6 +69,13 @@ export const gad7Questions: Question[] = [
     ]
   }
 ]
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const gad7Questions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'gad7',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const gad7Options = [
   { label: "اصلاً", value: 0 },

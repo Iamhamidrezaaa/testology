@@ -27,7 +27,6 @@ import {
   Code,
   FileText,
   Presentation,
-  Spreadsheet,
   Database,
   Settings,
   MoreVertical,

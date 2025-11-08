@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     });
 
     // به‌روزرسانی داده‌های داشبورد
-    const stats = SimpleTestStorage.getTestStats(userId);
+    const stats = await SimpleTestStorage.getTestStats(userId);
     
     // ذخیره آمار در localStorage (برای استفاده در فرانت‌اند)
     if (typeof window !== 'undefined') {
@@ -72,8 +72,8 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('userId');
 
-    const results = SimpleTestStorage.getUserTestResults(userId || undefined);
-    const stats = SimpleTestStorage.getTestStats(userId || undefined);
+    const results = await SimpleTestStorage.getUserTestResults(userId || undefined);
+    const stats = await SimpleTestStorage.getTestStats(userId || undefined);
 
     return NextResponse.json({
       success: true,

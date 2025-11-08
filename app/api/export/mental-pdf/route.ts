@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth'
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
 
 export async function GET() {
@@ -10,12 +10,19 @@ export async function GET() {
       return new NextResponse('Unauthorized', { status: 401 })
     }
 
-    const profile = await prisma.mentalHealthProfile.findUnique({ 
-      where: { userId: session.user.id } 
-    })
+    // Note: mentalHealthProfile model is not in schema
+    // const profile = await prisma.mentalHealthProfile.findUnique({ 
+    //   where: { userId: session.user.id } 
+    // })
+    
+    // if (!profile) {
+    //   return new NextResponse('No mental health profile found', { status: 404 })
+    // }
+    
+    const profile = null
     
     if (!profile) {
-      return new NextResponse('No mental health profile found', { status: 404 })
+      return new NextResponse('Mental health profile feature is not available', { status: 404 })
     }
 
     // دریافت اطلاعات کاربر

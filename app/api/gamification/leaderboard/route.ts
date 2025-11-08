@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 /**
  * دریافت لیدربورد (رتبه‌بندی)
@@ -18,32 +18,39 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const limit = parseInt(searchParams.get('limit') || '10');
 
-    // دریافت top users
-    const topUsers = await prisma.gamification.findMany({
+    // Gamification model doesn't exist in schema
+    // Using UserProgress instead
+    const topUsers = await prisma.userProgress.findMany({
       take: limit,
       orderBy: [
         { xp: 'desc' },
         { level: 'desc' }
-      ],
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            image: true
-          }
-        }
-      }
-    });
+      ]
+    }).catch(() => []);
 
-    // دریافت رتبه کاربر جاری
-    const userGamification = await prisma.gamification.findUnique({
+    // Get user details separately
+    const userIds = topUsers.map(up => up.userId)
+    const users = await prisma.user.findMany({
+      where: {
+        id: { in: userIds }
+      },
+      select: {
+        id: true,
+        name: true,
+        image: true
+      }
+    })
+
+    const userMap = new Map(users.map(u => [u.id, u]))
+
+        // دریافت رتبه کاربر جاری
+    const userGamification = await prisma.userProgress.findUnique({
       where: { userId: session.user.id }
-    });
+    }).catch(() => null);
 
     let userRank = null;
     if (userGamification) {
-      userRank = await prisma.gamification.count({
+      userRank = await prisma.userProgress.count({
         where: {
           xp: {
             gt: userGamification.xp
@@ -53,22 +60,25 @@ export async function GET(req: NextRequest) {
     }
 
     // فرمت کردن نتایج
-    const leaderboard = topUsers.map((item, index) => ({
-      rank: index + 1,
-      userId: item.user.id,
-      name: item.user.name || 'کاربر ناشناس',
-      image: item.user.image,
-      xp: item.xp,
-      level: item.level,
-      medals: item.medals,
-      challengesCompleted: item.challengesCompleted,
-      isCurrentUser: item.userId === session.user.id
-    }));
+    const leaderboard = topUsers.map((item, index) => {
+      const user = userMap.get(item.userId)
+      return {
+        rank: index + 1,
+        userId: item.userId,
+        name: user?.name || 'کاربر ناشناس',
+        image: user?.image || null,
+        xp: item.xp || 0,
+        level: item.level || 1,
+        medals: 0, // Medals don't exist in schema
+        challengesCompleted: 0, // Challenges don't exist in schema
+        isCurrentUser: item.userId === session.user.id
+      }
+    });
 
     return NextResponse.json({
       leaderboard,
       userRank,
-      totalUsers: await prisma.gamification.count()
+      totalUsers: await prisma.userProgress.count().catch(() => 0)
     });
 
   } catch (error) {

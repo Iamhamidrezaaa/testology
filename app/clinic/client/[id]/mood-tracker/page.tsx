@@ -60,7 +60,7 @@ import {
   Power,
   Play,
   Pause,
-  Stop,
+  Square,
   SkipBack,
   SkipForward,
   Volume2,
@@ -75,9 +75,9 @@ import {
   Smartphone,
   Tablet,
   Laptop,
-  Desktop,
+  MonitorSpeaker,
   Printer,
-  Scanner,
+  ScanLine,
   HardDrive,
   Cpu,
   MemoryStick,
@@ -185,7 +185,7 @@ export default function ClinicMoodTracker() {
         const grouped = result.data.reduce((acc: Record<string, ChartData>, item: MoodTrendData) => {
           const date = new Date(item.createdAt).toLocaleDateString("fa-IR");
           if (!acc[date]) acc[date] = { date };
-          acc[date][item.category] = item.score;
+          (acc[date] as any)[item.category] = item.score;
           return acc;
         }, {});
         

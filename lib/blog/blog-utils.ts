@@ -1,5 +1,6 @@
 // ابزارهای کمکی برای بلاگ
-import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
+import { IS_BUILD } from '@/lib/isBuild'
 
 export interface BlogStats {
   totalPosts: number
@@ -12,6 +13,18 @@ export interface BlogStats {
 }
 
 export async function getBlogStats(): Promise<BlogStats> {
+  if (IS_BUILD) {
+    return {
+      totalPosts: 0,
+      publishedPosts: 0,
+      draftPosts: 0,
+      totalViews: 0,
+      totalLikes: 0,
+      totalComments: 0,
+      categoriesCount: 0
+    }
+  }
+
   const [
     totalPosts,
     publishedPosts,
@@ -21,37 +34,43 @@ export async function getBlogStats(): Promise<BlogStats> {
     totalComments,
     categoriesCount
   ] = await Promise.all([
-    prisma.blogPost.count(),
-    prisma.blogPost.count({ where: { published: true } }),
-    prisma.blogPost.count({ where: { published: false } }),
-    prisma.blogPost.aggregate({
-      _sum: { views: true }
-    }),
-    prisma.blogPost.aggregate({
-      _sum: { likes: true }
-    }),
-    prisma.blogComment.count(),
-    prisma.blogCategory.count()
+    prisma.blog.count().catch(() => 0),
+    prisma.blog.count({ where: { published: true } }).catch(() => 0),
+    prisma.blog.count({ where: { published: false } }).catch(() => 0),
+    prisma.blog.aggregate({
+      _sum: { viewCount: true }
+    }).catch(() => ({ _sum: { viewCount: null } })),
+    // likes field doesn't exist
+    Promise.resolve({ _sum: { likes: null } }),
+    // blogComment model doesn't exist
+    Promise.resolve(0),
+    prisma.blogCategory.count().catch(() => 0)
   ])
 
   return {
     totalPosts,
     publishedPosts,
     draftPosts,
-    totalViews: totalViews._sum.views || 0,
-    totalLikes: totalLikes._sum.likes || 0,
+    totalViews: totalViews._sum.viewCount || 0,
+    totalLikes: 0, // likes field doesn't exist
     totalComments,
     categoriesCount
   }
 }
 
 export async function getPopularPosts(limit: number = 5) {
-  return prisma.blogPost.findMany({
+  if (IS_BUILD) return []
+  return prisma.blog.findMany({
     where: { published: true },
-    orderBy: { views: 'desc' },
+    orderBy: { viewCount: 'desc' },
     take: limit,
-    include: {
-      category: true,
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      metaDescription: true,
+      viewCount: true,
+      createdAt: true,
       author: {
         select: {
           id: true,
@@ -60,16 +79,21 @@ export async function getPopularPosts(limit: number = 5) {
         }
       }
     }
-  })
+  }).catch(() => [])
 }
 
 export async function getRecentPosts(limit: number = 5) {
-  return prisma.blogPost.findMany({
+  if (IS_BUILD) return []
+  return prisma.blog.findMany({
     where: { published: true },
-    orderBy: { publishedAt: 'desc' },
+    orderBy: { createdAt: 'desc' },
     take: limit,
-    include: {
-      category: true,
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      metaDescription: true,
+      createdAt: true,
       author: {
         select: {
           id: true,
@@ -78,20 +102,25 @@ export async function getRecentPosts(limit: number = 5) {
         }
       }
     }
-  })
+  }).catch(() => [])
 }
 
-export async function getRelatedPosts(postId: string, categoryId: string, limit: number = 3) {
-  return prisma.blogPost.findMany({
+export async function getRelatedPosts(postId: string, category: string, limit: number = 3) {
+  if (IS_BUILD) return []
+  return prisma.blog.findMany({
     where: {
       published: true,
-      categoryId,
+      category,
       id: { not: postId }
     },
-    orderBy: { publishedAt: 'desc' },
+    orderBy: { createdAt: 'desc' },
     take: limit,
-    include: {
-      category: true,
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      metaDescription: true,
+      createdAt: true,
       author: {
         select: {
           id: true,
@@ -100,24 +129,29 @@ export async function getRelatedPosts(postId: string, categoryId: string, limit:
         }
       }
     }
-  })
+  }).catch(() => [])
 }
 
 export async function searchPosts(query: string, limit: number = 10) {
-  return prisma.blogPost.findMany({
+  if (IS_BUILD) return []
+  return prisma.blog.findMany({
     where: {
       published: true,
       OR: [
-        { title: { contains: query, mode: 'insensitive' } },
-        { excerpt: { contains: query, mode: 'insensitive' } },
-        { content: { contains: query, mode: 'insensitive' } },
-        { tags: { has: query } }
+        { title: { contains: query } },
+        { metaDescription: { contains: query } },
+        { content: { contains: query } },
+        { tags: { contains: query } }
       ]
     },
-    orderBy: { publishedAt: 'desc' },
+    orderBy: { createdAt: 'desc' },
     take: limit,
-    include: {
-      category: true,
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      metaDescription: true,
+      createdAt: true,
       author: {
         select: {
           id: true,
@@ -126,19 +160,24 @@ export async function searchPosts(query: string, limit: number = 10) {
         }
       }
     }
-  })
+  }).catch(() => [])
 }
 
 export async function getPostsByCategory(categorySlug: string, limit: number = 10) {
-  return prisma.blogPost.findMany({
+  if (IS_BUILD) return []
+  return prisma.blog.findMany({
     where: {
       published: true,
-      category: { slug: categorySlug }
+      category: categorySlug
     },
-    orderBy: { publishedAt: 'desc' },
+    orderBy: { createdAt: 'desc' },
     take: limit,
-    include: {
-      category: true,
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      metaDescription: true,
+      createdAt: true,
       author: {
         select: {
           id: true,
@@ -147,19 +186,24 @@ export async function getPostsByCategory(categorySlug: string, limit: number = 1
         }
       }
     }
-  })
+  }).catch(() => [])
 }
 
 export async function getPostsByTag(tag: string, limit: number = 10) {
-  return prisma.blogPost.findMany({
+  if (IS_BUILD) return []
+  return prisma.blog.findMany({
     where: {
       published: true,
-      tags: { has: tag }
+      tags: { contains: tag }
     },
-    orderBy: { publishedAt: 'desc' },
+    orderBy: { createdAt: 'desc' },
     take: limit,
-    include: {
-      category: true,
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      metaDescription: true,
+      createdAt: true,
       author: {
         select: {
           id: true,
@@ -168,37 +212,50 @@ export async function getPostsByTag(tag: string, limit: number = 10) {
         }
       }
     }
-  })
+  }).catch(() => [])
 }
 
 export async function getAllTags() {
-  const posts = await prisma.blogPost.findMany({
+  if (IS_BUILD) return []
+  const posts = await prisma.blog.findMany({
     where: { published: true },
     select: { tags: true }
-  })
+  }).catch(() => [])
 
-  const allTags = posts.flatMap(post => post.tags)
-  const uniqueTags = [...new Set(allTags)]
+  const allTags = posts
+    .flatMap(post => post.tags ? post.tags.split(',').map((t: any) => t.trim()) : [])
+    .filter((t: any) => t.length > 0)
+  const uniqueTags = Array.from(new Set(allTags))
   
-  return uniqueTags.map(tag => ({
+  return uniqueTags.map((tag: any) => ({
     name: tag,
-    count: allTags.filter(t => t === tag).length
-  })).sort((a, b) => b.count - a.count)
+    count: allTags.filter((t: any) => t === tag).length
+  })).sort((a: any, b: any) => b.count - a.count)
 }
 
 export async function getBlogCategories() {
-  return prisma.blogCategory.findMany({
-    include: {
-      _count: {
-        select: {
-          posts: {
-            where: { published: true }
-          }
-        }
-      }
-    },
+  if (IS_BUILD) return []
+  const categories = await prisma.blogCategory.findMany({
     orderBy: { name: 'asc' }
-  })
+  }).catch(() => [])
+
+  // محاسبه تعداد پست‌ها برای هر دسته
+  const categoriesWithCounts = await Promise.all(
+    categories.map(async (category) => {
+      const postCount = await prisma.blog.count({
+        where: {
+          category: category.slug,
+          published: true
+        }
+      }).catch(() => 0)
+      return {
+        ...category,
+        _count: { posts: postCount }
+      }
+    })
+  )
+
+  return categoriesWithCounts
 }
 
 export function generateSlug(title: string): string {
@@ -242,7 +299,7 @@ export function validateBlogPost(data: any): { isValid: boolean; errors: string[
     errors.push('محتوای مقاله باید حداقل 100 کاراکتر باشد')
   }
 
-  if (!data.categoryId) {
+  if (!data.category) {
     errors.push('دسته‌بندی الزامی است')
   }
 

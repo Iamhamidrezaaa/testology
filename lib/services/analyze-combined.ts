@@ -1,9 +1,5 @@
-import OpenAI from 'openai'
+import { getOpenAI } from '@/lib/openai'
 import { TestResult } from '@prisma/client'
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
 
 interface CombinedAnalysisResult {
   text: string
@@ -63,6 +59,11 @@ ${testSummary.map(test => `
 - حرفه‌ای و علمی باشد
 - شامل راهکارهای عملی باشد
 `
+
+    const openai = getOpenAI();
+    if (!openai) {
+      return 'متأسفانه در حال حاضر قادر به تحلیل ترکیبی نیستیم. لطفاً کمی بعد دوباره تلاش کنید.';
+    }
 
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',

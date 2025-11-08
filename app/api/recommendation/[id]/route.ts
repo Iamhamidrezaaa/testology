@@ -35,20 +35,6 @@ export async function PUT(
         ...(isViewed !== undefined && { isViewed }),
         ...(isAccepted !== undefined && { isAccepted }),
         ...(feedback !== undefined && { feedback })
-      },
-      include: {
-        content: {
-          select: {
-            id: true,
-            title: true,
-            description: true,
-            type: true,
-            category: true,
-            difficulty: true,
-            duration: true,
-            imageUrl: true
-          }
-        }
       }
     })
 
@@ -68,12 +54,18 @@ export async function PUT(
         })
       }
 
+      // دریافت محتوای پیشنهاد
+      const content = await prisma.marketplaceItem.findUnique({
+        where: { id: suggestion.contentId },
+        select: { title: true }
+      })
+
       // ایجاد نوتیفیکیشن
-      await prisma.smartNotification.create({
+      await prisma.notification.create({
         data: {
           userId: session.user.id,
           title: '🎉 پیشنهاد پذیرفته شد!',
-          message: `شما پیشنهاد "${updatedSuggestion.content.title}" را پذیرفتید.`,
+          message: `شما پیشنهاد "${content?.title || 'محتوای پیشنهادی'}" را پذیرفتید.`,
           type: 'achievement',
           priority: 'normal',
           actionUrl: '/profile/recommendations'
@@ -131,19 +123,3 @@ export async function DELETE(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

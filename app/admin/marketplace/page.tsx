@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Package, Plus, Edit, Trash2, DollarSign, Calendar, User, FileText, Headphones, BookOpen, Brain } from 'lucide-react'
+import AddMarketplaceItem from '@/components/admin/AddMarketplaceItem'
 
 interface MarketplaceItem {
   id: string

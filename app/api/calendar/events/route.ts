@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
     const calendar = google.calendar({ version: 'v3', auth })
 
     // ایجاد رویداد جدید
-    const event = {
+    const event: any = {
       summary: title,
       description: description || '',
       start: {
@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
 
     const createdEvent = await calendar.events.insert({
       calendarId: 'primary',
-      resource: event
+      requestBody: event as any
     })
 
     return NextResponse.json({

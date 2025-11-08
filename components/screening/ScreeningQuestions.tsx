@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-// import { ScreeningQuestion } from '@/pages/data/screening-questions' // Commented out as data folder is removed
+// import { ScreeningQuestion } from '@/data/screening-questions' // Commented out as data folder is removed
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'

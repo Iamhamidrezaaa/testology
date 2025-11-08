@@ -15,8 +15,7 @@ export async function GET() {
     // دریافت تست‌های کاربر برای محاسبه mood profile
     const tests = await prisma.testResult.findMany({
       where: { 
-        userId: session.user.id,
-        completed: true
+        userId: session.user.id
       },
       orderBy: { createdAt: 'desc' },
       take: 10 // آخرین 10 تست
@@ -28,7 +27,7 @@ export async function GET() {
       let summary = ''
 
       // محاسبه امتیاز خلق‌وخو بر اساس نوع تست
-      switch (test.testSlug) {
+      switch (test.testId) {
         case 'rosenberg':
           moodScore = test.score ? (test.score / 40) * 100 : 50
           summary = test.score >= 30 ? 'عزت نفس بالا' : 
@@ -70,7 +69,7 @@ export async function GET() {
         moodScore: Math.round(moodScore),
         summary: summary,
         testName: test.testName,
-        testSlug: test.testSlug
+        testId: test.testId
       }
     })
 

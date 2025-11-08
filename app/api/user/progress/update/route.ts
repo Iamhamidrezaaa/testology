@@ -26,7 +26,11 @@ export async function POST() {
     
     // بررسی دستاوردهای جدید
     const newAchievements = []
-    const currentAchievements = currentProgress?.achievements as string[] || []
+    const currentAchievements: string[] = currentProgress?.achievements 
+      ? (typeof currentProgress.achievements === 'string' 
+          ? JSON.parse(currentProgress.achievements) 
+          : [])
+      : []
     
     // دستاورد تست اول
     if (!currentAchievements.includes('تست اول انجام شد! 🎯') && (currentProgress?.totalTests || 0) === 0) {
@@ -56,9 +60,7 @@ export async function POST() {
         xp: newXP,
         level: newLevel,
         totalTests: { increment: 1 },
-        achievements: {
-          push: newAchievements
-        },
+        achievements: JSON.stringify([...currentAchievements, ...newAchievements]),
         lastActivity: new Date()
       },
       create: {
@@ -66,7 +68,7 @@ export async function POST() {
         xp: xpGain,
         level: 1,
         totalTests: 1,
-        achievements: newAchievements.length > 0 ? newAchievements : ['شروع خوب! 👏'],
+        achievements: JSON.stringify(newAchievements.length > 0 ? newAchievements : ['شروع خوب! 👏']),
         lastActivity: new Date()
       }
     })
@@ -89,6 +91,10 @@ export async function POST() {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
+
+
+
 
 
 

@@ -19,7 +19,7 @@ export default function LanguageSwitcher() {
       {languages.map((l) => (
         <button
           key={l.code}
-          onClick={() => setLang(l.code)}
+          onClick={() => setLang(l.code as any)}
           className={`px-2 py-1 rounded text-sm font-semibold transition-all duration-200 ${
             lang === l.code
               ? "bg-blue-600 text-white shadow-md"
@@ -43,7 +43,7 @@ export function MobileLanguageSwitcher() {
       {languages.map((l) => (
         <button
           key={l.code}
-          onClick={() => setLang(l.code)}
+          onClick={() => setLang(l.code as any)}
           className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
             lang === l.code
               ? "bg-blue-600 text-white"
@@ -78,7 +78,7 @@ export function HeaderLanguageSwitcher() {
           {languages.map((l) => (
             <button
               key={l.code}
-              onClick={() => setLang(l.code)}
+              onClick={() => setLang(l.code as any)}
               className={`w-full text-left px-4 py-2 text-sm flex items-center space-x-3 hover:bg-gray-100 dark:hover:bg-gray-700 ${
                 lang === l.code
                   ? 'bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-300'

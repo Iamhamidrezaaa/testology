@@ -115,7 +115,7 @@ export function useLanguageSwitcher() {
   const { lang, setLang } = useLanguage();
   
   const switchLanguage = (newLang: string) => {
-    setLang(newLang);
+    setLang(newLang as any);
     
     // ذخیره در localStorage
     if (typeof window !== 'undefined') {

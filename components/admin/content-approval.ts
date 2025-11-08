@@ -50,13 +50,10 @@ export class ContentApprovalService {
         select: {
           id: true,
           content: true,
-          author: true,
+          authorName: true,
+          authorEmail: true,
           createdAt: true,
-          blog: {
-            select: {
-              title: true
-            }
-          }
+          blogId: true
         }
       });
 
@@ -71,16 +68,22 @@ export class ContentApprovalService {
           status: 'pending' as const,
           priority: 'medium' as const
         })),
-        ...pendingComments.map(comment => ({
-          id: comment.id,
-          type: 'comment' as const,
-          title: `نظر برای: ${comment.blog.title}`,
-          content: comment.content,
-          author: comment.author,
-          createdAt: comment.createdAt,
-          status: 'pending' as const,
-          priority: 'low' as const
-        }))
+        ...(await Promise.all(pendingComments.map(async (comment) => {
+          const blog = await prisma.blog.findUnique({
+            where: { id: comment.blogId },
+            select: { title: true }
+          });
+          return {
+            id: comment.id,
+            type: 'comment' as const,
+            title: `نظر برای: ${blog?.title || 'مقاله'}`,
+            content: comment.content,
+            author: comment.authorName || comment.authorEmail || 'ناشناس',
+            createdAt: comment.createdAt,
+            status: 'pending' as const,
+            priority: 'low' as const
+          };
+        })))
       ];
 
       return items.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());

@@ -2,7 +2,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+// Tooltip component - using native HTML title attribute for now
+// import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface UserBadge {
   id: string
@@ -61,40 +62,29 @@ export default function UserBadges({ badges, className = "" }: UserBadgesProps) 
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            <TooltipProvider>
-              {badges.map((badge) => (
-                <Tooltip key={badge.id}>
-                  <TooltipTrigger asChild>
-                    <div className={`
-                      relative p-3 rounded-lg border-2 transition-all duration-200 hover:scale-105 cursor-pointer
-                      ${getRarityColor(badge.rarity)}
-                    `}>
-                      <div className="text-center">
-                        <div className="text-2xl mb-1">{badge.icon}</div>
-                        <div className="text-xs font-medium truncate">
-                          {badge.name}
-                        </div>
-                        <div className="text-xs opacity-75 mt-1">
-                          {getRarityIcon(badge.rarity)}
-                        </div>
-                      </div>
-                      
-                      {/* نشان تاریخ کسب */}
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <div className="max-w-xs">
-                      <div className="font-medium mb-1">{badge.name}</div>
-                      <div className="text-sm text-gray-600 mb-2">{badge.description}</div>
-                      <div className="text-xs text-gray-500">
-                        کسب شده در: {new Date(badge.earnedAt).toLocaleDateString('fa-IR')}
-                      </div>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              ))}
-            </TooltipProvider>
+            {badges.map((badge) => (
+              <div
+                key={badge.id}
+                className={`
+                  relative p-3 rounded-lg border-2 transition-all duration-200 hover:scale-105 cursor-pointer
+                  ${getRarityColor(badge.rarity)}
+                `}
+                title={`${badge.name}: ${badge.description} - کسب شده در: ${new Date(badge.earnedAt).toLocaleDateString('fa-IR')}`}
+              >
+                <div className="text-center">
+                  <div className="text-2xl mb-1">{badge.icon}</div>
+                  <div className="text-xs font-medium truncate">
+                    {badge.name}
+                  </div>
+                  <div className="text-xs opacity-75 mt-1">
+                    {getRarityIcon(badge.rarity)}
+                  </div>
+                </div>
+                
+                {/* نشان تاریخ کسب */}
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+              </div>
+            ))}
           </div>
         )}
         

@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const stressManagementQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "من در مدیریت استرس مهارت دارم",
     options: [
       "کاملاً مخالفم",
@@ -13,7 +17,6 @@ export const stressManagementQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "من از تکنیک‌های آرام‌سازی استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -24,7 +27,6 @@ export const stressManagementQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "من از ورزش برای کاهش استرس استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -35,7 +37,6 @@ export const stressManagementQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "من از مدیتیشن برای کاهش استرس استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -46,7 +47,6 @@ export const stressManagementQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "من از تنفس عمیق برای کاهش استرس استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -57,7 +57,6 @@ export const stressManagementQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "من از موسیقی برای کاهش استرس استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -68,7 +67,6 @@ export const stressManagementQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "من از هنر برای کاهش استرس استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -79,7 +77,6 @@ export const stressManagementQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "من از طبیعت برای کاهش استرس استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -90,7 +87,6 @@ export const stressManagementQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "من از دوستان برای کاهش استرس استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -101,7 +97,6 @@ export const stressManagementQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "من از خانواده برای کاهش استرس استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -112,7 +107,6 @@ export const stressManagementQuestions: Question[] = [
     ]
   },
   {
-    id: 11,
     text: "من از مشاوره برای کاهش استرس استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -123,7 +117,6 @@ export const stressManagementQuestions: Question[] = [
     ]
   },
   {
-    id: 12,
     text: "من از کتاب‌خوانی برای کاهش استرس استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -134,7 +127,6 @@ export const stressManagementQuestions: Question[] = [
     ]
   },
   {
-    id: 13,
     text: "من از فیلم‌دیدن برای کاهش استرس استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -145,7 +137,6 @@ export const stressManagementQuestions: Question[] = [
     ]
   },
   {
-    id: 14,
     text: "من از بازی برای کاهش استرس استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -156,7 +147,6 @@ export const stressManagementQuestions: Question[] = [
     ]
   },
   {
-    id: 15,
     text: "من از سفر برای کاهش استرس استفاده می‌کنم",
     options: [
       "کاملاً مخالفم",
@@ -167,6 +157,15 @@ export const stressManagementQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const stressManagementQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'stress-management',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const stressManagementOptions = [
   { label: "کاملاً مخالفم", value: "1" },

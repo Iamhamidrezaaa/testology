@@ -1,4 +1,4 @@
-// import { screeningQuestions, ScreeningQuestion } from '@/pages/data/screening-questions' // Commented out as data folder is removed
+// import { screeningQuestions, ScreeningQuestion } from '@/data/screening-questions' // Commented out as data folder is removed
 
 interface UserProfile {
   age: number

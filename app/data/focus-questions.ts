@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const focusQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "چقدر مشکل دارید که روی کارهای مهم تمرکز کنید؟",
     options: [
       "هیچ مشکل",
@@ -13,7 +17,6 @@ export const focusQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "چقدر مشکل دارید که حواس‌پرتی را کنترل کنید؟",
     options: [
       "هیچ مشکل",
@@ -24,7 +27,6 @@ export const focusQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "چقدر مشکل دارید که توجه خود را حفظ کنید؟",
     options: [
       "هیچ مشکل",
@@ -35,7 +37,6 @@ export const focusQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "چقدر مشکل دارید که تمرکز خود را حفظ کنید؟",
     options: [
       "هیچ مشکل",
@@ -46,7 +47,6 @@ export const focusQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "چقدر مشکل دارید که توجه خود را تقسیم کنید؟",
     options: [
       "هیچ مشکل",
@@ -57,7 +57,6 @@ export const focusQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "چقدر مشکل دارید که توجه خود را تغییر دهید؟",
     options: [
       "هیچ مشکل",
@@ -68,7 +67,6 @@ export const focusQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "چقدر مشکل دارید که توجه خود را حفظ کنید؟",
     options: [
       "هیچ مشکل",
@@ -79,7 +77,6 @@ export const focusQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "چقدر مشکل دارید که تمرکز خود را حفظ کنید؟",
     options: [
       "هیچ مشکل",
@@ -90,7 +87,6 @@ export const focusQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "چقدر مشکل دارید که توجه خود را تقسیم کنید؟",
     options: [
       "هیچ مشکل",
@@ -101,7 +97,6 @@ export const focusQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "چقدر مشکل دارید که توجه خود را تغییر دهید؟",
     options: [
       "هیچ مشکل",
@@ -112,6 +107,15 @@ export const focusQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const focusQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'focus',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const focusOptions = [
   { label: "هیچ مشکل", value: 1 },

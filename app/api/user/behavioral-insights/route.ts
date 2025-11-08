@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma'
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
-    const userEmail = searchParams.get('email')
+    const userEmail = searchParams?.get('email')
     
     if (!userEmail) {
       return NextResponse.json(
@@ -41,11 +41,11 @@ export async function GET(req: NextRequest) {
     const insights = []
 
     // تحلیل اضطراب
-    const anxietyTests = testResults.filter(r => 
+    const anxietyTests = testResults.filter((r: any) => 
       r.testName.includes('اضطراب') || r.testName.includes('anxiety')
     )
     if (anxietyTests.length > 0) {
-      const avgAnxiety = anxietyTests.reduce((sum, t) => sum + t.score, 0) / anxietyTests.length
+      const avgAnxiety = anxietyTests.reduce((sum: any, t: any) => sum + t.score, 0) / anxietyTests.length
       insights.push({
         id: 'anxiety_insight',
         category: 'anxiety',
@@ -61,11 +61,11 @@ export async function GET(req: NextRequest) {
     }
 
     // تحلیل افسردگی
-    const depressionTests = testResults.filter(r => 
+    const depressionTests = testResults.filter((r: any) => 
       r.testName.includes('افسردگی') || r.testName.includes('depression')
     )
     if (depressionTests.length > 0) {
-      const avgDepression = depressionTests.reduce((sum, t) => sum + t.score, 0) / depressionTests.length
+      const avgDepression = depressionTests.reduce((sum: any, t: any) => sum + t.score, 0) / depressionTests.length
       insights.push({
         id: 'depression_insight',
         category: 'mood',
@@ -81,7 +81,7 @@ export async function GET(req: NextRequest) {
     }
 
     // تحلیل شخصیت
-    const personalityTests = testResults.filter(r => 
+    const personalityTests = testResults.filter((r: any) => 
       r.testName.includes('شخصیت') || r.testName.includes('personality')
     )
     if (personalityTests.length > 0) {
@@ -101,9 +101,9 @@ export async function GET(req: NextRequest) {
 
     // تحلیل الگوهای خلق و خو
     if (moodData.length > 0) {
-      const moodTypes = moodData.map(m => m.moodType)
+      const moodTypes = moodData.map((m: any) => m.moodType)
       const mostCommonMood = moodTypes.reduce((a, b, i, arr) => 
-        arr.filter(v => v === a).length >= arr.filter(v => v === b).length ? a : b
+        arr.filter((v: any) => v === a).length >= arr.filter((v: any) => v === b).length ? a : b
       )
       
       insights.push({
@@ -125,8 +125,8 @@ export async function GET(req: NextRequest) {
     const olderTests = testResults.slice(5, 10)
     
     if (recentTests.length > 0 && olderTests.length > 0) {
-      const recentAvg = recentTests.reduce((sum, t) => sum + t.score, 0) / recentTests.length
-      const olderAvg = olderTests.reduce((sum, t) => sum + t.score, 0) / olderTests.length
+      const recentAvg = recentTests.reduce((sum: any, t: any) => sum + t.score, 0) / recentTests.length
+      const olderAvg = olderTests.reduce((sum: any, t: any) => sum + t.score, 0) / olderTests.length
       const improvement = recentAvg - olderAvg
       
       insights.push({
@@ -254,12 +254,12 @@ export async function GET(req: NextRequest) {
       stats: {
         totalInsights: insights.length,
         confidence: insights.length > 0 ? 
-          insights.reduce((sum, i) => sum + i.confidence, 0) / insights.length : 0,
-        categories: [...new Set(insights.map(i => i.category))],
+          insights.reduce((sum: any, i: any) => sum + i.confidence, 0) / insights.length : 0,
+        categories: Array.from(new Set(insights.map((i: any) => i.category))),
         trends: {
-          improving: insights.filter(i => i.trend === 'improving').length,
-          stable: insights.filter(i => i.trend === 'stable').length,
-          declining: insights.filter(i => i.trend === 'declining').length
+          improving: insights.filter((i: any) => i.trend === 'improving').length,
+          stable: insights.filter((i: any) => i.trend === 'stable').length,
+          declining: insights.filter((i: any) => i.trend === 'declining').length
         }
       }
     })

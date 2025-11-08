@@ -53,7 +53,7 @@ const testNames: Record<string, string> = {
 export default function TestStartPage() {
   const params = useParams();
   const router = useRouter();
-  const testId = params.id as string;
+  const testId = (params?.id as string) || '';
 
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
@@ -109,7 +109,7 @@ export default function TestStartPage() {
   };
 
   // بررسی اینکه آیا همه سوالات پاسخ داده شده‌اند
-  const allQuestionsAnswered = answers.filter(answer => answer !== undefined).length === questions.length;
+  const allQuestionsAnswered = answers.filter((answer: any) => answer !== undefined).length === questions.length;
 
   const saveResults = async () => {
     setLoading(true);
@@ -186,7 +186,7 @@ export default function TestStartPage() {
   };
 
   const calcScore = () => {
-    const total = answers.reduce((a, b) => a + (b || 0), 0);
+    const total = answers.reduce((a: any, b: any) => a + (b || 0), 0);
     return Math.round((total / (questions.length * 4)) * 100);
   };
 

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
@@ -14,22 +14,13 @@ export async function POST(req: Request) {
 
     console.log(`🏥 افزودن مراجع جدید برای روان‌شناس ${clinicianId}...`);
 
-    const client = await prisma.client.create({
-      data: { 
-        clinicianId, 
-        nickname, 
-        gender, 
-        birthYear: birthYear ? parseInt(birthYear) : null 
-      },
-    });
-
-    console.log(`✅ مراجع ${nickname} با موفقیت اضافه شد`);
-
+    // Client model doesn't exist in schema
+    // Returning error for now
     return NextResponse.json({ 
-      success: true, 
-      client,
-      message: `مراجع ${nickname} با موفقیت اضافه شد`
-    });
+      success: false,
+      error: "Client model is not in schema",
+      message: "این قابلیت در حال حاضر در دسترس نیست"
+    }, { status: 400 });
 
   } catch (err) {
     console.error("❌ خطا در افزودن مراجع:", err);

@@ -19,26 +19,26 @@ export async function GET() {
     })
 
     // گروه‌بندی ویدئوها بر اساس هفته
-    const videosByWeek = videos.reduce((acc, video) => {
+    const videosByWeek = videos.reduce((acc: Record<string, typeof videos>, video) => {
       const weekKey = `${video.year}-W${video.week}`
       if (!acc[weekKey]) {
         acc[weekKey] = []
       }
       acc[weekKey].push(video)
       return acc
-    }, {} as Record<string, any[]>)
+    }, {})
 
     // آمار کلی
     const stats = {
       totalVideos: videos.length,
-      totalDuration: videos.reduce((sum, video) => sum + (video.duration || 0), 0),
-      totalSize: videos.reduce((sum, video) => sum + (video.fileSize || 0), 0),
-      moodCounts: videos.reduce((acc, video) => {
+      totalDuration: videos.reduce((sum: number, video) => sum + (video.duration || 0), 0),
+      totalSize: videos.reduce((sum: number, video) => sum + (video.fileSize || 0), 0),
+      moodCounts: videos.reduce((acc: Record<string, number>, video) => {
         if (video.mood) {
           acc[video.mood] = (acc[video.mood] || 0) + 1
         }
         return acc
-      }, {} as Record<string, number>)
+      }, {})
     }
 
     return NextResponse.json({

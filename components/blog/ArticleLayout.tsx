@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { BookmarkButton } from '@/components/shared/BookmarkButton';
 import { VoicePlayback } from '@/components/shared/VoicePlayback';
 import FeedbackForm from '@/components/shared/FeedbackForm';
@@ -143,6 +144,8 @@ export default function ArticleLayout({ article }: ArticleLayoutProps) {
     </article>
   );
 }
+
+
 
 
 

@@ -29,7 +29,7 @@ export default function LanguageAutoDetector({
 
         if (cookieLang && supported.includes(cookieLang)) {
           if (cookieLang !== lang) {
-            setLang(cookieLang);
+            setLang(cookieLang as any);
             onLanguageDetected?.(cookieLang);
           }
           setDetected(true);
@@ -40,7 +40,7 @@ export default function LanguageAutoDetector({
         const storedLang = localStorage.getItem('testology-language');
         if (storedLang && supported.includes(storedLang)) {
           if (storedLang !== lang) {
-            setLang(storedLang);
+            setLang(storedLang as any);
             onLanguageDetected?.(storedLang);
           }
           setDetected(true);
@@ -50,7 +50,7 @@ export default function LanguageAutoDetector({
         // 3. تشخیص از مرورگر
         const browserLang = navigator.language.split("-")[0];
         if (supported.includes(browserLang) && browserLang !== lang) {
-          setLang(browserLang);
+          setLang(browserLang as any);
           onLanguageDetected?.(browserLang);
           
           // ذخیره در localStorage
@@ -60,7 +60,7 @@ export default function LanguageAutoDetector({
         // 4. تشخیص از Accept-Language header (اگر در دسترس باشد)
         const acceptLanguage = navigator.languages?.[0]?.split("-")[0];
         if (acceptLanguage && supported.includes(acceptLanguage) && acceptLanguage !== lang) {
-          setLang(acceptLanguage);
+          setLang(acceptLanguage as any);
           onLanguageDetected?.(acceptLanguage);
           
           // ذخیره در localStorage
@@ -194,7 +194,7 @@ export function ManualLanguageSelector() {
   const currentLang = languages.find(l => l.code === lang);
 
   const handleLanguageChange = (newLang: string) => {
-    setLang(newLang);
+    setLang(newLang as any);
     setIsOpen(false);
     
     // ذخیره در localStorage

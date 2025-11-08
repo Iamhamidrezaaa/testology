@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 /**
  * دریافت لیست عمومی درمانگران
@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '12');
 
     const where: any = {
-      role: 'admin' // در حال حاضر فقط admin می‌تواند درمانگر باشد
+      role: 'THERAPIST' // فقط درمانگران
     };
 
     // فیلتر specialty در MVP غیرفعال است

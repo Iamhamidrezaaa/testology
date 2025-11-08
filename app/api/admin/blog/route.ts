@@ -19,7 +19,20 @@ export async function GET(req: NextRequest) {
     // دریافت مقالات از دیتابیس
     const blogs = await prisma.blog.findMany({
       orderBy: { createdAt: 'desc' },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        metaDescription: true,
+        content: true,
+        category: true,
+        imageUrl: true,
+        tags: true,
+        published: true,
+        featured: true,
+        viewCount: true,
+        createdAt: true,
+        updatedAt: true,
         author: {
           select: {
             name: true,
@@ -27,7 +40,7 @@ export async function GET(req: NextRequest) {
           }
         }
       }
-    })
+    }).catch(() => [])
 
     return NextResponse.json({
       blogs: blogs.map(blog => ({

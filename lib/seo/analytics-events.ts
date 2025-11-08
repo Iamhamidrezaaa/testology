@@ -1,4 +1,13 @@
 // مدیریت رویدادهای analytics
+
+declare global {
+  var gtag: ((command: string, targetId: string, config?: any) => void) | undefined;
+  var fbq: ((command: string, event: string, params?: any) => void) | undefined;
+  var analytics: {
+    track: (event: string, params?: any) => void;
+  } | undefined;
+}
+
 export interface AnalyticsEvent {
   event: string;
   category: string;
@@ -264,6 +273,24 @@ export function trackUserEngagement(action: string, element: string) {
 export function trackError(errorType: string, errorMessage: string, page: string) {
   getAnalyticsManager().trackError(errorType, errorMessage, page);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

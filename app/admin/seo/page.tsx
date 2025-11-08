@@ -65,9 +65,9 @@ export default function SeoManagerPage() {
         })),
         ...(testsData.tests || []).map((test: any) => ({
           id: test.id,
-          title: test.title,
+          title: test.testName || test.title,
           type: 'test' as const,
-          slug: test.slug,
+          slug: test.testSlug || test.slug,
           hasSeoMeta: false,
           seoMetaCount: 0
         }))

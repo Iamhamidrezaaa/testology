@@ -31,8 +31,8 @@ export class PerformanceMonitor {
       const fidObserver = new PerformanceObserver((entryList) => {
         const entries = entryList.getEntries();
         entries.forEach((entry) => {
-          this.metrics.fid = entry.processingStart - entry.startTime;
-          this.sendMetric('FID', entry.processingStart - entry.startTime);
+          this.metrics.fid = (entry as any).processingStart - entry.startTime;
+          this.sendMetric('FID', (entry as any).processingStart - entry.startTime);
         });
       });
       fidObserver.observe({ entryTypes: ['first-input'] });
@@ -43,8 +43,8 @@ export class PerformanceMonitor {
       const clsObserver = new PerformanceObserver((entryList) => {
         const entries = entryList.getEntries();
         entries.forEach((entry) => {
-          if (!entry.hadRecentInput) {
-            clsValue += entry.value;
+          if (!(entry as any).hadRecentInput) {
+            clsValue += (entry as any).value;
             this.metrics.cls = clsValue;
             this.sendMetric('CLS', clsValue);
           }
@@ -68,8 +68,8 @@ export class PerformanceMonitor {
 
   private sendMetric(name: string, value: number) {
     // Send to Google Analytics
-    if (typeof gtag !== 'undefined') {
-      gtag('event', name, {
+    if (typeof (globalThis as any).gtag !== 'undefined') {
+      (globalThis as any).gtag('event', name, {
         event_category: 'Web Vitals',
         event_label: name,
         value: Math.round(name === 'CLS' ? value * 1000 : value),
@@ -78,8 +78,8 @@ export class PerformanceMonitor {
     }
 
     // Send to custom analytics
-    if (typeof analytics !== 'undefined') {
-      analytics.track('Web Vitals', {
+    if (typeof (globalThis as any).analytics !== 'undefined') {
+      (globalThis as any).analytics.track('Web Vitals', {
         metric: name,
         value: value,
         timestamp: Date.now()
@@ -148,7 +148,7 @@ export const PERFORMANCE_THRESHOLDS = {
 };
 
 export function getPerformanceScore(metric: keyof PerformanceMetrics, value: number): 'good' | 'needs-improvement' | 'poor' {
-  const thresholds = PERFORMANCE_THRESHOLDS[metric];
+  const thresholds = PERFORMANCE_THRESHOLDS[metric.toUpperCase() as keyof typeof PERFORMANCE_THRESHOLDS];
   if (!thresholds) return 'good';
 
   if (value <= thresholds.good) return 'good';

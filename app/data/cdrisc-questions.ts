@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const cdriscQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "می‌توانم با احساسات بد کنار بیایم.",
     options: [
       "اصلاً",
@@ -13,7 +17,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "وقتی با مشکل بزرگی روبرو می‌شوم، سریع ریکاور می‌شوم.",
     options: [
       "اصلاً",
@@ -24,7 +27,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "می‌توانم شرایط منفی را به فرصتی برای رشد تبدیل کنم.",
     options: [
       "اصلاً",
@@ -35,7 +37,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "به خودم اعتماد دارم که بتوانم از عهده سختی‌ها بربیایم.",
     options: [
       "اصلاً",
@@ -46,7 +47,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "از سختی‌های زندگی درس می‌گیرم.",
     options: [
       "اصلاً",
@@ -57,7 +57,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "وقتی کنترل شرایط از دستم خارج می‌شود، همچنان آرامش خود را حفظ می‌کنم.",
     options: [
       "اصلاً",
@@ -68,7 +67,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "به توانایی خودم در مدیریت فشارها ایمان دارم.",
     options: [
       "اصلاً",
@@ -79,7 +77,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "وقتی شرایط بدتر می‌شود، بیشتر تلاش می‌کنم.",
     options: [
       "اصلاً",
@@ -90,7 +87,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "در برابر شکست‌ها زود تسلیم نمی‌شوم.",
     options: [
       "اصلاً",
@@ -101,7 +97,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "در مواجهه با بحران، ذهنم را متمرکز نگه می‌دارم.",
     options: [
       "اصلاً",
@@ -112,7 +107,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 11,
     text: "به آینده امیدوارم حتی وقتی اوضاع سخت است.",
     options: [
       "اصلاً",
@@ -123,7 +117,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 12,
     text: "می‌توانم با تغییرات زندگی کنار بیایم.",
     options: [
       "اصلاً",
@@ -134,7 +127,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 13,
     text: "در موقعیت‌های فشارزا به دنبال راه‌حل‌های منطقی هستم.",
     options: [
       "اصلاً",
@@ -145,7 +137,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 14,
     text: "اگر برنامه‌ای شکست بخورد، سریع برنامه جایگزین پیدا می‌کنم.",
     options: [
       "اصلاً",
@@ -156,7 +147,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 15,
     text: "در برابر احساس ناامیدی مقاومت می‌کنم.",
     options: [
       "اصلاً",
@@ -167,7 +157,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 16,
     text: "در شرایط بحرانی، خونسردی خودم را حفظ می‌کنم.",
     options: [
       "اصلاً",
@@ -178,7 +167,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 17,
     text: "از دیگران برای عبور از مشکلات کمک می‌گیرم.",
     options: [
       "اصلاً",
@@ -189,7 +177,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 18,
     text: "از منابع بیرونی مثل دوستان یا کتاب‌ها برای انگیزه گرفتن استفاده می‌کنم.",
     options: [
       "اصلاً",
@@ -200,7 +187,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 19,
     text: "به زندگی نگاه مثبت دارم حتی وقتی سخت است.",
     options: [
       "اصلاً",
@@ -211,7 +197,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 20,
     text: "نسبت به خودم احساس مسئولیت دارم.",
     options: [
       "اصلاً",
@@ -222,7 +207,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 21,
     text: "به دنبال معنا و هدف در سختی‌ها هستم.",
     options: [
       "اصلاً",
@@ -233,7 +217,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 22,
     text: "در شرایط سخت به ارزش‌هایم پایبند می‌مانم.",
     options: [
       "اصلاً",
@@ -244,7 +227,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 23,
     text: "احساساتم را کنترل می‌کنم تا تصمیم منطقی بگیرم.",
     options: [
       "اصلاً",
@@ -255,7 +237,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 24,
     text: "وقتی تحت فشارم، به توانایی‌هام اعتماد می‌کنم.",
     options: [
       "اصلاً",
@@ -266,7 +247,6 @@ export const cdriscQuestions: Question[] = [
     ]
   },
   {
-    id: 25,
     text: "در برابر مشکلاتی که پیش میاد، انعطاف‌پذیر عمل می‌کنم.",
     options: [
       "اصلاً",
@@ -277,6 +257,15 @@ export const cdriscQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const cdriscQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'cdrisc',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const cdriscOptions = [
   { label: "اصلاً", value: 1 },

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 import { startOfDay, endOfDay } from 'date-fns';
 
 /**
@@ -16,27 +16,11 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // مدل dailyMission در schema وجود ندارد
+    // برای MVP، مأموریت‌های mock برمی‌گردانیم
     const today = new Date();
-    const todayMissions = await prisma.dailyMission.findMany({
-      where: {
-        userId: session.user.id,
-        date: {
-          gte: startOfDay(today),
-          lte: endOfDay(today)
-        }
-      },
-      orderBy: {
-        createdAt: 'asc'
-      }
-    });
-
-    // اگر مأموریتی برای امروز نیست، بسازیم
-    if (todayMissions.length === 0) {
-      const newMissions = await createDailyMissions(session.user.id);
-      return NextResponse.json(newMissions);
-    }
-
-    return NextResponse.json(todayMissions);
+    const newMissions = await createDailyMissions(session.user.id);
+    return NextResponse.json(newMissions);
 
   } catch (error) {
     console.error('Error fetching daily missions:', error);
@@ -74,22 +58,19 @@ async function createDailyMissions(userId: string) {
     }
   ];
 
-  const createdMissions = await Promise.all(
-    missions.map(mission =>
-      prisma.dailyMission.create({
-        data: {
-          userId,
-          title: mission.title,
-          description: mission.description,
-          xpReward: mission.xpReward,
-          date: new Date(),
-          isCompleted: false
-        }
-      })
-    )
-  );
-
-  return createdMissions;
+  // مدل dailyMission در schema وجود ندارد
+  // برای MVP، مأموریت‌های mock برمی‌گردانیم
+  const today = new Date();
+  return missions.map(mission => ({
+    id: `temp-${mission.title}`,
+    userId,
+    title: mission.title,
+    description: mission.description,
+    xpReward: mission.xpReward,
+    date: today,
+    isCompleted: false,
+    createdAt: today
+  }));
 }
 
 

@@ -1,6 +1,6 @@
 // API endpoint برای import مقالات از فایل‌های Markdown
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,30 +48,28 @@ export async function POST(request: NextRequest) {
         data: {
           name: author,
           email: `${author.toLowerCase().replace(/\s+/g, '.')}@testology.ir`,
-          role: 'admin',
-          isAdmin: true
+          role: 'ADMIN'
         }
       })
     }
 
     // بررسی وجود مقاله با همین slug
-    const existingArticle = await prisma.blogPost.findUnique({
+    const existingArticle = await prisma.blog.findUnique({
       where: { slug }
     })
 
     if (existingArticle) {
       // آپدیت مقاله موجود
-      const updatedArticle = await prisma.blogPost.update({
+      const updatedArticle = await prisma.blog.update({
         where: { slug },
         data: {
           title,
-          excerpt,
+          metaDescription: excerpt,
           content,
-          coverUrl,
+          imageUrl: coverUrl,
           tags,
           published,
-          publishedAt: published ? new Date() : null,
-          categoryId: categoryRecord.id,
+          category: categoryRecord.slug,
           authorId: authorRecord.id,
           updatedAt: new Date()
         }
@@ -84,17 +82,16 @@ export async function POST(request: NextRequest) {
       })
     } else {
       // ایجاد مقاله جدید
-      const newArticle = await prisma.blogPost.create({
+      const newArticle = await prisma.blog.create({
         data: {
           title,
           slug,
-          excerpt,
+          metaDescription: excerpt,
           content,
-          coverUrl,
+          imageUrl: coverUrl,
           tags,
           published,
-          publishedAt: published ? new Date() : null,
-          categoryId: categoryRecord.id,
+          category: categoryRecord.slug,
           authorId: authorRecord.id
         }
       })

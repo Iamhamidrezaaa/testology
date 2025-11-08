@@ -103,7 +103,7 @@ export async function POST() {
       }
 
       if (notification) {
-        const createdNotification = await prisma.smartNotification.create({
+        const createdNotification = await prisma.notification.create({
           data: notification
         })
         notifications.push(createdNotification)

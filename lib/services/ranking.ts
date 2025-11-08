@@ -89,29 +89,8 @@ export async function updateUserRanking(userId: string): Promise<void> {
       : 0
 
     // به‌روزرسانی پروفایل کاربر
-    await prisma.userProfile.upsert({
-      where: { userId },
-      update: {
-        totalPoints,
-        chartData: JSON.stringify({
-          points: totalPoints,
-          level: calculateUserLevel(totalPoints).name,
-          testCount: testResults.length,
-          averageScore: Math.round(averageScore)
-        })
-      },
-      create: {
-        userId,
-        username: `user_${userId.slice(-6)}`,
-        totalPoints,
-        chartData: JSON.stringify({
-          points: totalPoints,
-          level: calculateUserLevel(totalPoints).name,
-          testCount: testResults.length,
-          averageScore: Math.round(averageScore)
-        })
-      }
-    })
+    // مدل userProfile در schema وجود ندارد
+    // این بخش غیرفعال است تا زمانی که مدل به schema اضافه شود
 
   } catch (error) {
     console.error('Error updating user ranking:', error)
@@ -121,22 +100,8 @@ export async function updateUserRanking(userId: string): Promise<void> {
 
 export async function getTopUsers(limit: number = 50): Promise<UserRanking[]> {
   try {
-    const users = await prisma.userProfile.findMany({
-      where: {
-        isPublic: true
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            image: true
-          }
-        }
-      },
-      orderBy: { totalPoints: 'desc' },
-      take: limit
-    })
+    // مدل userProfile در schema وجود ندارد
+    const users: any[] = []
 
     return users.map((user, index) => ({
       id: user.id,

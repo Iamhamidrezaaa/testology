@@ -107,8 +107,8 @@ export class PerformanceMonitor {
     let clsValue = 0;
     new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        if (!entry.hadRecentInput) {
-          clsValue += entry.value;
+        if (!(entry as any).hadRecentInput) {
+          clsValue += (entry as any).value;
         }
       }
       this.metrics.set('cls', clsValue);
@@ -162,8 +162,8 @@ export class PerformanceMonitor {
   private sendToAnalytics(event: string, data: any) {
     if (process.env.NODE_ENV === 'production') {
       // Send to your analytics service
-      if (typeof window !== 'undefined' && window.gtag) {
-        window.gtag('event', event, data);
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('event', event, data);
       }
     }
   }

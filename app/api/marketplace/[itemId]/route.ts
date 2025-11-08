@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 /**
  * دریافت جزئیات یک آیتم از مارکت
@@ -19,9 +19,7 @@ export async function GET(
           select: {
             id: true,
             name: true,
-            image: true,
-            specialty: true,
-            therapistProfile: true
+            image: true
           }
         }
       }

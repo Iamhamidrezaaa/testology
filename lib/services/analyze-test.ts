@@ -1,8 +1,4 @@
-import OpenAI from 'openai'
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+import { getOpenAI } from '@/lib/openai'
 
 interface AnalyzeTestParams {
   testSlug: string
@@ -17,6 +13,11 @@ export async function analyzeTestWithGPT({ testSlug, answers }: AnalyzeTestParam
     // ساخت پرامپت برای تحلیل
     const prompt = buildAnalysisPrompt(testSlug, score, answers)
     
+    const openai = getOpenAI();
+    if (!openai) {
+      throw new Error('OpenAI key not configured');
+    }
+
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [

@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 export async function GET() {
   try {
     const metrics = await prisma.performanceMetric.findMany({
       orderBy: { updatedAt: "desc" }
-    });
+    }).catch(() => []);
     
     // Get recent logs for additional context
     const recentLogs = await prisma.systemLog.findMany({
@@ -16,7 +16,7 @@ export async function GET() {
       },
       orderBy: { createdAt: "desc" },
       take: 50
-    });
+    }).catch(() => []);
 
     return NextResponse.json({ 
       metrics,

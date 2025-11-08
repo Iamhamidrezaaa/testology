@@ -112,7 +112,7 @@ export default function CommentSection({ blogId }: CommentSectionProps) {
         {comments.map((comment) => (
           <div key={comment.id} className="border-b pb-4">
             <div className="flex justify-between items-start mb-2">
-              <h4 className="font-medium">{comment.author}</h4>
+              <h4 className="font-medium">{comment.authorName || comment.authorEmail || 'ناشناس'}</h4>
               <span className="text-sm text-gray-500">
                 {new Date(comment.createdAt).toLocaleDateString('fa-IR')}
               </span>

@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const emotionRegulationQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "چقدر مشکل دارید که احساسات خود را شناسایی کنید؟",
     options: [
       "هیچ مشکل",
@@ -13,7 +17,6 @@ export const emotionRegulationQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "چقدر مشکل دارید که احساسات خود را بیان کنید؟",
     options: [
       "هیچ مشکل",
@@ -24,7 +27,6 @@ export const emotionRegulationQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "چقدر مشکل دارید که احساسات خود را کنترل کنید؟",
     options: [
       "هیچ مشکل",
@@ -35,7 +37,6 @@ export const emotionRegulationQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "چقدر مشکل دارید که احساسات خود را درک کنید؟",
     options: [
       "هیچ مشکل",
@@ -46,7 +47,6 @@ export const emotionRegulationQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "چقدر مشکل دارید که احساسات خود را مدیریت کنید؟",
     options: [
       "هیچ مشکل",
@@ -57,7 +57,6 @@ export const emotionRegulationQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "چقدر مشکل دارید که احساسات خود را تنظیم کنید؟",
     options: [
       "هیچ مشکل",
@@ -68,7 +67,6 @@ export const emotionRegulationQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "چقدر مشکل دارید که احساسات خود را پردازش کنید؟",
     options: [
       "هیچ مشکل",
@@ -79,7 +77,6 @@ export const emotionRegulationQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "چقدر مشکل دارید که احساسات خود را تجربه کنید؟",
     options: [
       "هیچ مشکل",
@@ -90,7 +87,6 @@ export const emotionRegulationQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "چقدر مشکل دارید که احساسات خود را درک کنید؟",
     options: [
       "هیچ مشکل",
@@ -101,7 +97,6 @@ export const emotionRegulationQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "چقدر مشکل دارید که احساسات خود را بیان کنید؟",
     options: [
       "هیچ مشکل",
@@ -112,6 +107,15 @@ export const emotionRegulationQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const emotionRegulationQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'emotion-regulation',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const emotionRegulationOptions = [
   { label: "هیچ مشکل", value: 1 },

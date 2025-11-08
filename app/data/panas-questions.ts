@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const panasQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "چقدر احساس می‌کنید که خوشحال هستید؟",
     options: [
       "اصلاً",
@@ -13,7 +17,6 @@ export const panasQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "چقدر احساس می‌کنید که غمگین هستید؟",
     options: [
       "اصلاً",
@@ -24,7 +27,6 @@ export const panasQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "چقدر احساس می‌کنید که عصبانی هستید؟",
     options: [
       "اصلاً",
@@ -35,7 +37,6 @@ export const panasQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "چقدر احساس می‌کنید که ترسیده هستید؟",
     options: [
       "اصلاً",
@@ -46,7 +47,6 @@ export const panasQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "چقدر احساس می‌کنید که مضطرب هستید؟",
     options: [
       "اصلاً",
@@ -57,7 +57,6 @@ export const panasQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "چقدر احساس می‌کنید که خوشحال هستید؟",
     options: [
       "اصلاً",
@@ -68,7 +67,6 @@ export const panasQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "چقدر احساس می‌کنید که غمگین هستید؟",
     options: [
       "اصلاً",
@@ -79,7 +77,6 @@ export const panasQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "چقدر احساس می‌کنید که عصبانی هستید؟",
     options: [
       "اصلاً",
@@ -90,7 +87,6 @@ export const panasQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "چقدر احساس می‌کنید که ترسیده هستید؟",
     options: [
       "اصلاً",
@@ -101,7 +97,6 @@ export const panasQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "چقدر احساس می‌کنید که مضطرب هستید؟",
     options: [
       "اصلاً",
@@ -112,6 +107,15 @@ export const panasQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const panasQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'panas',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const panasOptions = [
   { label: "اصلاً", value: 1 },

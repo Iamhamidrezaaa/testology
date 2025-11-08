@@ -1,5 +1,6 @@
 // اتصال محتوای مرتبط از دیتابیس
 import { prisma } from '@/lib/prisma'
+import { IS_BUILD } from '@/lib/isBuild'
 
 export interface RelatedContent {
   id: string;
@@ -12,19 +13,18 @@ export interface RelatedContent {
 }
 
 export async function getRelatedTests(categorySlug: string): Promise<RelatedContent[]> {
+  if (IS_BUILD) return []
   try {
     const tests = await prisma.test.findMany({
       where: {
-        category: {
-          slug: categorySlug
-        },
-        published: true
+        category: categorySlug,
+        isActive: true
       },
       select: {
         id: true,
-        title: true,
+        testName: true,
         description: true,
-        slug: true,
+        testSlug: true,
         updatedAt: true,
         createdAt: true
       },
@@ -32,13 +32,13 @@ export async function getRelatedTests(categorySlug: string): Promise<RelatedCont
         createdAt: 'desc'
       },
       take: 10
-    })
+    }).catch(() => [])
 
-    return tests.map(test => ({
+    return tests.map((test: any) => ({
       id: test.id,
-      title: test.title,
+      title: test.testName || test.title,
       description: test.description,
-      url: `/tests/${test.slug}`,
+      url: `/tests/${test.testSlug || test.slug}`,
       type: 'test' as const,
       publishedAt: test.createdAt,
       updatedAt: test.updatedAt
@@ -50,35 +50,33 @@ export async function getRelatedTests(categorySlug: string): Promise<RelatedCont
 }
 
 export async function getRelatedArticles(categorySlug: string): Promise<RelatedContent[]> {
+  if (IS_BUILD) return []
   try {
     const articles = await prisma.article.findMany({
       where: {
-        category: {
-          slug: categorySlug
-        },
+        category: categorySlug,
         published: true
       },
       select: {
         id: true,
         title: true,
-        description: true,
+        excerpt: true,
         slug: true,
         updatedAt: true,
-        publishedAt: true
+        createdAt: true
       },
-      orderBy: {
-        publishedAt: 'desc'
+      orderBy: { createdAt: 'desc'
       },
       take: 10
-    })
+    }).catch(() => [])
 
-    return articles.map(article => ({
+    return articles.map((article: any) => ({
       id: article.id,
       title: article.title,
-      description: article.description,
+      description: article.excerpt || article.metaDescription,
       url: `/blog/${article.slug}`,
       type: 'article' as const,
-      publishedAt: article.publishedAt,
+      publishedAt: article.createdAt,
       updatedAt: article.updatedAt
     }))
   } catch (error) {
@@ -88,21 +86,17 @@ export async function getRelatedArticles(categorySlug: string): Promise<RelatedC
 }
 
 export async function getRelatedTestsByCity(citySlug: string): Promise<RelatedContent[]> {
+  if (IS_BUILD) return []
   try {
     const tests = await prisma.test.findMany({
       where: {
-        cities: {
-          some: {
-            slug: citySlug
-          }
-        },
-        published: true
+        isActive: true
       },
       select: {
         id: true,
-        title: true,
+        testName: true,
         description: true,
-        slug: true,
+        testSlug: true,
         updatedAt: true,
         createdAt: true
       },
@@ -110,13 +104,13 @@ export async function getRelatedTestsByCity(citySlug: string): Promise<RelatedCo
         createdAt: 'desc'
       },
       take: 10
-    })
+    }).catch(() => [])
 
-    return tests.map(test => ({
+    return tests.map((test: any) => ({
       id: test.id,
-      title: test.title,
+      title: test.testName || test.title,
       description: test.description,
-      url: `/tests/${test.slug}`,
+      url: `/tests/${test.testSlug || test.slug}`,
       type: 'test' as const,
       publishedAt: test.createdAt,
       updatedAt: test.updatedAt
@@ -128,37 +122,33 @@ export async function getRelatedTestsByCity(citySlug: string): Promise<RelatedCo
 }
 
 export async function getRelatedArticlesByCity(citySlug: string): Promise<RelatedContent[]> {
+  if (IS_BUILD) return []
   try {
     const articles = await prisma.article.findMany({
       where: {
-        cities: {
-          some: {
-            slug: citySlug
-          }
-        },
         published: true
       },
       select: {
         id: true,
         title: true,
-        description: true,
+        excerpt: true,
         slug: true,
         updatedAt: true,
-        publishedAt: true
+        createdAt: true
       },
       orderBy: {
-        publishedAt: 'desc'
+        createdAt: 'desc'
       },
       take: 10
-    })
+    }).catch(() => [])
 
-    return articles.map(article => ({
+    return articles.map((article: any) => ({
       id: article.id,
       title: article.title,
-      description: article.description,
+      description: article.excerpt || article.metaDescription,
       url: `/blog/${article.slug}`,
       type: 'article' as const,
-      publishedAt: article.publishedAt,
+      publishedAt: article.createdAt,
       updatedAt: article.updatedAt
     }))
   } catch (error) {
@@ -168,37 +158,31 @@ export async function getRelatedArticlesByCity(citySlug: string): Promise<Relate
 }
 
 export async function getPopularTests(limit: number = 5): Promise<RelatedContent[]> {
+  if (IS_BUILD) return []
   try {
     const tests = await prisma.test.findMany({
       where: {
-        published: true
+        isActive: true
       },
       select: {
         id: true,
-        title: true,
+        testName: true,
         description: true,
-        slug: true,
+        testSlug: true,
         updatedAt: true,
-        createdAt: true,
-        _count: {
-          select: {
-            results: true
-          }
-        }
+        createdAt: true
       },
       orderBy: {
-        results: {
-          _count: 'desc'
-        }
+        createdAt: 'desc'
       },
       take: limit
-    })
+    }).catch(() => [])
 
-    return tests.map(test => ({
+    return tests.map((test: any) => ({
       id: test.id,
-      title: test.title,
+      title: test.testName || test.title,
       description: test.description,
-      url: `/tests/${test.slug}`,
+      url: `/tests/${test.testSlug || test.slug}`,
       type: 'test' as const,
       publishedAt: test.createdAt,
       updatedAt: test.updatedAt
@@ -210,6 +194,7 @@ export async function getPopularTests(limit: number = 5): Promise<RelatedContent
 }
 
 export async function getRecentArticles(limit: number = 5): Promise<RelatedContent[]> {
+  if (IS_BUILD) return []
   try {
     const articles = await prisma.article.findMany({
       where: {
@@ -218,24 +203,24 @@ export async function getRecentArticles(limit: number = 5): Promise<RelatedConte
       select: {
         id: true,
         title: true,
-        description: true,
+        excerpt: true,
         slug: true,
         updatedAt: true,
-        publishedAt: true
+        createdAt: true
       },
       orderBy: {
-        publishedAt: 'desc'
+        createdAt: 'desc'
       },
       take: limit
-    })
+    }).catch(() => [])
 
-    return articles.map(article => ({
+    return articles.map((article: any) => ({
       id: article.id,
       title: article.title,
-      description: article.description,
+      description: article.excerpt || article.metaDescription,
       url: `/blog/${article.slug}`,
       type: 'article' as const,
-      publishedAt: article.publishedAt,
+      publishedAt: article.createdAt,
       updatedAt: article.updatedAt
     }))
   } catch (error) {

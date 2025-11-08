@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const pssQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "در ماه گذشته، چقدر احساس کرده‌اید که چیزهای غیرمنتظره‌ای اتفاق افتاده که شما را ناراحت کرده است؟",
     options: [
       "هیچ وقت",
@@ -13,7 +17,6 @@ export const pssQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "در ماه گذشته، چقدر احساس کرده‌اید که کنترل مهم‌ترین چیزهای زندگی خود را از دست داده‌اید؟",
     options: [
       "هیچ وقت",
@@ -24,7 +27,6 @@ export const pssQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "در ماه گذشته، چقدر احساس کرده‌اید که عصبی یا استرس دارید؟",
     options: [
       "هیچ وقت",
@@ -35,7 +37,6 @@ export const pssQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "در ماه گذشته، چقدر احساس کرده‌اید که مطمئن نیستید که می‌توانید مسئولیت‌های شخصی خود را انجام دهید؟",
     options: [
       "هیچ وقت",
@@ -46,7 +47,6 @@ export const pssQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "در ماه گذشته، چقدر احساس کرده‌اید که همه چیز درست پیش می‌رود؟",
     options: [
       "هیچ وقت",
@@ -57,7 +57,6 @@ export const pssQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "در ماه گذشته، چقدر احساس کرده‌اید که نمی‌توانید با همه چیزهایی که باید انجام دهید کنار بیایید؟",
     options: [
       "هیچ وقت",
@@ -68,7 +67,6 @@ export const pssQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "در ماه گذشته، چقدر احساس کرده‌اید که می‌توانید مشکلات شخصی خود را کنترل کنید؟",
     options: [
       "هیچ وقت",
@@ -79,7 +77,6 @@ export const pssQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "در ماه گذشته، چقدر احساس کرده‌اید که همه چیز درست پیش می‌رود؟",
     options: [
       "هیچ وقت",
@@ -90,7 +87,6 @@ export const pssQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "در ماه گذشته، چقدر احساس کرده‌اید که به دلیل چیزهایی که خارج از کنترل شما بوده، عصبانی شده‌اید؟",
     options: [
       "هیچ وقت",
@@ -101,7 +97,6 @@ export const pssQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "در ماه گذشته، چقدر احساس کرده‌اید که مشکلات آنقدر جمع شده‌اند که نمی‌توانید بر آن‌ها غلبه کنید؟",
     options: [
       "هیچ وقت",
@@ -112,6 +107,15 @@ export const pssQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const pssQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'pss',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const pssOptions = [
   { label: "هیچ وقت", value: 0 },

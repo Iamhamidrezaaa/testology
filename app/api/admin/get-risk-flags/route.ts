@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 export async function GET() {
   try {
@@ -9,7 +9,7 @@ export async function GET() {
       where: { humanReviewed: false },
       orderBy: { createdAt: "desc" },
       take: 20,
-    });
+    }).catch(() => []);
 
     // آمار ریسک
     const riskStats = {

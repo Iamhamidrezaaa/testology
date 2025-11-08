@@ -110,8 +110,8 @@ export async function GET(req: NextRequest) {
     }
 
     // محاسبه آمار
-    const categories = [...new Set(filteredData.map(item => item.category))]
-    const averageScores = {}
+    const categories = Array.from(new Set(filteredData.map(item => item.category)))
+    const averageScores: Record<string, number> = {}
     
     for (const cat of categories) {
       const categoryData = filteredData.filter(item => item.category === cat)

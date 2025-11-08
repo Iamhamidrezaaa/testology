@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,19 +18,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'مقاله پیدا نشد' }, { status: 404 });
     }
 
-    const increment = action === 'like' ? 1 : -1;
-    const newLikes = Math.max(0, blog.likes + increment);
-
-    await prisma.blog.update({
-      where: { id: blogId },
-      data: { likes: newLikes }
-    });
-
+    // likes field doesn't exist in Blog model
     return NextResponse.json({ 
-      success: true, 
-      likes: newLikes,
-      action 
-    });
+      success: false, 
+      error: 'Like feature not supported',
+      message: 'Blog model does not have likes field'
+    }, { status: 400 });
   } catch (error) {
     console.error('خطا در لایک:', error);
     return NextResponse.json({ error: 'خطا در لایک' }, { status: 500 });

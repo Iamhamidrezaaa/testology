@@ -15,7 +15,9 @@ interface GamificationStats {
   badges: number
   totalTests: number
   recentBadges: Array<{
+    id: string
     name: string
+    description: string
     icon: string
     rarity: string
     earnedAt: string
@@ -186,6 +188,10 @@ export default function GamificationDashboard() {
     </div>
   )
 }
+
+
+
+
 
 
 

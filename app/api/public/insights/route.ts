@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 export async function GET() {
   try {
@@ -10,7 +10,7 @@ export async function GET() {
           gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // آخرین 30 روز
         }
       }
-    });
+    }).catch(() => []);
 
     if (!moods.length) {
       return NextResponse.json({ 
@@ -51,7 +51,7 @@ export async function GET() {
           gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
         }
       }
-    });
+    }).catch(() => []);
 
     return NextResponse.json({ 
       insights,

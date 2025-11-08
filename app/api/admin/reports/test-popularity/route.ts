@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 
 export async function GET() {
   try {
@@ -13,20 +13,20 @@ export async function GET() {
 
     // دریافت آمار محبوب‌ترین تست‌ها
     const testStats = await prisma.testResult.groupBy({
-      by: ['testSlug', 'testName'],
-      _count: { testSlug: true },
+      by: ['testName'],
+      _count: { id: true },
       _avg: { score: true },
-      orderBy: { _count: { testSlug: 'desc' } },
+      orderBy: { _count: { id: 'desc' } },
       take: 10
     })
 
     const totalTests = await prisma.testResult.count()
 
     const chartData = testStats.map((stat: any) => ({
-      testName: stat.testName || stat.testSlug,
-      count: stat._count.testSlug,
+      testName: stat.testName || 'Unknown',
+      count: stat._count.id,
       averageScore: stat._avg.score || 0,
-      percentage: totalTests > 0 ? Math.round((stat._count.testSlug / totalTests) * 100) : 0
+      percentage: totalTests > 0 ? Math.round((stat._count.id / totalTests) * 100) : 0
     }))
 
     return NextResponse.json(chartData)

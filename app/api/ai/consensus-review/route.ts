@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import OpenAI from "openai";
+import prisma from "@/lib/prisma";
+import { getOpenAIClient } from '@/lib/openai-client';
 import { withMonitoring } from "@/middleware/withMonitoring";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 async function consensusHandler(req: Request) {
   try {
@@ -40,7 +39,7 @@ ${report.summary}
             messages: [{ role: "user", content: prompt }],
             temperature: 0.5,
           });
-          const raw = res.choices[0].message.content || "{}";
+          const raw = res.choices[0]?.message?.content || "{}";
           let parsed: any = {};
           try {
             parsed = JSON.parse(raw);
@@ -76,7 +75,7 @@ ${report.summary}
         (a, b) =>
           riskLevels.filter((v) => v === a).length - riskLevels.filter((v) => v === b).length
       )
-      .pop();
+      .pop() || "low"; // مقدار پیش‌فرض در صورت undefined
 
     const summaries = results.map((r) => `(${r.model}) ${r.summary}`);
     const consensusText = summaries.join("\n\n---\n\n");

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 /**
  * دریافت جزئیات یک جلسه لایو
@@ -12,40 +12,12 @@ export async function GET(
   try {
     const { sessionId } = params;
 
-    const liveSession = await prisma.liveSession.findUnique({
-      where: { id: sessionId },
-      include: {
-        host: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            specialty: true,
-            therapistProfile: true
-          }
-        },
-        registrations: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                name: true,
-                image: true
-              }
-            }
-          }
-        }
-      }
-    });
-
-    if (!liveSession) {
-      return NextResponse.json({ error: 'Live session not found' }, { status: 404 });
-    }
-
-    return NextResponse.json({
-      ...liveSession,
-      participantsCount: liveSession.registrations.length
-    });
+    // مدل liveSession در schema وجود ندارد
+    // برای MVP، یک پیام خطا برمی‌گردانیم
+    return NextResponse.json(
+      { error: 'Live session feature is not available yet. Models need to be added to schema.' },
+      { status: 501 }
+    );
 
   } catch (error) {
     console.error('Error fetching live session:', error);

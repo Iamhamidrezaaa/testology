@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 /**
  * API برای دریافت اطلاعات کامل یک بیمار
@@ -18,7 +18,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (session.user.role !== 'therapist' && session.user.role !== 'admin') {
+    if (session?.user?.role !== 'THERAPIST' && session?.user?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
@@ -34,7 +34,6 @@ export async function GET(
         phone: true,
         image: true,
         birthDate: true,
-        gender: true,
         createdAt: true
       }
     });
@@ -54,28 +53,9 @@ export async function GET(
       where: { userId: patientId }
     });
 
-    // دریافت جلسات
-    const therapist = await prisma.therapist.findUnique({
-      where: { userId: session.user.id }
-    });
-
-    const sessions = therapist ? await prisma.therapistSession.findMany({
-      where: {
-        therapistId: therapist.id,
-        patientId: patientId
-      },
-      orderBy: { date: 'desc' }
-    }) : [];
-
-    // دریافت یادداشت‌های درمانگر
-    const patientRelation = therapist ? await prisma.therapistPatient.findUnique({
-      where: {
-        therapistId_patientId: {
-          therapistId: therapist.id,
-          patientId: patientId
-        }
-      }
-    }) : null;
+    // Therapist, TherapistSession, and TherapistPatient models don't exist in schema
+    const sessions: any[] = [];
+    const patientRelation = null;
 
     // تحلیل ترکیبی تست‌ها
     const analysis = analyzeTestResults(testResults);
@@ -87,7 +67,7 @@ export async function GET(
         tests: testResults,
         progress,
         sessions,
-        notes: patientRelation?.notes,
+        notes: (patientRelation as any)?.notes || null,
         analysis
       }
     });
@@ -116,39 +96,16 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (session.user.role !== 'therapist' && session.user.role !== 'admin') {
+    if (session?.user?.role !== 'THERAPIST' && session?.user?.role !== 'ADMIN') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const { patientId } = params;
-    const { notes, status } = await req.json();
-
-    const therapist = await prisma.therapist.findUnique({
-      where: { userId: session.user.id }
-    });
-
-    if (!therapist) {
-      return NextResponse.json({ error: 'Therapist not found' }, { status: 404 });
-    }
-
-    // به‌روزرسانی
-    const updated = await prisma.therapistPatient.update({
-      where: {
-        therapistId_patientId: {
-          therapistId: therapist.id,
-          patientId: patientId
-        }
-      },
-      data: {
-        notes: notes !== undefined ? notes : undefined,
-        status: status !== undefined ? status : undefined
-      }
-    });
-
-    return NextResponse.json({
-      success: true,
-      patient: updated
-    });
+    // Therapist and TherapistPatient models don't exist in schema
+    return NextResponse.json({ 
+      error: 'Therapist feature not fully implemented',
+      message: 'Therapist and TherapistPatient models are not in schema'
+    }, { status: 400 })
 
   } catch (error) {
     console.error('Error updating patient:', error);
@@ -173,10 +130,11 @@ function analyzeTestResults(tests: any[]) {
 
   // شمارش تست‌ها بر اساس نوع
   const testsByType = tests.reduce((acc: any, test) => {
-    if (!acc[test.testSlug]) {
-      acc[test.testSlug] = [];
+    const key = test.testId || test.testName || 'unknown';
+    if (!acc[key]) {
+      acc[key] = [];
     }
-    acc[test.testSlug].push(test);
+    acc[key].push(test);
     return acc;
   }, {});
 
@@ -185,9 +143,10 @@ function analyzeTestResults(tests: any[]) {
   let highRiskCount = 0;
 
   tests.forEach(test => {
-    if (test.severity === 'شدید' || test.severity === 'severe' || test.severity === 'high') {
+    // استفاده از score برای تعیین سطح خطر (فرض: score پایین = خطر بالا)
+    if (test.score !== null && test.score < 40) {
       highRiskCount++;
-      issues.push(`${test.testName || test.testSlug}: ${test.severity}`);
+      issues.push(`${test.testName || test.testId || 'unknown'}: score=${test.score} (low)`);
     }
   });
 

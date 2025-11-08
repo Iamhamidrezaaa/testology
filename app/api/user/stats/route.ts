@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma'
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
-    const userEmail = searchParams.get('email')
+    const userEmail = searchParams?.get('email')
     
     if (!userEmail) {
       return NextResponse.json(
@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
     const testCategories = await prisma.testResult.groupBy({
       by: ['testName'],
       where: { userId: user.id },
-      _count: { testName: true },
+      _count: { id: true },
       _avg: { score: true }
     })
 
@@ -79,8 +79,7 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: 'desc' },
       take: 10,
       select: {
-        role: true,
-        content: true,
+        messages: true,
         createdAt: true
       }
     })
@@ -95,7 +94,7 @@ export async function GET(req: NextRequest) {
 
     // محاسبه نمره خلق و خو
     const moodScore = moodData.length > 0 
-      ? moodData.reduce((sum, mood) => sum + mood.intensity, 0) / moodData.length
+      ? moodData.reduce((sum: any, mood: any) => sum + mood.intensity, 0) / moodData.length
       : 0
 
     // محاسبه پیشرفت هفتگی
@@ -126,14 +125,14 @@ export async function GET(req: NextRequest) {
         unreadNotifications
       },
       recentTests,
-      moodData: moodData.map(mood => ({
+      moodData: moodData.map((mood: any) => ({
         moodType: mood.moodType,
         intensity: mood.intensity,
         recordedAt: mood.recordedAt
       })),
-      testCategories: testCategories.map(cat => ({
+      testCategories: testCategories.map((cat: any) => ({
         testName: cat.testName,
-        count: cat._count.testName,
+        count: cat._count.id,
         avgScore: Math.round(cat._avg.score || 0)
       })),
       chatHistory,

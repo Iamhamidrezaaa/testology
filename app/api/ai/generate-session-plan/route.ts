@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import OpenAI from "openai";
+import prisma from "@/lib/prisma";
+import { getOpenAI } from '@/lib/openai';
+
 import { withMonitoring } from "@/middleware/withMonitoring";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
 
 async function generateSessionPlanHandler(req: Request) {
   try {
@@ -16,27 +17,27 @@ async function generateSessionPlanHandler(req: Request) {
     // دریافت حافظه درمانی
     const memory = await prisma.therapyMemory.findUnique({ 
       where: { userId } 
-    });
+    }).catch(() => null);
 
     // دریافت احساسات اخیر
     const emotions = await prisma.emotionLog.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
       take: 10,
-    });
+    }).catch(() => []);
 
     // دریافت روند خلق و خو
     const moodTrend = await prisma.moodTrend.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
       take: 5,
-    });
+    }).catch(() => []);
 
     // دریافت آخرین برنامه جلسه (اگر وجود دارد)
     const lastPlan = await prisma.sessionPlan.findFirst({
       where: { userId },
       orderBy: { createdAt: "desc" },
-    });
+    }).catch(() => null);
 
     const context = `
 User therapy memory summary: ${memory?.summary || "No memory available"}
@@ -70,6 +71,11 @@ Return JSON with:
 User context:
 ${context}
 `;
+
+    const openai = getOpenAI();
+    if (!openai) {
+      return NextResponse.json({ error: "OpenAI key not configured" }, { status: 500 });
+    }
 
     const res = await openai.chat.completions.create({
       model: "gpt-4o-mini",

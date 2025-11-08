@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth'
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 import { authOptions } from '@/lib/auth'
 
 export async function GET(req: NextRequest) {
@@ -15,75 +15,9 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50')
     const offset = parseInt(searchParams.get('offset') || '0')
 
-    let whereClause: any = {
-      OR: [
-        { fromId: session.user.id },
-        { toId: session.user.id }
-      ]
-    }
-
-    // اگر با کاربر خاصی چت می‌کنیم
-    if (withUserId) {
-      whereClause = {
-        OR: [
-          {
-            fromId: session.user.id,
-            toId: withUserId
-          },
-          {
-            fromId: withUserId,
-            toId: session.user.id
-          }
-        ]
-      }
-    }
-
-    const messages = await prisma.userMessage.findMany({
-      where: whereClause,
-      include: {
-        from: {
-          select: {
-            id: true,
-            name: true,
-            image: true
-          }
-        },
-        to: {
-          select: {
-            id: true,
-            name: true,
-            image: true
-          }
-        }
-      },
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-      skip: offset
-    })
-
-    // علامت‌گذاری پیام‌ها به عنوان خوانده شده
-    if (withUserId) {
-      await prisma.userMessage.updateMany({
-        where: {
-          fromId: withUserId,
-          toId: session.user.id,
-          isRead: false
-        },
-        data: { isRead: true }
-      })
-    }
-
-    return NextResponse.json({ 
-      messages: messages.map(msg => ({
-        id: msg.id,
-        content: msg.content,
-        from: msg.from,
-        to: msg.to,
-        createdAt: msg.createdAt,
-        isRead: msg.isRead,
-        fromMe: msg.fromId === session.user.id
-      }))
-    })
+    // مدل userMessage در schema وجود ندارد
+    // برای MVP، لیست خالی برمی‌گردانیم
+    return NextResponse.json({ messages: [] })
 
   } catch (error) {
     console.error('Error fetching messages:', error)

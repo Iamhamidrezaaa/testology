@@ -52,15 +52,14 @@ export async function getTranslatedContent(
   try {
     const translation = await prisma.translation.findUnique({
       where: {
-        type_referenceId_language: {
-          type,
-          referenceId,
-          language
+        key_lang: {
+          key: `${type}_${referenceId}`,
+          lang: language
         }
       }
     });
 
-    return translation?.content || null;
+    return translation?.text || null;
   } catch (error) {
     console.error('Get translation error:', error);
     return null;
@@ -74,10 +73,11 @@ export async function getAllTranslations(type: string, referenceId: string) {
   try {
     const translations = await prisma.translation.findMany({
       where: {
-        type,
-        referenceId
+        key: {
+          startsWith: `${type}_${referenceId}`
+        }
       },
-      orderBy: { language: 'asc' }
+      orderBy: { lang: 'asc' }
     });
 
     return translations;
@@ -94,8 +94,9 @@ export async function hasTranslations(type: string, referenceId: string) {
   try {
     const count = await prisma.translation.count({
       where: {
-        type,
-        referenceId
+        key: {
+          startsWith: `${type}_${referenceId}`
+        }
       }
     });
 
@@ -113,8 +114,9 @@ export async function deleteTranslations(type: string, referenceId: string) {
   try {
     await prisma.translation.deleteMany({
       where: {
-        type,
-        referenceId
+        key: {
+          startsWith: `${type}_${referenceId}`
+        }
       }
     });
 
@@ -124,6 +126,10 @@ export async function deleteTranslations(type: string, referenceId: string) {
     return false;
   }
 }
+
+
+
+
 
 
 

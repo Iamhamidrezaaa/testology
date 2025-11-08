@@ -1,8 +1,4 @@
-import OpenAI from 'openai'
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
+import { getOpenAI } from '@/lib/openai'
 
 interface ChatMessage {
   from: 'user' | 'bot'
@@ -11,6 +7,11 @@ interface ChatMessage {
 
 export async function chatWithPsychologist(messages: ChatMessage[]): Promise<string> {
   try {
+    const openai = getOpenAI();
+    if (!openai) {
+      throw new Error('OpenAI key not configured');
+    }
+
     const formattedMessages = messages.map(m => ({
       role: m.from === 'user' ? 'user' : 'assistant',
       content: m.text

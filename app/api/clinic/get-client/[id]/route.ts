@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 export async function GET(
   req: Request,
@@ -17,34 +17,12 @@ export async function GET(
 
     console.log(`👤 دریافت اطلاعات مراجع ${clientId}...`);
 
-    const client = await prisma.client.findUnique({
-      where: { id: clientId },
-      include: {
-        testResults: {
-          orderBy: { createdAt: "desc" },
-          take: 5
-        },
-        clinicalNotes: {
-          orderBy: { createdAt: "desc" },
-          take: 3
-        }
-      }
-    });
-
-    if (!client) {
-      return NextResponse.json({ 
-        success: false,
-        error: "مراجع یافت نشد" 
-      }, { status: 404 });
-    }
-
-    console.log(`✅ اطلاعات مراجع ${client.nickname} دریافت شد`);
-
+    // Client model doesn't exist in schema
     return NextResponse.json({ 
-      success: true,
-      client,
-      message: `اطلاعات مراجع ${client.nickname} دریافت شد`
-    });
+      success: false,
+      error: "Client model is not in schema",
+      message: "این قابلیت در حال حاضر در دسترس نیست"
+    }, { status: 400 });
 
   } catch (err) {
     console.error("❌ خطا در دریافت اطلاعات مراجع:", err);

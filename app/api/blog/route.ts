@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 
@@ -20,52 +20,52 @@ export async function GET(request: NextRequest) {
     }
 
     if (category) {
-      where.category = {
-        slug: category
-      }
+      where.category = category
     }
 
     if (search) {
       where.OR = [
         { title: { contains: search, mode: 'insensitive' } },
-        { excerpt: { contains: search, mode: 'insensitive' } },
+        { metaDescription: { contains: search, mode: 'insensitive' } },
         { content: { contains: search, mode: 'insensitive' } }
       ]
     }
 
     if (tag) {
       where.tags = {
-        has: tag
+        contains: tag
       }
     }
 
     const [posts, total] = await Promise.all([
-      prisma.blogPost.findMany({
+      prisma.blog.findMany({
         where,
-        include: {
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          metaDescription: true,
+          imageUrl: true,
+          tags: true,
           category: true,
+          published: true,
+          createdAt: true,
+          updatedAt: true,
           author: {
             select: {
               id: true,
               name: true,
-              firstName: true,
-              lastName: true,
               image: true
             }
           },
-          _count: {
-            select: {
-              comments: true
-            }
-          }
         },
         orderBy: {
-          publishedAt: 'desc'
+          createdAt: 'desc'
         },
         skip,
         take: limit
-      }),
-      prisma.blogPost.count({ where })
+      }).catch(() => []),
+      prisma.blog.count({ where }).catch(() => 0)
     ])
 
     return NextResponse.json({
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user || session.user.role !== 'admin') {
+    if (!session?.user || session.user.role !== 'ADMIN') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -103,16 +103,15 @@ export async function POST(request: NextRequest) {
       title,
       slug,
       content,
-      excerpt,
-      coverUrl,
-      videoUrl,
+      metaDescription,
+      imageUrl,
       tags,
-      categoryId,
+      category,
       published
     } = body
 
     // بررسی وجود slug
-    const existingPost = await prisma.blogPost.findUnique({
+    const existingPost = await prisma.blog.findUnique({
       where: { slug }
     })
 
@@ -123,28 +122,23 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const post = await prisma.blogPost.create({
+    const post = await prisma.blog.create({
       data: {
         title,
         slug,
         content,
-        excerpt,
-        coverUrl,
-        videoUrl,
-        tags: tags || [],
+        metaDescription: metaDescription || null,
+        imageUrl: imageUrl || null,
+        tags: tags ? (Array.isArray(tags) ? tags.join(',') : tags) : null,
+        category: category || 'general',
         published: published || false,
-        publishedAt: published ? new Date() : null,
-        categoryId,
         authorId: session.user.id
       },
       include: {
-        category: true,
         author: {
           select: {
             id: true,
             name: true,
-            firstName: true,
-            lastName: true,
             image: true
           }
         }

@@ -1,8 +1,4 @@
-import OpenAI from 'openai'
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
+import { getOpenAI } from '@/lib/openai'
 
 export type ChatCompletionRequestMessage = {
   role: 'user' | 'assistant' | 'system'
@@ -11,6 +7,11 @@ export type ChatCompletionRequestMessage = {
 
 export async function OpenAIStream(messages: ChatCompletionRequestMessage[]): Promise<string> {
   try {
+    const openai = getOpenAI();
+    if (!openai) {
+      throw new Error('OpenAI key not configured');
+    }
+
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
       messages: [

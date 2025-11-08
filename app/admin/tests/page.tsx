@@ -20,6 +20,8 @@ interface Test {
   isActive: boolean
   createdAt: string
   category: string
+  firstTest?: string
+  lastTest?: string
 }
 
 export default function TestsPage() {

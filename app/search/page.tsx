@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function SearchPage() {
+function SearchInner() {
   const searchParams = useSearchParams();
-  const query = searchParams.get('q');
+  const query = searchParams?.get('q');
   const [results, setResults] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -66,8 +66,8 @@ export default function SearchPage() {
           <Section title="📊 تست‌های روان‌شناسی" count={results.tests.length}>
             {results.tests.map((test: any) => (
               <Link
-                key={test.slug}
-                href={`/tests/${test.slug}`}
+                key={test.testSlug || test.slug}
+                href={`/tests/${test.testSlug || test.slug}`}
                 className="block bg-white dark:bg-gray-800 rounded-lg shadow p-4 hover:shadow-lg transition-all"
               >
                 <h3 className="font-bold text-gray-800 dark:text-white">{test.name}</h3>
@@ -153,6 +153,14 @@ export default function SearchPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-16 text-center"><div className="text-4xl mb-4">🔍</div><p>در حال بارگذاری...</p></div>}>
+      <SearchInner />
+    </Suspense>
   );
 }
 

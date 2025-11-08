@@ -1,8 +1,12 @@
-import { Question } from '../../types/test'
+import { Question } from '@/types/test'
+import { normalizeQuestions } from '@/lib/helpers/question-helper'
 
-export const spinQuestions: Question[] = [
+// فقط فیلدهای خام هر سؤال
+type RawQuestion = Pick<Question, 'text' | 'options'>
+
+
+const rawQuestions: RawQuestion[] = [
   {
-    id: 1,
     text: "از صحبت کردن با افراد غریبه می‌ترسم.",
     options: [
       "اصلاً",
@@ -13,7 +17,6 @@ export const spinQuestions: Question[] = [
     ]
   },
   {
-    id: 2,
     text: "از صحبت کردن با افراد مهم می‌ترسم.",
     options: [
       "اصلاً",
@@ -24,7 +27,6 @@ export const spinQuestions: Question[] = [
     ]
   },
   {
-    id: 3,
     text: "از صحبت کردن با افراد قدرتمند می‌ترسم.",
     options: [
       "اصلاً",
@@ -35,7 +37,6 @@ export const spinQuestions: Question[] = [
     ]
   },
   {
-    id: 4,
     text: "از صحبت کردن با افراد جذاب می‌ترسم.",
     options: [
       "اصلاً",
@@ -46,7 +47,6 @@ export const spinQuestions: Question[] = [
     ]
   },
   {
-    id: 5,
     text: "از صحبت کردن با افراد موفق می‌ترسم.",
     options: [
       "اصلاً",
@@ -57,7 +57,6 @@ export const spinQuestions: Question[] = [
     ]
   },
   {
-    id: 6,
     text: "از صحبت کردن با افراد مشهور می‌ترسم.",
     options: [
       "اصلاً",
@@ -68,7 +67,6 @@ export const spinQuestions: Question[] = [
     ]
   },
   {
-    id: 7,
     text: "از صحبت کردن با افراد ثروتمند می‌ترسم.",
     options: [
       "اصلاً",
@@ -79,7 +77,6 @@ export const spinQuestions: Question[] = [
     ]
   },
   {
-    id: 8,
     text: "از صحبت کردن با افراد باهوش می‌ترسم.",
     options: [
       "اصلاً",
@@ -90,7 +87,6 @@ export const spinQuestions: Question[] = [
     ]
   },
   {
-    id: 9,
     text: "از صحبت کردن با افراد خوش‌تیپ می‌ترسم.",
     options: [
       "اصلاً",
@@ -101,7 +97,6 @@ export const spinQuestions: Question[] = [
     ]
   },
   {
-    id: 10,
     text: "از صحبت کردن با افراد محبوب می‌ترسم.",
     options: [
       "اصلاً",
@@ -112,7 +107,6 @@ export const spinQuestions: Question[] = [
     ]
   },
   {
-    id: 11,
     text: "از صحبت کردن با افراد معروف می‌ترسم.",
     options: [
       "اصلاً",
@@ -123,7 +117,6 @@ export const spinQuestions: Question[] = [
     ]
   },
   {
-    id: 12,
     text: "از صحبت کردن با افراد محترم می‌ترسم.",
     options: [
       "اصلاً",
@@ -134,7 +127,6 @@ export const spinQuestions: Question[] = [
     ]
   },
   {
-    id: 13,
     text: "از صحبت کردن با افراد با نفوذ می‌ترسم.",
     options: [
       "اصلاً",
@@ -145,7 +137,6 @@ export const spinQuestions: Question[] = [
     ]
   },
   {
-    id: 14,
     text: "از صحبت کردن با افراد با اعتماد به نفس می‌ترسم.",
     options: [
       "اصلاً",
@@ -156,7 +147,6 @@ export const spinQuestions: Question[] = [
     ]
   },
   {
-    id: 15,
     text: "از صحبت کردن با افراد با شخصیت می‌ترسم.",
     options: [
       "اصلاً",
@@ -167,7 +157,6 @@ export const spinQuestions: Question[] = [
     ]
   },
   {
-    id: 16,
     text: "از صحبت کردن با افراد با جذابیت می‌ترسم.",
     options: [
       "اصلاً",
@@ -178,7 +167,6 @@ export const spinQuestions: Question[] = [
     ]
   },
   {
-    id: 17,
     text: "از صحبت کردن با افراد با شوخ‌طبعی می‌ترسم.",
     options: [
       "اصلاً",
@@ -189,6 +177,15 @@ export const spinQuestions: Question[] = [
     ]
   }
 ]
+
+
+
+// خروجی نهایی با فیلدهای اجباری تکمیل می‌شود
+export const spinQuestions: Question[] = normalizeQuestions(rawQuestions, {
+  testId: 'spin',
+  type: 'SINGLE_CHOICE',
+  required: true
+})
 
 export const spinOptions = [
   { label: "اصلاً", value: 0 },

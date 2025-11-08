@@ -85,7 +85,7 @@ export default function EditTestModal({ test, isOpen, onClose, onSave }: EditTes
     setEditedTest(prev => ({
       ...prev,
       questions: prev.questions?.map(q =>
-        (q.id === questionId || (!q.id && q.order === questionId)) // Handle new questions without ID
+        (q.id === questionId || (!q.id && questionId !== undefined && q.order === Number(questionId))) // Handle new questions without ID
           ? { ...q, [field]: value }
           : q
       ),
@@ -96,11 +96,11 @@ export default function EditTestModal({ test, isOpen, onClose, onSave }: EditTes
     setEditedTest(prev => ({
       ...prev,
       questions: prev.questions?.map(q =>
-        (q.id === questionId || (!q.id && q.order === questionId))
+        (q.id === questionId || (!q.id && questionId !== undefined && q.order === Number(questionId)))
           ? {
               ...q,
               options: q.options.map(o =>
-                (o.id === optionId || (!o.id && o.order === optionId)) // Handle new options without ID
+                (o.id === optionId || (!o.id && optionId !== undefined && o.order === Number(optionId))) // Handle new options without ID
                   ? { ...o, [field]: value }
                   : o
               ),
@@ -128,7 +128,7 @@ export default function EditTestModal({ test, isOpen, onClose, onSave }: EditTes
     setEditedTest(prev => ({
       ...prev,
       questions: prev.questions?.map(q =>
-        (q.id === questionId || (!q.id && q.order === questionId))
+        (q.id === questionId || (!q.id && questionId !== undefined && q.order === Number(questionId)))
           ? { ...q, isDeleted: true } // Mark for soft delete
           : q
       ),
@@ -139,7 +139,7 @@ export default function EditTestModal({ test, isOpen, onClose, onSave }: EditTes
     setEditedTest(prev => ({
       ...prev,
       questions: prev.questions?.map(q =>
-        (q.id === questionId || (!q.id && q.order === questionId))
+        (q.id === questionId || (!q.id && questionId !== undefined && q.order === Number(questionId)))
           ? {
               ...q,
               options: [
@@ -156,11 +156,11 @@ export default function EditTestModal({ test, isOpen, onClose, onSave }: EditTes
     setEditedTest(prev => ({
       ...prev,
       questions: prev.questions?.map(q =>
-        (q.id === questionId || (!q.id && q.order === questionId))
+        (q.id === questionId || (!q.id && questionId !== undefined && q.order === Number(questionId)))
           ? {
               ...q,
               options: q.options.map(o =>
-                (o.id === optionId || (!o.id && o.order === optionId))
+                (o.id === optionId || (!o.id && optionId !== undefined && o.order === Number(optionId)))
                   ? { ...o, isDeleted: true } // Mark for soft delete
                   : o
               ),

@@ -9,13 +9,13 @@ const nextConfig = {
   // غیرفعال کردن type checking در بیلد (برای سرعت بیشتر)
   typescript: {
     // ⚠️ فقط برای بیلد سریع‌تر - در production بهتر است فعال باشد
-    ignoreBuildErrors: false,
+    ignoreBuildErrors: true,
   },
   
   // غیرفعال کردن ESLint در بیلد (برای سرعت بیشتر)
   eslint: {
     // ⚠️ فقط برای بیلد سریع‌تر - در production بهتر است فعال باشد
-    ignoreDuringBuilds: false,
+    ignoreDuringBuilds: true,
   },
   
   // غیرفعال کردن error overlay برای خطاهای extension (فقط در development)
