@@ -23,6 +23,8 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
   const [showSettings, setShowSettings] = useState(false)
   const [showQualityMenu, setShowQualityMenu] = useState(false)
   const [showSpeedMenu, setShowSpeedMenu] = useState(false)
+  const [buffered, setBuffered] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
 
   const playbackRates = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2]
   const qualities = [
@@ -40,22 +42,39 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
 
     const updateTime = () => setCurrentTime(video.currentTime)
     const updateDuration = () => setDuration(video.duration)
-    const handlePlay = () => setIsPlaying(true)
+    const handlePlay = () => {
+      setIsPlaying(true)
+      setIsLoading(false)
+    }
     const handlePause = () => setIsPlaying(false)
     const handleEnded = () => setIsPlaying(false)
+    const handleProgress = () => {
+      if (video.buffered.length > 0) {
+        const bufferedEnd = video.buffered.end(video.buffered.length - 1)
+        setBuffered(bufferedEnd)
+      }
+    }
+    const handleWaiting = () => setIsLoading(true)
+    const handleCanPlay = () => setIsLoading(false)
 
     video.addEventListener('timeupdate', updateTime)
     video.addEventListener('loadedmetadata', updateDuration)
+    video.addEventListener('progress', handleProgress)
     video.addEventListener('play', handlePlay)
     video.addEventListener('pause', handlePause)
     video.addEventListener('ended', handleEnded)
+    video.addEventListener('waiting', handleWaiting)
+    video.addEventListener('canplay', handleCanPlay)
 
     return () => {
       video.removeEventListener('timeupdate', updateTime)
       video.removeEventListener('loadedmetadata', updateDuration)
+      video.removeEventListener('progress', handleProgress)
       video.removeEventListener('play', handlePlay)
       video.removeEventListener('pause', handlePause)
       video.removeEventListener('ended', handleEnded)
+      video.removeEventListener('waiting', handleWaiting)
+      video.removeEventListener('canplay', handleCanPlay)
     }
   }, [])
 
@@ -152,10 +171,11 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
         .video-player-container {
           position: relative;
           width: 100%;
+          max-width: 900px;
+          margin: 40px auto;
           background: #000;
           border-radius: 12px;
           overflow: hidden;
-          margin: 40px 0;
           box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         }
 
@@ -203,10 +223,11 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
         .progress-bar {
           width: 100%;
           height: 6px;
-          background: rgba(255, 255, 255, 0.3);
+          background: #666;
           border-radius: 3px;
           cursor: pointer;
           position: relative;
+          direction: ltr;
         }
 
         .progress-bar input[type="range"] {
@@ -219,6 +240,7 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           position: absolute;
           top: 0;
           left: 0;
+          direction: ltr;
         }
 
         .progress-bar input[type="range"]::-webkit-slider-thumb {
@@ -249,6 +271,18 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           background: #667eea;
           border-radius: 3px;
           pointer-events: none;
+          transition: width 0.1s;
+        }
+
+        .progress-buffered {
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 100%;
+          background: rgba(255, 255, 255, 0.4);
+          border-radius: 3px;
+          pointer-events: none;
+          transition: width 0.1s;
         }
 
         .controls-row {
@@ -256,6 +290,20 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           align-items: center;
           gap: 15px;
           flex-wrap: wrap;
+          direction: ltr;
+        }
+
+        .controls-left {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          flex: 1;
+        }
+
+        .controls-right {
+          display: flex;
+          align-items: center;
+          gap: 15px;
         }
 
         .control-button {
@@ -327,7 +375,7 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
         .dropdown-menu {
           position: absolute;
           bottom: 100%;
-          right: 0;
+          left: 0;
           margin-bottom: 10px;
           background: rgba(0, 0, 0, 0.95);
           border-radius: 8px;
@@ -369,7 +417,35 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
 
+
+        .loading-indicator {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 50px;
+          height: 50px;
+          border: 4px solid rgba(255, 255, 255, 0.3);
+          border-top-color: white;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          z-index: 15;
+        }
+
+        .loading-indicator.hidden {
+          display: none;
+        }
+
+        @keyframes spin {
+          to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
+          .video-player-container {
+            max-width: 100%;
+            margin: 20px 0;
+          }
+
           .video-title {
             font-size: 14px;
             padding: 8px 15px;
@@ -407,12 +483,21 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
         className="video-element"
       />
 
+      {/* Loading Indicator */}
+      {isLoading && <div className="loading-indicator" />}
+
       <div className={`video-controls ${!showControls ? 'hidden' : ''}`}>
         <div className="progress-container">
           <div className="progress-bar">
+            {/* Buffered progress (gray) */}
+            <div
+              className="progress-buffered"
+              style={{ width: `${duration > 0 ? (buffered / duration) * 100 : 0}%` }}
+            />
+            {/* Current progress (purple) */}
             <div
               className="progress-fill"
-              style={{ width: `${(currentTime / duration) * 100}%` }}
+              style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
             />
             <input
               type="range"
@@ -421,100 +506,105 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
               value={currentTime}
               onChange={handleSeek}
               step="0.1"
+              style={{ direction: 'ltr' }}
             />
           </div>
         </div>
 
         <div className="controls-row">
-          <button className="control-button" onClick={togglePlay}>
-            {isPlaying ? '⏸️' : '▶️'}
-          </button>
-
-          <div className="time-display">
-            {formatTime(currentTime)} / {formatTime(duration)}
-          </div>
-
-          <div className="volume-container">
-            <button className="control-button" onClick={toggleMute}>
-              {isMuted || volume === 0 ? '🔇' : volume < 0.5 ? '🔉' : '🔊'}
+          <div className="controls-left">
+            <button className="control-button" onClick={togglePlay}>
+              {isPlaying ? '⏸️' : '▶️'}
             </button>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={volume}
-              onChange={handleVolumeChange}
-              className="volume-slider"
-            />
-          </div>
 
-          <div className="settings-menu">
-            <button
-              className="control-button"
-              onClick={() => {
-                setShowSpeedMenu(!showSpeedMenu)
-                setShowQualityMenu(false)
-              }}
-            >
-              ⚙️
-            </button>
-            {showSpeedMenu && (
-              <div className="dropdown-menu">
-                <div className="dropdown-item" style={{ fontWeight: 600, marginBottom: 8, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                  سرعت پخش
-                </div>
-                {playbackRates.map(rate => (
-                  <div
-                    key={rate}
-                    className={`dropdown-item ${playbackRate === rate ? 'active' : ''}`}
-                    onClick={() => {
-                      setPlaybackRate(rate)
-                      setShowSpeedMenu(false)
-                    }}
-                  >
-                    {rate}x
+            <div className="time-display">
+              {formatTime(currentTime)} / {formatTime(duration)}
+            </div>
+
+            <div className="volume-container">
+              <button className="control-button" onClick={toggleMute}>
+                {isMuted || volume === 0 ? '🔇' : volume < 0.5 ? '🔉' : '🔊'}
+              </button>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={volume}
+                onChange={handleVolumeChange}
+                className="volume-slider"
+              />
+            </div>
+
+            <div className="settings-menu">
+              <button
+                className="control-button"
+                onClick={() => {
+                  setShowSpeedMenu(!showSpeedMenu)
+                  setShowQualityMenu(false)
+                }}
+              >
+                ⚙️
+              </button>
+              {showSpeedMenu && (
+                <div className="dropdown-menu">
+                  <div className="dropdown-item" style={{ fontWeight: 600, marginBottom: 8, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                    سرعت پخش
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="settings-menu">
-            <button
-              className="control-button"
-              onClick={() => {
-                setShowQualityMenu(!showQualityMenu)
-                setShowSpeedMenu(false)
-              }}
-            >
-              HD
-            </button>
-            {showQualityMenu && (
-              <div className="dropdown-menu">
-                <div className="dropdown-item" style={{ fontWeight: 600, marginBottom: 8, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                  کیفیت
+                  {playbackRates.map(rate => (
+                    <div
+                      key={rate}
+                      className={`dropdown-item ${playbackRate === rate ? 'active' : ''}`}
+                      onClick={() => {
+                        setPlaybackRate(rate)
+                        setShowSpeedMenu(false)
+                      }}
+                    >
+                      {rate}x
+                    </div>
+                  ))}
                 </div>
-                {qualities.map(q => (
-                  <div
-                    key={q.value}
-                    className={`dropdown-item ${quality === q.value ? 'active' : ''}`}
-                    onClick={() => {
-                      setQuality(q.value)
-                      setShowQualityMenu(false)
-                    }}
-                  >
-                    {q.label}
-                    {quality === q.value && ' ✓'}
+              )}
+            </div>
+
+            <div className="settings-menu">
+              <button
+                className="control-button"
+                onClick={() => {
+                  setShowQualityMenu(!showQualityMenu)
+                  setShowSpeedMenu(false)
+                }}
+              >
+                HD
+              </button>
+              {showQualityMenu && (
+                <div className="dropdown-menu">
+                  <div className="dropdown-item" style={{ fontWeight: 600, marginBottom: 8, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                    کیفیت
                   </div>
-                ))}
-              </div>
-            )}
+                  {qualities.map(q => (
+                    <div
+                      key={q.value}
+                      className={`dropdown-item ${quality === q.value ? 'active' : ''}`}
+                      onClick={() => {
+                        setQuality(q.value)
+                        setShowQualityMenu(false)
+                      }}
+                    >
+                      {q.label}
+                      {quality === q.value && ' ✓'}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          <button className="control-button" onClick={toggleFullscreen}>
-            {isFullscreen ? '🗗' : '⛶'}
-          </button>
+          <div className="controls-right">
+            <button className="control-button" onClick={toggleFullscreen}>
+              {isFullscreen ? '🗗' : '⛶'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

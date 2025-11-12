@@ -25,3 +25,9 @@ Thumbs.db
 .vscode/
 .idea/
 .vercel/
+
+# Videos (too large for git)
+public/videos/*.mp4
+public/videos/*.mov
+public/videos/*.avi
+public/videos/*.mkv

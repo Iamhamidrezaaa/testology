@@ -10,10 +10,18 @@ export default function VideoPlayerWrapper() {
   useEffect(() => {
     setMounted(true)
     
-    // صبر کن تا DOM آماده بشه
-    const timer = setTimeout(() => {
+    // صبر کن تا DOM آماده بشه - چند بار تلاش کن
+    let attempts = 0
+    const maxAttempts = 10
+    
+    const tryMount = () => {
+      attempts++
       const placeholder = document.getElementById('video-player-placeholder')
+      
       if (placeholder && !placeholder.querySelector('#react-video-player-root')) {
+        // پاک کردن محتوای قبلی
+        placeholder.innerHTML = ''
+        
         const root = document.createElement('div')
         root.id = 'react-video-player-root'
         placeholder.appendChild(root)
@@ -25,8 +33,16 @@ export default function VideoPlayerWrapper() {
             title="معرفی"
           />
         )
+      } else if (attempts < maxAttempts) {
+        // اگه placeholder پیدا نشد، دوباره تلاش کن
+        setTimeout(tryMount, 200)
+      } else {
+        console.warn('Video player placeholder not found after', maxAttempts, 'attempts')
       }
-    }, 100)
+    }
+    
+    // شروع با تاخیر اولیه
+    const timer = setTimeout(tryMount, 300)
 
     return () => clearTimeout(timer)
   }, [])

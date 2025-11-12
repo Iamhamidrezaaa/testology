@@ -27,22 +27,22 @@ export default function TestologyCompleteReport2025Page() {
     const styleMatch = htmlContent.match(/<style[^>]*>([\s\S]*)<\/style>/i);
     const styleContent = styleMatch ? styleMatch[1] : '';
     
-    // پیدا کردن محل قرارگیری ویدئو (بعد از cover و قبل از toc)
-    const coverEndIndex = bodyContent.indexOf('</div>', bodyContent.indexOf('<div class="cover">'));
-    const tocStartIndex = bodyContent.indexOf('<div class="toc">');
+    // پیدا کردن محل قرارگیری ویدئو (بعد از toc)
+    const tocEndIndex = bodyContent.indexOf('</div>', bodyContent.indexOf('<div class="toc">'));
+    const overviewStartIndex = bodyContent.indexOf('<section id="overview">');
     
-    if (coverEndIndex !== -1 && tocStartIndex !== -1) {
-      const beforeToc = bodyContent.substring(0, tocStartIndex);
-      const afterToc = bodyContent.substring(tocStartIndex);
+    if (tocEndIndex !== -1 && overviewStartIndex !== -1) {
+      const beforeOverview = bodyContent.substring(0, overviewStartIndex);
+      const afterOverview = bodyContent.substring(overviewStartIndex);
       
-      // اضافه کردن placeholder برای ویدئو پلیر
+      // اضافه کردن placeholder برای ویدئو پلیر بعد از toc
       const videoPlaceholder = `
         <section id="introduction" style="margin: 40px 0;">
           <div id="video-player-placeholder"></div>
         </section>
       `;
       
-      bodyContent = beforeToc + videoPlaceholder + afterToc;
+      bodyContent = beforeOverview + videoPlaceholder + afterOverview;
     }
     
     return (
