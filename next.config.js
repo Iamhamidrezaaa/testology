@@ -98,6 +98,16 @@ const nextConfig = {
       },
     ];
   },
+  
+  // Rewrites برای پشتیبانی از .html
+  async rewrites() {
+    return [
+      {
+        source: '/reports/testology-complete-2025.html',
+        destination: '/reports/testology-complete-2025',
+      },
+    ];
+  },
 };
 
 module.exports = withBundleAnalyzer(nextConfig);
