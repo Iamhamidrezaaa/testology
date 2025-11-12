@@ -193,10 +193,29 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           backdrop-filter: blur(10px);
         }
 
-        video {
+
+        .video-wrapper {
+          position: relative;
           width: 100%;
-          height: auto;
-          display: block;
+          padding-bottom: 56.25%; /* 16:9 aspect ratio fallback */
+          background: #000;
+          min-height: 400px;
+        }
+
+        @supports (aspect-ratio: 16 / 9) {
+          .video-wrapper {
+            padding-bottom: 0;
+            aspect-ratio: 16 / 9;
+          }
+        }
+
+        .video-wrapper video {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
         }
 
         .video-controls {
@@ -475,13 +494,17 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
 
       {title && <div className="video-title">{title}</div>}
 
-      <video
-        ref={videoRef}
-        src={videoUrl}
-        poster={poster}
-        onClick={togglePlay}
-        className="video-element"
-      />
+      <div className="video-wrapper">
+        <video
+          ref={videoRef}
+          src={videoUrl}
+          poster={poster}
+          onClick={togglePlay}
+          className="video-element"
+          preload="metadata"
+          playsInline
+        />
+      </div>
 
       {/* Loading Indicator */}
       {isLoading && <div className="loading-indicator" />}
