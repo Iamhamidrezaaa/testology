@@ -2,29 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Vazirmatn Font - Local Files */
-@font-face {
-  font-family: 'Vazirmatn';
-  src: url('/fonts/Vazirmatn-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Vazirmatn';
-  src: url('/fonts/Vazirmatn-Bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
+/* Vazirmatn Font - از Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 /* پیش‌فرض کل سایت */
 html, body {
-  font-family: 'Vazirmatn', system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Arabic', 'IRANSans', Arial, sans-serif;
+  font-family: 'Vazirmatn', var(--font-vazir), system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Arabic', 'IRANSans', Arial, sans-serif !important;
   direction: rtl;
   margin: 0;
   padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* اطمینان از لود فونت در موبایل */
+@media (max-width: 768px) {
+  html, body {
+    font-family: 'Vazirmatn', var(--font-vazir), system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Arabic', 'IRANSans', Arial, sans-serif !important;
+  }
+  
+  body *,
+  body h1, body h2, body h3, body h4, body h5, body h6,
+  body p, body span, body div, body a, body button,
+  body input, body textarea, body select, body label {
+    font-family: 'Vazirmatn', var(--font-vazir), system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Arabic', 'IRANSans', Arial, sans-serif !important;
+  }
 }
 
 /* برای موبایل: کوچک‌کردن سایز عناوین روی نمایشگرهای کوچک */

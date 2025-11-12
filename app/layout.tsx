@@ -51,13 +51,23 @@ export default function RootLayout({
       <head>
         {/* Preload critical resources */}
         <link rel="preload" href="/fonts/vazir.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="//fonts.gstatic.com" />
         <link rel="dns-prefetch" href="//api.openai.com" />
         
         {/* Critical CSS inline */}
         <style dangerouslySetInnerHTML={{
           __html: `
-            body { font-family: 'Vazir', sans-serif; margin: 0; padding: 0; }
+            body { 
+              font-family: 'Vazirmatn', var(--font-vazir), system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Arabic', 'IRANSans', Arial, sans-serif !important; 
+              margin: 0; 
+              padding: 0; 
+            }
+            * {
+              font-family: 'Vazirmatn', var(--font-vazir), system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Arabic', 'IRANSans', Arial, sans-serif !important;
+            }
             .loading { opacity: 0; transition: opacity 0.3s ease; }
             .loaded { opacity: 1; }
           `

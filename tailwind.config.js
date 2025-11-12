@@ -25,7 +25,8 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        vazir: ['Vazirmatn', 'sans-serif'],
+        vazir: ['Vazirmatn', 'var(--font-vazir)', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'Noto Sans Arabic', 'IRANSans', 'Arial', 'sans-serif'],
+        sans: ['Vazirmatn', 'var(--font-vazir)', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'Noto Sans Arabic', 'IRANSans', 'Arial', 'sans-serif'],
       },
       colors: {
         primary: {
