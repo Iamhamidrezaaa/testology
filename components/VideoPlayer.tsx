@@ -25,6 +25,8 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
   const [showSpeedMenu, setShowSpeedMenu] = useState(false)
   const [buffered, setBuffered] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
+  const [networkSpeed, setNetworkSpeed] = useState<'slow' | 'medium' | 'fast'>('medium')
+  const [autoQuality, setAutoQuality] = useState(true)
 
   const playbackRates = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2]
   const qualities = [
@@ -35,6 +37,86 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
     { label: '720p', value: '720p' },
     { label: '480p', value: '480p' },
   ]
+
+  // محاسبه سرعت اینترنت بر اساس buffering
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video || !isPlaying) return
+
+    let lastBuffered = 0
+    let lastTime = Date.now()
+    let speedMeasurements: number[] = []
+
+    const measureSpeed = () => {
+      if (video.buffered.length > 0) {
+        const currentBuffered = video.buffered.end(video.buffered.length - 1)
+        const currentTime = Date.now()
+        const timeDiff = (currentTime - lastTime) / 1000 // seconds
+        const bufferedDiff = currentBuffered - lastBuffered
+
+        if (timeDiff > 0 && bufferedDiff > 0) {
+          // سرعت دانلود به ثانیه
+          const speed = bufferedDiff / timeDiff
+          speedMeasurements.push(speed)
+
+          // فقط آخرین 5 اندازه‌گیری رو نگه دار
+          if (speedMeasurements.length > 5) {
+            speedMeasurements.shift()
+          }
+
+          // میانگین سرعت
+          const avgSpeed = speedMeasurements.reduce((a, b) => a + b, 0) / speedMeasurements.length
+
+          // تشخیص سرعت اینترنت
+          // اگر سرعت دانلود کمتر از 1 ثانیه ویدئو در هر ثانیه باشه = slow
+          // اگر بین 1 تا 2 باشه = medium
+          // اگر بیشتر از 2 باشه = fast
+          if (avgSpeed < 1) {
+            setNetworkSpeed('slow')
+          } else if (avgSpeed < 2) {
+            setNetworkSpeed('medium')
+          } else {
+            setNetworkSpeed('fast')
+          }
+        }
+
+        lastBuffered = currentBuffered
+        lastTime = currentTime
+      }
+    }
+
+    const interval = setInterval(measureSpeed, 1000)
+    return () => clearInterval(interval)
+  }, [isPlaying])
+
+  // تنظیم خودکار کیفیت بر اساس سرعت اینترنت
+  useEffect(() => {
+    if (!autoQuality || quality !== 'auto') return
+
+    const video = videoRef.current
+    if (!video) return
+
+    // اگر buffering زیاد باشه، کیفیت رو پایین بیار
+    const checkBuffering = () => {
+      if (video.buffered.length > 0) {
+        const bufferedEnd = video.buffered.end(video.buffered.length - 1)
+        const currentTime = video.currentTime
+        const bufferAhead = bufferedEnd - currentTime
+
+        // اگر buffer کمتر از 3 ثانیه باشه و سرعت اینترنت slow باشه
+        if (bufferAhead < 3 && networkSpeed === 'slow') {
+          // کیفیت رو به 480p تغییر بده (اگه امکانش هست)
+          // در حال حاضر فقط می‌تونیم سرعت پخش رو کم کنیم
+          if (playbackRate > 0.75) {
+            setPlaybackRate(0.75)
+          }
+        }
+      }
+    }
+
+    const interval = setInterval(checkBuffering, 2000)
+    return () => clearInterval(interval)
+  }, [autoQuality, quality, networkSpeed, playbackRate])
 
   useEffect(() => {
     const video = videoRef.current
@@ -54,8 +136,24 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
         setBuffered(bufferedEnd)
       }
     }
-    const handleWaiting = () => setIsLoading(true)
+    const handleWaiting = () => {
+      setIsLoading(true)
+      // اگر buffering زیاد باشه، سرعت اینترنت رو slow در نظر بگیر
+      if (networkSpeed !== 'slow') {
+        setNetworkSpeed('slow')
+      }
+    }
     const handleCanPlay = () => setIsLoading(false)
+    const handleStalled = () => {
+      setIsLoading(true)
+      setNetworkSpeed('slow')
+    }
+    const handleSuspend = () => {
+      // وقتی دانلود متوقف می‌شه
+      if (networkSpeed === 'fast') {
+        setNetworkSpeed('medium')
+      }
+    }
 
     video.addEventListener('timeupdate', updateTime)
     video.addEventListener('loadedmetadata', updateDuration)
@@ -65,6 +163,8 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
     video.addEventListener('ended', handleEnded)
     video.addEventListener('waiting', handleWaiting)
     video.addEventListener('canplay', handleCanPlay)
+    video.addEventListener('stalled', handleStalled)
+    video.addEventListener('suspend', handleSuspend)
 
     return () => {
       video.removeEventListener('timeupdate', updateTime)
@@ -75,6 +175,8 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
       video.removeEventListener('ended', handleEnded)
       video.removeEventListener('waiting', handleWaiting)
       video.removeEventListener('canplay', handleCanPlay)
+      video.removeEventListener('stalled', handleStalled)
+      video.removeEventListener('suspend', handleSuspend)
     }
   }, [])
 
@@ -99,13 +201,19 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
   }, [])
 
-  const togglePlay = () => {
+  const togglePlay = async () => {
     const video = videoRef.current
     if (!video) return
     if (isPlaying) {
       video.pause()
     } else {
-      video.play()
+      try {
+        setIsLoading(true)
+        await video.play()
+      } catch (error) {
+        console.error('Error playing video:', error)
+        setIsLoading(false)
+      }
     }
   }
 
@@ -501,8 +609,9 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           poster={poster}
           onClick={togglePlay}
           className="video-element"
-          preload="metadata"
+          preload="none"
           playsInline
+          controls={false}
         />
       </div>
 
@@ -597,8 +706,11 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
                   setShowQualityMenu(!showQualityMenu)
                   setShowSpeedMenu(false)
                 }}
+                title={`کیفیت: ${quality === 'auto' ? `خودکار (${networkSpeed === 'fast' ? '1080p+' : networkSpeed === 'medium' ? '720p' : '480p'})` : quality}`}
               >
-                HD
+                {quality === 'auto' ? (
+                  networkSpeed === 'fast' ? 'HD+' : networkSpeed === 'medium' ? 'HD' : 'SD'
+                ) : 'HD'}
               </button>
               {showQualityMenu && (
                 <div className="dropdown-menu">
@@ -611,10 +723,16 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
                       className={`dropdown-item ${quality === q.value ? 'active' : ''}`}
                       onClick={() => {
                         setQuality(q.value)
+                        setAutoQuality(q.value === 'auto')
                         setShowQualityMenu(false)
                       }}
                     >
                       {q.label}
+                      {q.value === 'auto' && quality === 'auto' && (
+                        <span style={{ fontSize: '12px', marginRight: '8px', opacity: 0.7 }}>
+                          ({networkSpeed === 'fast' ? '1080p+' : networkSpeed === 'medium' ? '720p' : '480p'})
+                        </span>
+                      )}
                       {quality === q.value && ' ✓'}
                     </div>
                   ))}
