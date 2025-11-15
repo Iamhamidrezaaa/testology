@@ -135,12 +135,30 @@ export const authOptions: AuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
+    async jwt({ token, user }) {
+      // user فقط در Login اول وجود داره
+      if (user) {
+        token.id = (user as any).id;
+        token.email = user.email;
+        token.role = (user as any).role;
+        token.phone = (user as any).phone;
+        token.isAdmin = (user as any).role === 'ADMIN';
+      }
+      return token;
+    },
     async session({ session, token }) {
-      if (token?.email) {
+      // استفاده از token.id که در jwt callback set شده
+      if (token?.id && session.user) {
+        (session.user as any).id = token.id;
+        (session.user as any).role = token.role;
+        (session.user as any).phone = token.phone;
+        (session.user as any).isAdmin = token.isAdmin;
+      } else if (token?.email) {
+        // Fallback: اگر id در token نبود، از دیتابیس بخون
         const user = await prisma.user.findUnique({
-          where: { email: token.email },
+          where: { email: token.email as string },
         });
-        if (user) {
+        if (user && session.user) {
           session.user = {
             id: user.id,
             name: user.name,
@@ -153,10 +171,6 @@ export const authOptions: AuthOptions = {
         }
       }
       return session;
-    },
-    async jwt({ token, user }) {
-      if (user) token.email = user.email;
-      return token;
     },
   },
   secret: process.env.NEXTAUTH_SECRET,

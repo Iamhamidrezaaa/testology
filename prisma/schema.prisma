@@ -126,7 +126,8 @@ model TestResult {
   answers     String?  // JSON string of answers
   completed   Boolean  @default(false)
   severity    String?  // severity level
-  interpretation String? // interpretation text
+  interpretation String? // interpretation text (JSON array of InterpretationChunk)
+  subscales   String?  // JSON array of subscale scores (for global recommendations)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
@@ -231,6 +232,7 @@ model Test {
   published   Boolean    @default(false) // alias for isActive (for backward compatibility)
   isActive    Boolean    @default(true)
   deletedAt   DateTime?  // برای soft delete
+  scoringConfig String?  // JSON: scoring keys, reverse items, subscales, cutoffs
   createdAt   DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   questions   Question[] // رابطه با سوالات تست
@@ -243,6 +245,8 @@ model Question {
   test      Test     @relation(fields: [testId], references: [id], onDelete: Cascade)
   text      String
   order     Int      // برای ترتیب سوالات
+  dimension String?  // برای تست‌های چندبعدی مثل MBTI: "E/I", "S/N", "T/F", "J/P"
+  isReverse Boolean  @default(false) // آیا این سوال reverse-scored است؟
   options   Option[] // رابطه با گزینه‌های سوال
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1012,3 +1016,4 @@ model BlogComment {
   @@index([userId])
   @@index([approved])
 }
+

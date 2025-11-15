@@ -118,13 +118,3 @@ export async function getExploreData(): Promise<{
     }
   }
 }
-      users: [],
-      popularTests: []
-    }
-  }
-}
-      users: [],
-      popularTests: []
-    }
-  }
-}

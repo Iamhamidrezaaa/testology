@@ -24,7 +24,7 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
   const [showQualityMenu, setShowQualityMenu] = useState(false)
   const [showSpeedMenu, setShowSpeedMenu] = useState(false)
   const [buffered, setBuffered] = useState(0)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false) // از false شروع می‌شود - فقط بعد از play نمایش داده می‌شود
   const [networkSpeed, setNetworkSpeed] = useState<'slow' | 'medium' | 'fast'>('medium')
   const [autoQuality, setAutoQuality] = useState(true)
 
@@ -126,6 +126,8 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
     const updateDuration = () => setDuration(video.duration)
     const handlePlay = () => {
       setIsPlaying(true)
+      // بعد از play، اگر buffering باشد، loading نمایش داده می‌شود
+      // در غیر این صورت loading false می‌شود
       setIsLoading(false)
     }
     const handlePause = () => setIsPlaying(false)
@@ -137,7 +139,11 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
       }
     }
     const handleWaiting = () => {
-      setIsLoading(true)
+      // فقط اگر ویدئو در حال پخش است، loading را نمایش بده
+      const video = videoRef.current
+      if (video && !video.paused) {
+        setIsLoading(true)
+      }
       // اگر buffering زیاد باشه، سرعت اینترنت رو slow در نظر بگیر
       if (networkSpeed !== 'slow') {
         setNetworkSpeed('slow')
@@ -145,7 +151,11 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
     }
     const handleCanPlay = () => setIsLoading(false)
     const handleStalled = () => {
-      setIsLoading(true)
+      // فقط اگر ویدئو در حال پخش است، loading را نمایش بده
+      const video = videoRef.current
+      if (video && !video.paused) {
+        setIsLoading(true)
+      }
       setNetworkSpeed('slow')
     }
     const handleSuspend = () => {
@@ -447,6 +457,13 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           font-size: 18px;
         }
 
+        .control-button.play-button {
+          font-size: 32px;
+          padding: 12px;
+          min-width: 56px;
+          min-height: 56px;
+        }
+
         .control-button:hover {
           background: rgba(255, 255, 255, 0.2);
         }
@@ -615,8 +632,8 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
         />
       </div>
 
-      {/* Loading Indicator */}
-      {isLoading && <div className="loading-indicator" />}
+      {/* Loading Indicator - فقط زمانی نمایش داده می‌شود که ویدئو در حال پخش است و buffering می‌کند */}
+      {isLoading && isPlaying && <div className="loading-indicator" />}
 
       <div className={`video-controls ${!showControls ? 'hidden' : ''}`}>
         <div className="progress-container">
@@ -645,7 +662,7 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
 
         <div className="controls-row">
           <div className="controls-left">
-            <button className="control-button" onClick={togglePlay}>
+            <button className="control-button play-button" onClick={togglePlay}>
               {isPlaying ? '⏸️' : '▶️'}
             </button>
 

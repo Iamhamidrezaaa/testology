@@ -44,21 +44,40 @@ export default function TestRunner({ test }: TestRunnerProps) {
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/tests/${test.slug}/analyze`, {
+      // تبدیل answers از Record<string, number> به آرایه {questionId, value}
+      const answersArray = Object.entries(answers).map(([questionId, value]) => ({
+        questionId: parseInt(questionId),
+        value: value,
+      }));
+
+      // گرفتن userId از localStorage یا session (موقت)
+      const userId = localStorage.getItem('testology_userId') || null;
+
+      const res = await fetch(`/api/tests/${test.slug}/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answers }),
+        body: JSON.stringify({ 
+          answers: answersArray,
+          userId 
+        }),
       });
       
       if (res.ok) {
         const data = await res.json();
-        router.push(`/results/${data.resultId}`);
+        // هدایت به صفحه نتایج یا نمایش نتیجه در همین صفحه
+        if (data.result) {
+          // می‌توانی نتیجه را در همین صفحه نمایش دهی یا به صفحه نتایج ببری
+          router.push(`/dashboard/tests?result=${data.result.testId}`);
+        } else {
+          router.push(`/dashboard/tests`);
+        }
       } else {
-        alert('Error submitting test');
+        const errorData = await res.json().catch(() => ({}));
+        alert(errorData.error || 'خطا در ارسال تست');
       }
     } catch (error) {
       console.error('Error submitting test:', error);
-      alert('Error submitting test');
+      alert('خطا در ارسال تست');
     } finally {
       setSubmitting(false);
     }

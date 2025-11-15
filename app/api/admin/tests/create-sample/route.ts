@@ -36,6 +36,90 @@ export async function POST(req: NextRequest) {
         isActive: true
       },
       {
+        testSlug: 'pss10',
+        testName: 'تست استرس ادراک‌شده (PSS-10)',
+        description: 'ارزیابی سطح استرس ادراک‌شده بر اساس Perceived Stress Scale',
+        category: 'mental',
+        isActive: true
+      },
+      {
+        testSlug: 'learning-style',
+        testName: 'تست سبک یادگیری و پروفایل مطالعه',
+        description: 'ارزیابی سبک یادگیری بر اساس 4 بعد علمی: فعال/تأمل‌گرا، تحلیلی/عملی، خودتنظیمی و ترجیح محیط',
+        category: 'learning',
+        isActive: true
+      },
+      {
+        testSlug: 'growth-mindset',
+        testName: 'تست ذهنیت رشد (Growth Mindset)',
+        description: 'ارزیابی ذهنیت رشد در مقابل ذهنیت ثابت بر اساس مدل Carol Dweck',
+        category: 'development',
+        isActive: true
+      },
+      {
+        testSlug: 'curiosity',
+        testName: 'تست کنجکاوی و گشودگی (Curiosity & Openness)',
+        description: 'ارزیابی کنجکاوی و گشودگی به تجارب جدید بر اساس مدل CEI-II',
+        category: 'personality',
+        isActive: true
+      },
+      {
+        testSlug: 'adaptability',
+        testName: 'تست انطباق‌پذیری (Adaptability Assessment)',
+        description: 'ارزیابی انطباق‌پذیری و انعطاف‌پذیری در مواجهه با تغییرات',
+        category: 'development',
+        isActive: true
+      },
+      {
+        testSlug: 'innovation',
+        testName: 'تست نوآوری و عمل خلاقانه (Innovation & Creative Action)',
+        description: 'ارزیابی نوآوری و عمل خلاقانه. این تست ایده‌پردازی، اعتمادبه‌نفس خلاقانه، اجرای ایده‌ها و ریسک‌پذیری را می‌سنجد',
+        category: 'creativity',
+        isActive: true
+      },
+      {
+        testSlug: 'work-life-balance',
+        testName: 'تست تعادل کار–زندگی (Work–Life Balance)',
+        description: 'ارزیابی تعادل بین کار و زندگی شخصی. این تست مزاحمت کار برای زندگی، مزاحمت زندگی برای کار، ریکاوری و مرزبندی را می‌سنجد',
+        category: 'lifestyle',
+        isActive: true
+      },
+      {
+        testSlug: 'hobbies-interests',
+        testName: 'تست علایق و سرگرمی‌ها (Hobbies & Interests Profile)',
+        description: 'ارزیابی علایق و سرگرمی‌ها در 4 حوزه: خلاقانه، بدنی/بیرونی، اجتماعی و فکری/یادگیری',
+        category: 'lifestyle',
+        isActive: true
+      },
+      {
+        testSlug: 'personal-values',
+        testName: 'تست ارزش‌های شخصی (Personal Values Assessment)',
+        description: 'ارزیابی ارزش‌های شخصی بر اساس Schwartz Value Theory. این تست 4 بعد ارزشی را می‌سنجد: پیشرفت فردی، دیگرگرایی، گشودگی به تغییر و ثبات',
+        category: 'personality',
+        isActive: true
+      },
+      {
+        testSlug: 'time-preference',
+        testName: 'تست ترجیح زمانی (Time Preference / Temporal Orientation)',
+        description: 'ارزیابی ترجیح زمانی و نگرش نسبت به زمان بر اساس ZTPI و CFC. این تست 4 بعد را می‌سنجد: آینده‌نگری، تمرکز بر حال، تکانشگری و رابطه با گذشته',
+        category: 'personality',
+        isActive: true
+      },
+      {
+        testSlug: 'ideal-environment',
+        testName: 'تست محیط ایده‌آل (Ideal Environment Profile)',
+        description: 'ارزیابی ترجیحات محیطی فرد. این تست 4 بعد را می‌سنجد: ترجیح حسی، محیط اجتماعی، ساختار و نظم، تنوع و تغییر',
+        category: 'lifestyle',
+        isActive: true
+      },
+      {
+        testSlug: 'lifestyle-harmony',
+        testName: 'تست سبک زندگی کلی (Lifestyle Harmony Assessment)',
+        description: 'ارزیابی جامع سبک زندگی. این تست 4 بعد را می‌سنجد: عادت‌های سالم (تغذیه، خواب، فعالیت بدنی)، تعادل و استرس، انرژی و خلق، روتین و بهره‌وری',
+        category: 'lifestyle',
+        isActive: true
+      },
+      {
         testSlug: 'bai',
         testName: 'تست اضطراب BAI',
         description: 'ارزیابی شدت اضطراب',

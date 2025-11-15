@@ -1,5 +1,7 @@
 // 🧠 سوالات یونیک برای هر تست روان‌شناسی
 
+import { dedupeQuestions } from "@/lib/tests/dedupeQuestions";
+
 export const testQuestions: Record<string, Array<{id: string, text: string}>> = {
   // تست شخصیت‌شناسی MBTI
   mbti: [
@@ -349,7 +351,27 @@ export const testQuestions: Record<string, Array<{id: string, text: string}>> = 
 
 // تابع برای دریافت سوالات یک تست خاص
 export function getTestQuestions(testId: string) {
-  return testQuestions[testId] || testQuestions['mbti']; // fallback به MBTI
+  const originalQuestions = testQuestions[testId] || testQuestions['mbti']; // fallback به MBTI
+  
+  if (!originalQuestions || !Array.isArray(originalQuestions)) {
+    console.warn(`[TEST] No questions found for testId: ${testId}`);
+    return [];
+  }
+  
+  // حذف سوال‌های تکراری
+  const uniqueQuestions = dedupeQuestions(originalQuestions);
+  
+  // لاگ برای بررسی (هم در client و هم در server)
+  if (originalQuestions.length !== uniqueQuestions.length) {
+    console.log(`[TEST API] Dedupe: { testId: '${testId}', originalCount: ${originalQuestions.length}, uniqueCount: ${uniqueQuestions.length}, removed: ${originalQuestions.length - uniqueQuestions.length} }`);
+  } else {
+    // حتی اگر تکراری نباشد، لاگ می‌کنیم تا مطمئن شویم deduplication اجرا شده
+    if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
+      console.log(`[TEST API] Dedupe check: { testId: '${testId}', count: ${uniqueQuestions.length}, all unique }`);
+    }
+  }
+  
+  return uniqueQuestions;
 }
 
 // تابع برای دریافت تعداد سوالات یک تست

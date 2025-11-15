@@ -19,7 +19,8 @@
     "build:prod": "NODE_ENV=production next build",
     "build:optimize": "node scripts/optimize-build.js && npm run build",
     "build:production": "node scripts/build-production.js",
-    "export": "next export"
+    "export": "next export",
+    "list-tests": "node scripts/list-tests.js"
   },
   "dependencies": {
     "@auth/core": "0.34.2",

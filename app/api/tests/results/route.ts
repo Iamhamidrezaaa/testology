@@ -1,64 +1,103 @@
-import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+/**
+ * API Route برای دریافت نتایج تست‌های کاربر بر اساس email
+ * GET /api/tests/results?userEmail=xxx
+ */
 
-export async function GET(request: NextRequest) {
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-    const userEmail = searchParams.get('userEmail');
+    const { searchParams } = new URL(req.url);
+    const userEmail = searchParams.get("userEmail");
 
-    console.log('🔍 API /api/tests/results called with:', { userId, userEmail });
-
-    let whereClause = {};
-    
-    if (userId) {
-      whereClause = { userId };
-      console.log('📊 Using userId:', userId);
-    } else if (userEmail) {
-      // پیدا کردن userId بر اساس userEmail
-      console.log('🔍 Looking for user with email:', userEmail);
-      const user = await prisma.user.findUnique({
-        where: { email: userEmail }
-      });
-      console.log('👤 User found:', user);
-      if (user) {
-        whereClause = { userId: user.id };
-        console.log('📊 Using userId from email:', user.id);
-      } else {
-        console.log('❌ User not found with email:', userEmail);
-      }
+    if (!userEmail) {
+      return NextResponse.json(
+        { success: false, error: "userEmail الزامی است" },
+        { status: 400 }
+      );
     }
 
-    // دریافت نتایج تست‌ها از دیتابیس
-    const results = await prisma.testResult.findMany({
-      where: whereClause,
-      orderBy: { createdAt: 'desc' }
+    if (!prisma) {
+      return NextResponse.json(
+        { success: false, error: "Database not available" },
+        { status: 500 }
+      );
+    }
+
+    console.log(`🔍 Looking for user with email: ${userEmail}`);
+
+    // پیدا کردن کاربر بر اساس email
+    const user = await prisma.user.findUnique({
+      where: { email: userEmail },
+      select: { id: true },
     });
 
-    const formattedResults = results.map(result => ({
-      id: result.id,
-      testId: result.testId,
-      testName: result.testName,
-      score: result.score,
-      answers: typeof result.answers === 'string' ? JSON.parse(result.answers) : result.answers, // تبدیل JSON string به Object
-      result: result.result,
-      analysis: result.analysis,
-      completedAt: result.createdAt, // استفاده از createdAt به جای completedAt
-      userId: result.userId
+    if (!user) {
+      console.warn(`❌ User not found with email: ${userEmail}`);
+      return NextResponse.json({
+        success: true,
+        results: [],
+        message: "کاربر یافت نشد",
+      });
+    }
+
+    console.log(`✅ User found with id: ${user.id}`);
+
+    // دریافت نتایج تست‌های کاربر
+    const results = await prisma.testResult.findMany({
+      where: { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        userId: true,
+        testId: true,
+        testName: true,
+        testSlug: true,
+        score: true,
+        result: true,
+        resultText: true,
+        severity: true,
+        interpretation: true,
+        subscales: true,
+        completed: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    console.log(`📊 Found ${results.length} test results for user ${user.id}`);
+
+    // Parse کردن interpretation و subscales از JSON
+    const parsedResults = results.map((r) => ({
+      ...r,
+      interpretation: r.interpretation
+        ? (typeof r.interpretation === "string" 
+            ? JSON.parse(r.interpretation) 
+            : r.interpretation)
+        : null,
+      subscales: r.subscales
+        ? (typeof r.subscales === "string"
+            ? JSON.parse(r.subscales)
+            : r.subscales)
+        : null,
+      completedAt: r.createdAt, // برای compatibility
     }));
 
     return NextResponse.json({
       success: true,
-      results: formattedResults
+      results: parsedResults,
+      count: parsedResults.length,
     });
-  } catch (error: any) {
-    console.error('❌ خطا در دریافت نتایج تست‌ها:', error);
-    console.error('Error stack:', error?.stack);
-    console.error('Error message:', error?.message);
+  } catch (e: any) {
+    console.error("❌ Error fetching test results:", e);
     return NextResponse.json(
-      { success: false, error: error?.message || 'خطا در دریافت نتایج تست‌ها' },
+      {
+        success: false,
+        error: "خطا در دریافت نتایج تست‌ها",
+        details: e.message,
+      },
       { status: 500 }
     );
   }
 }
-

@@ -1,4 +1,4 @@
-import { MetadataRoute } from 'next'
+import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
@@ -9,10 +9,6 @@ export default function manifest(): MetadataRoute.Manifest {
     display: 'standalone',
     background_color: '#ffffff',
     theme_color: '#3b82f6',
-    orientation: 'portrait',
-    scope: '/',
-    lang: 'fa',
-    dir: 'rtl',
     icons: [
       {
         src: '/favicon.ico',
@@ -20,6 +16,5 @@ export default function manifest(): MetadataRoute.Manifest {
         type: 'image/x-icon'
       }
     ],
-    categories: ['health', 'medical', 'lifestyle'],
   }
 }

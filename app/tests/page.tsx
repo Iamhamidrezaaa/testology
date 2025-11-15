@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useGlobalRecommendedTests } from "@/hooks/useGlobalRecommendedTests";
 import {
   Brain,
   Heart,
@@ -135,6 +136,8 @@ const testList = [
 export default function TestsPage() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [mounted, setMounted] = useState(false);
+  const { isRecommended, isLoading } = useGlobalRecommendedTests();
+  
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
 
@@ -183,9 +186,16 @@ export default function TestsPage() {
           >
             <div className="flex justify-between items-center mb-4">
               {test.icon}
-              <span className="text-sm text-gray-400 dark:text-gray-500 flex items-center gap-1">
-                <Star className="w-4 h-4 text-yellow-400" /> {test.score}%
-              </span>
+              <div className="flex items-center gap-2">
+                {!isLoading && isRecommended(test.id) && (
+                  <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-medium text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
+                    پیشنهادشده
+                  </span>
+                )}
+                <span className="text-sm text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                  <Star className="w-4 h-4 text-yellow-400" /> {test.score}%
+                </span>
+              </div>
             </div>
             <h2 className="text-lg font-bold text-gray-800 dark:text-gray-100 mb-1">
               {test.title}

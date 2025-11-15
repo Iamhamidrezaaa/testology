@@ -8,6 +8,7 @@ import BehavioralInsights from "@/components/BehavioralInsights";
 import PDFExportButton from "@/components/PDFExportButton";
 import { useProfileCompletion } from "@/hooks/useProfileCompletion";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { NextStepsCompactCard } from "@/components/dashboard/NextStepsCompact";
 import { 
   Brain, 
   BarChart3, 
@@ -261,6 +262,9 @@ export default function DashboardPage() {
 
         {/* Main Dashboard Content */}
         <main className="flex-1 p-6">
+          {/* کارت قدم‌های بعدی پیشنهادی */}
+          <NextStepsCompactCard limit={3} />
+
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800">

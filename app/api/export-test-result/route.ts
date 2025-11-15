@@ -1,179 +1,290 @@
+// app/api/export-test-result/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
-import fs from "fs";
-import path from "path";
+import { PDFDocument, StandardFonts } from "pdf-lib";
+import prisma from "@/lib/prisma";
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const { testName, score, analysis, testId, userId } = await req.json();
+    const body = await request.json();
+    console.log("[EXPORT] Raw body:", body);
 
-    // ایجاد PDF جدید
-    const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([595, 842]); // A4 size
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    // فرمت‌های ورودی که ساپورت می‌کنیم:
+    // 1) { testResultId }
+    // 2) { testId/testSlug, email یا userId }
+    // 3) فرمت قدیمی: { testId, testName, score, analysis, userId }
+    const {
+      testResultId,
+      testId,
+      testSlug,
+      email,
+      userId,
+      testName: bodyTestName,
+      score: bodyScore,
+      analysis: bodyAnalysis,
+    } = body as any;
 
-    // تنظیمات صفحه
-    const { width, height } = page.getSize();
-    const margin = 50;
-    let yPosition = height - margin;
+    let testResult: any = null;
 
-    // هدر
-    page.drawText("تستولوژی - گزارش تست روان‌شناسی", {
-      x: margin,
-      y: yPosition,
-      size: 20,
-      font: boldFont,
-      color: rgb(0.2, 0.4, 0.8),
-    });
-    yPosition -= 30;
+    // ۱) اگر testResultId داشتیم → مستقیم همونو می‌گیریم
+    if (testResultId) {
+      console.log("[EXPORT] Fetch by testResultId:", testResultId);
+      testResult = await prisma.testResult.findUnique({
+        where: { id: testResultId },
+        include: { user: true },
+      });
+    } else if ((testId || testSlug) && (email || userId)) {
+      // ۲) اگر testId + email / userId داریم → آخرین نتیجه‌ی اون تست برای اون یوزر
+      console.log("[EXPORT] Fetch by test + user", {
+        testId,
+        testSlug,
+        email,
+        userId,
+      });
 
-    // خط جداکننده
-    page.drawLine({
-      start: { x: margin, y: yPosition },
-      end: { x: width - margin, y: yPosition },
-      thickness: 2,
-      color: rgb(0.2, 0.4, 0.8),
-    });
-    yPosition -= 40;
-
-    // اطلاعات تست
-    page.drawText(`نام تست: ${testName}`, {
-      x: margin,
-      y: yPosition,
-      size: 14,
-      font: boldFont,
-      color: rgb(0, 0, 0),
-    });
-    yPosition -= 25;
-
-    page.drawText(`تاریخ: ${new Date().toLocaleDateString('fa-IR')}`, {
-      x: margin,
-      y: yPosition,
-      size: 12,
-      font: font,
-      color: rgb(0.3, 0.3, 0.3),
-    });
-    yPosition -= 25;
-
-    page.drawText(`کاربر: ${userId}`, {
-      x: margin,
-      y: yPosition,
-      size: 12,
-      font: font,
-      color: rgb(0.3, 0.3, 0.3),
-    });
-    yPosition -= 40;
-
-    // نمره
-    page.drawText("نتیجه تست:", {
-      x: margin,
-      y: yPosition,
-      size: 16,
-      font: boldFont,
-      color: rgb(0, 0, 0),
-    });
-    yPosition -= 30;
-
-    page.drawText(`نمره شما: ${score}%`, {
-      x: margin,
-      y: yPosition,
-      size: 18,
-      font: boldFont,
-      color: rgb(0.2, 0.4, 0.8),
-    });
-    yPosition -= 40;
-
-    // تحلیل
-    page.drawText("تحلیل نتایج:", {
-      x: margin,
-      y: yPosition,
-      size: 16,
-      font: boldFont,
-      color: rgb(0, 0, 0),
-    });
-    yPosition -= 30;
-
-    // تقسیم متن تحلیل به خطوط
-    const analysisLines = wrapText(analysis, 80);
-    for (const line of analysisLines) {
-      if (yPosition < 100) {
-        // اگر فضا تمام شد، صفحه جدید اضافه کن
-        const newPage = pdfDoc.addPage([595, 842]);
-        yPosition = newPage.getSize().height - 50;
-        page.drawText(line, {
-          x: margin,
-          y: yPosition,
-          size: 12,
-          font: font,
-          color: rgb(0, 0, 0),
-        });
-      } else {
-        page.drawText(line, {
-          x: margin,
-          y: yPosition,
-          size: 12,
-          font: font,
-          color: rgb(0, 0, 0),
-        });
+      let user = null;
+      if (userId) {
+        user = await prisma.user.findUnique({ where: { id: userId } });
+      } else if (email) {
+        user = await prisma.user.findUnique({ where: { email } });
       }
-      yPosition -= 20;
+
+      if (!user) {
+        console.error("[EXPORT] User not found for export");
+        return NextResponse.json(
+          { error: "کاربر برای خروجی PDF پیدا نشد." },
+          { status: 404 }
+        );
+      }
+
+      testResult = await prisma.testResult.findFirst({
+        where: {
+          userId: (user as any).id,
+          OR: [
+            testId ? { testId } : {},
+            testSlug ? { testSlug } : {},
+          ],
+        },
+        orderBy: { createdAt: "desc" },
+        include: { user: true },
+      });
+    } else if (testId && (bodyTestName || bodyAnalysis)) {
+      // ۳) فرمت قدیمی: فقط با داده‌های بدنه یک نتیجه‌ی موقت می‌سازیم
+      console.log("[EXPORT] Using legacy format with provided data");
+
+      testResult = {
+        id: `temp-${Date.now()}`,
+        testId: testId,
+        testSlug: testId,
+        testName: bodyTestName || `تست ${testId}`,
+        score: typeof bodyScore === "number" ? bodyScore : null,
+        interpretation: bodyAnalysis
+          ? JSON.stringify([{ title: "تحلیل تست", body: bodyAnalysis }])
+          : null,
+        createdAt: new Date(),
+        userId: userId || null,
+        user: userId ? { email: userId } : email ? { email } : null,
+      } as any;
+    } else {
+      console.error("[EXPORT] Missing identifiers");
+      return NextResponse.json(
+        {
+          error:
+            "برای خروجی گرفتن PDF باید testResultId یا ترکیبی از testId/testSlug و ایمیل/شناسه کاربر ارسال شود.",
+        },
+        { status: 400 }
+      );
     }
 
-    // فوتر
-    yPosition = 50;
-    page.drawText("تستولوژی - پلتفرم تست‌های روان‌شناسی", {
-      x: margin,
-      y: yPosition,
-      size: 10,
-      font: font,
-      color: rgb(0.5, 0.5, 0.5),
+    if (!testResult) {
+      console.error("[EXPORT] TestResult not found");
+      return NextResponse.json(
+        { error: "نتیجه‌ی تست برای خروجی PDF پیدا نشد." },
+        { status: 404 }
+      );
+    }
+
+    console.log("[EXPORT] TestResult loaded:", {
+      id: testResult.id,
+      testId: testResult.testId,
+      testSlug: (testResult as any).testSlug,
+      testName: (testResult as any).testName,
+      score: testResult.score,
+      userId: testResult.userId,
+      email: testResult.user?.email,
     });
 
-    // ذخیره PDF
+    // ---------------- PDF GENERATION ----------------
+
+    const pdfDoc = await PDFDocument.create();
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const page = pdfDoc.addPage();
+    const { width, height } = page.getSize();
+
+    const resolvedTestName =
+      (testResult as any).testName ||
+      `نتیجه‌ی تست ${testResult.testId || ""}`;
+
+    const resolvedScore =
+      typeof testResult.score === "number" ? testResult.score : null;
+
+    const resolvedEmail =
+      testResult.user?.email || email || (userId ?? "") || "";
+
+    const createdAtDate =
+      testResult.createdAt instanceof Date
+        ? testResult.createdAt
+        : new Date(testResult.createdAt ?? Date.now());
+
+    const createdAtText = createdAtDate.toLocaleString("fa-IR");
+
+    // تفسیر را از JSON (اگر شد) درمی‌آریم
+    let interpretationBlocks: { title?: string; body: string }[] = [];
+    try {
+      if (typeof testResult.interpretation === "string") {
+        const parsed = JSON.parse(testResult.interpretation);
+        if (Array.isArray(parsed)) {
+          interpretationBlocks = parsed;
+        }
+      }
+    } catch (e) {
+      console.error("[EXPORT] Interpretation parse error:", e);
+    }
+
+    const fontSizeTitle = 18;
+    const fontSizeText = 12;
+    const marginX = 50;
+    let y = height - 50;
+
+    // عنوان بالا
+    page.drawText("Testology.me", {
+      x: marginX,
+      y,
+      size: 10,
+      font,
+    });
+
+    y -= 30;
+
+    page.drawText(resolvedTestName, {
+      x: marginX,
+      y,
+      size: fontSizeTitle,
+      font,
+    });
+
+    y -= 30;
+
+    if (resolvedScore !== null) {
+      page.drawText(`امتیاز: ${resolvedScore}`, {
+        x: marginX,
+        y,
+        size: fontSizeText,
+        font,
+      });
+      y -= 20;
+    }
+
+    if (resolvedEmail) {
+      page.drawText(`ایمیل: ${resolvedEmail}`, {
+        x: marginX,
+        y,
+        size: fontSizeText,
+        font,
+      });
+      y -= 20;
+    }
+
+    page.drawText(`تاریخ: ${createdAtText}`, {
+      x: marginX,
+      y,
+      size: fontSizeText,
+      font,
+    });
+
+    y -= 30;
+
+    const maxWidth = width - marginX * 2;
+
+    const drawParagraph = (text: string) => {
+      const words = text.split(" ");
+      let line = "";
+
+      for (const word of words) {
+        const testLine = line ? `${line} ${word}` : word;
+        const lineWidth = font.widthOfTextAtSize(testLine, fontSizeText);
+
+        if (lineWidth > maxWidth) {
+          page.drawText(line, {
+            x: marginX,
+            y,
+            size: fontSizeText,
+            font,
+          });
+          y -= 18;
+          line = word;
+        } else {
+          line = testLine;
+        }
+      }
+
+      if (line) {
+        page.drawText(line, {
+          x: marginX,
+          y,
+          size: fontSizeText,
+          font,
+        });
+        y -= 18;
+      }
+    };
+
+    if (interpretationBlocks.length > 0) {
+      for (const block of interpretationBlocks) {
+        if (block.title) {
+          page.drawText(block.title, {
+            x: marginX,
+            y,
+            size: fontSizeText + 1,
+            font,
+          });
+          y -= 20;
+        }
+
+        if (block.body) {
+          drawParagraph(block.body);
+          y -= 10;
+        }
+      }
+    } else {
+      drawParagraph(
+        "تحلیل متنی این تست در حال حاضر در دیتابیس ثبت نشده است یا به‌درستی ذخیره نشده."
+      );
+    }
+
     const pdfBytes = await pdfDoc.save();
-    
-    // بازگرداندن PDF
-    return new NextResponse(pdfBytes, {
+
+    console.log("[EXPORT] PDF generated, size:", pdfBytes.length);
+
+    return new NextResponse(Buffer.from(pdfBytes), {
+      status: 200,
       headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename="test-result-${testId}-${Date.now()}.pdf"`,
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="testology-${
+          testResult.testSlug || testResult.testId || "result"
+        }.pdf"`,
       },
     });
+  } catch (err: any) {
+    console.error("[EXPORT] Error RAW:", err);
+    console.error("[EXPORT] Error message:", err?.message);
+    console.error("[EXPORT] Error stack:", err?.stack);
 
-  } catch (error) {
-    console.error("PDF Export Error:", error);
     return NextResponse.json(
-      { success: false, error: "خطا در تولید PDF" },
+      {
+        error: "خطا در تولید PDF نتیجه‌ی تست.",
+        message: err?.message || String(err),
+      },
       { status: 500 }
     );
   }
 }
-
-function wrapText(text: string, maxLength: number): string[] {
-  const words = text.split(' ');
-  const lines: string[] = [];
-  let currentLine = '';
-
-  for (const word of words) {
-    if ((currentLine + word).length <= maxLength) {
-      currentLine += (currentLine ? ' ' : '') + word;
-    } else {
-      if (currentLine) {
-        lines.push(currentLine);
-        currentLine = word;
-      } else {
-        lines.push(word);
-      }
-    }
-  }
-
-  if (currentLine) {
-    lines.push(currentLine);
-  }
-
-  return lines;
-}
-
-
-

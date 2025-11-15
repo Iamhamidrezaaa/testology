@@ -61,9 +61,24 @@ export default function TestStartPage() {
   const [loading, setLoading] = useState(false);
   const [analysis, setAnalysis] = useState<string>("");
   const [showValidationMessage, setShowValidationMessage] = useState(false);
+  const [testScore, setTestScore] = useState<number | null>(null);
 
   // دریافت سوالات یونیک برای تست
   const questions = getTestQuestions(testId);
+  
+  // لاگ برای دیباگ (فقط در development)
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && questions.length > 0) {
+      console.log(`[TEST START] Loaded ${questions.length} questions for test: ${testId}`);
+      // بررسی تکراری‌ها
+      const texts = questions.map(q => q.text).filter(Boolean);
+      const uniqueTexts = new Set(texts);
+      if (texts.length !== uniqueTexts.size) {
+        console.warn(`[TEST START] ⚠️ Found ${texts.length - uniqueTexts.size} duplicate questions in ${testId}`);
+      }
+    }
+  }, [testId, questions.length]);
+  
   const currentQuestion = questions[index];
   const testName = testNames[testId] || "تست روان‌شناسی";
   const testIcon = testIcons[testId] || <Brain className="w-8 h-8 text-indigo-500" />;
@@ -114,72 +129,172 @@ export default function TestStartPage() {
   const saveResults = async () => {
     setLoading(true);
     try {
-      const score = calcScore();
+      // تبدیل answers به فرمت مورد نیاز API جدید
+      const formattedAnswers = answers.map((value: number, index: number) => ({
+        questionId: index + 1,
+        value: value || 0
+      }));
+
+      // دریافت userId از localStorage یا session
+      let userId: string | null = null;
+      try {
+        const sessionRes = await fetch('/api/auth/session');
+        const session = await sessionRes.json();
+        console.log("📋 Session data:", session);
+        userId = session?.user?.id || session?.user?.email || localStorage.getItem("testology_userId");
+        console.log("👤 Extracted userId:", userId);
+      } catch (e) {
+        console.warn("⚠️ Session fetch failed, using localStorage:", e);
+        userId = localStorage.getItem("testology_userId") || localStorage.getItem("testology_email");
+        console.log("👤 Using localStorage userId:", userId);
+      }
       
-      // 1️⃣ ذخیره نتیجه در دیتابیس
-      const saveResponse = await fetch('/api/tests/save-result', {
+      // گرفتن email از localStorage برای upsert کاربر در API
+      const email = typeof window !== "undefined"
+        ? (localStorage.getItem("testology_email") || undefined)
+        : undefined;
+
+      // برای MBTI از API مستقل استفاده کن
+      const isMBTI = testId.toLowerCase() === 'mbti';
+      
+      if (isMBTI) {
+        // API مستقل برای MBTI
+        const payload = { answers: formattedAnswers, email: email };
+        
+        console.log("📧 [MBTI] Using email:", email || "undefined");
+        console.log("📤 [MBTI] Submitting to /api/tests/mbti-submit", {
+          answersCount: formattedAnswers.length,
+          email: email || "undefined",
+        });
+
+        const submitResponse = await fetch("/api/tests/mbti-submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (submitResponse.ok) {
+          const data = await submitResponse.json();
+          console.log("✅ [MBTI] Response:", data);
+          console.log("💾 [MBTI] Saved status:", data.saved);
+
+          // ذخیره score از API
+          if (data.result?.totalScore !== undefined) {
+            setTestScore(data.result.totalScore);
+          } else if (data.result?.score !== undefined) {
+            setTestScore(data.result.score);
+          }
+
+          // ✅ کلیدی: فقط بر اساس data.saved تصمیم بگیر
+          if (data.saved === true) {
+            // اگر ذخیره شد، interpretation را نمایش بده
+            if (data.result?.interpretation && Array.isArray(data.result.interpretation)) {
+              const interpretationText = data.result.interpretation
+                .map((chunk: any) => chunk.body || chunk.title || '')
+                .filter(Boolean)
+                .join('\n\n');
+              if (interpretationText) {
+                setAnalysis(interpretationText);
+              } else {
+                setAnalysis("نتایج شما با موفقیت ذخیره شد ✅");
+              }
+            } else {
+              setAnalysis("نتایج شما با موفقیت ذخیره شد ✅");
+            }
+          } else {
+            // اگر ذخیره نشد
+            setAnalysis("نتایج محاسبه شد اما ذخیره نشد (احتمالاً خطا در سرور)");
+            
+            // اگر interpretation وجود دارد، آن را هم نمایش بده
+            if (data.result?.interpretation && Array.isArray(data.result.interpretation)) {
+              const interpretationText = data.result.interpretation
+                .map((chunk: any) => chunk.body || chunk.title || '')
+                .filter(Boolean)
+                .join('\n\n');
+              if (interpretationText) {
+                setAnalysis(interpretationText + "\n\n⚠️ " + "نتایج محاسبه شد اما ذخیره نشد (احتمالاً خطا در سرور)");
+              }
+            }
+          }
+        } else {
+          const errorData = await submitResponse.json().catch(() => ({}));
+          console.error('❌ [MBTI] خطا در ذخیره نتایج:', errorData);
+          setAnalysis(`خطا در ذخیره نتایج: ${errorData.error || errorData.details || 'خطای ناشناخته'}`);
+        }
+        
+        setLoading(false);
+        return; // برای MBTI اینجا تمام می‌شود
+      }
+
+      // برای سایر تست‌ها از API generic استفاده کن
+      const apiEndpoint = `/api/tests/${testId}/submit`;
+      const requestBody = { answers: formattedAnswers, userId: userId, email: email };
+
+      console.log(`📤 Submitting to ${apiEndpoint}`, {
+        testId,
+        hasEmail: !!email,
+        hasUserId: !!userId,
+      });
+
+      const submitResponse = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          testId,
-          testName,
-          answers,
-          score,
-          analysis: "تحلیل خلاصه: وضعیت شما در حد متوسط است."
-        }),
+        body: JSON.stringify(requestBody),
       });
 
-      if (saveResponse.ok) {
-        console.log(`✅ نتیجه ${testId} ذخیره شد`);
+      if (submitResponse.ok) {
+        const data = await submitResponse.json();
+        console.log(`✅ نتیجه ${testId} ذخیره شد`, data);
+        console.log(`💾 Saved status: ${data.saved}`);
         
-        // 2️⃣ فراخوانی تحلیل GPT برای همون تست
-        try {
-          // ابتدا سعی می‌کنیم از API اختصاصی تست استفاده کنیم
-          let gptResponse = await fetch(`/api/analyze-${testId}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-              answers,
-              score,
-              testName 
-            }),
-          });
-          
-          // اگر API اختصاصی موجود نبود، از API مرکزی استفاده می‌کنیم
-          if (!gptResponse.ok) {
-            console.log(`⚠️ API اختصاصی برای ${testId} موجود نیست، از API مرکزی استفاده می‌کنیم`);
-            gptResponse = await fetch('/api/analyze-test', {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ 
-                testId,
-                testName,
-                score,
-                answers
-              }),
-            });
-          }
-          
-          if (gptResponse.ok) {
-            const gptData = await gptResponse.json();
-            console.log(`✅ تحلیل GPT برای ${testId} انجام شد`);
-            setAnalysis(gptData.analysis || gptData.resultText || "تحلیل هوشمند شما آماده است 🧠");
+        // ذخیره score از API
+        if (data.result?.totalScore !== undefined) {
+          setTestScore(data.result.totalScore);
+        } else if (data.result?.score !== undefined) {
+          setTestScore(data.result.score);
+        }
+        
+        // ✅ کلیدی: فقط بر اساس data.saved تصمیم بگیر، نه userId
+        if (data.saved === true) {
+          // اگر ذخیره شد، interpretation را نمایش بده
+          if (data.result?.interpretation && Array.isArray(data.result.interpretation)) {
+            const interpretationText = data.result.interpretation
+              .map((chunk: any) => chunk.body || chunk.title || '')
+              .filter(Boolean)
+              .join('\n\n');
+            if (interpretationText) {
+              setAnalysis(interpretationText);
+            } else {
+              setAnalysis("نتایج شما با موفقیت ذخیره شد ✅");
+            }
           } else {
-            console.warn(`⚠️ تحلیل GPT برای ${testId} ناموفق بود`);
             setAnalysis("نتایج شما با موفقیت ذخیره شد ✅");
           }
-        } catch (gptError) {
-          console.error(`❌ خطا در تحلیل GPT برای ${testId}:`, gptError);
-          setAnalysis("نتایج شما با موفقیت ذخیره شد ✅");
+        } else {
+          // اگر ذخیره نشد (saved === false یا undefined)
+          setAnalysis("نتایج محاسبه شد اما ذخیره نشد (احتمالاً userId وجود ندارد)");
+          
+          // اگر interpretation وجود دارد، آن را هم نمایش بده
+          if (data.result?.interpretation && Array.isArray(data.result.interpretation)) {
+            const interpretationText = data.result.interpretation
+              .map((chunk: any) => chunk.body || chunk.title || '')
+              .filter(Boolean)
+              .join('\n\n');
+            if (interpretationText) {
+              setAnalysis(interpretationText + "\n\n⚠️ " + "نتایج محاسبه شد اما ذخیره نشد (احتمالاً userId وجود ندارد)");
+            }
+          }
         }
       } else {
-        setAnalysis("خطا در ذخیره نتایج");
+        const errorData = await submitResponse.json().catch(() => ({}));
+        console.error('❌ خطا در ذخیره نتایج:', errorData);
+        setAnalysis(`خطا در ذخیره نتایج: ${errorData.error || errorData.details || 'خطای ناشناخته'}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving results:', error);
-      setAnalysis("نتایج شما ذخیره شد.");
+      setAnalysis(`خطا در ذخیره نتایج: ${error.message || 'خطای ناشناخته'}`);
     } finally {
       setLoading(false);
     }
@@ -198,7 +313,8 @@ export default function TestStartPage() {
   };
 
   if (finished) {
-    const score = calcScore();
+    // استفاده از score از API اگر موجود باشد، در غیر این صورت از calcScore
+    const score = testScore !== null ? Math.round(testScore) : calcScore();
     const scoreInfo = getScoreLevel(score);
     
     return (
@@ -257,15 +373,28 @@ export default function TestStartPage() {
             <button
               onClick={async () => {
                 try {
+                  // گرفتن email از localStorage یا session
+                  let email: string | null = null;
+                  try {
+                    const sessionRes = await fetch('/api/auth/session');
+                    const session = await sessionRes.json();
+                    email = session?.user?.email || localStorage.getItem("testology_email");
+                  } catch (e) {
+                    email = localStorage.getItem("testology_email");
+                  }
+
+                  // ارسال درخواست با فرمت جدید (testId + email) یا فرمت قدیمی (fallback)
                   const response = await fetch('/api/export-test-result', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                      testName,
-                      score,
-                      analysis,
-                      testId,
-                      userId: 'demo-user'
+                      testId: testId,
+                      testSlug: testId,
+                      email: email,
+                      // fallback به فرمت قدیمی
+                      testName: testName,
+                      score: testScore !== null ? testScore : score,
+                      analysis: analysis,
                     })
                   });
                   
@@ -274,14 +403,19 @@ export default function TestStartPage() {
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `test-result-${testId}-${Date.now()}.pdf`;
+                    a.download = `testology-${testId}-${Date.now()}.pdf`;
                     document.body.appendChild(a);
                     a.click();
                     window.URL.revokeObjectURL(url);
                     document.body.removeChild(a);
+                  } else {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('PDF export error:', errorData);
+                    alert(`خطا در دانلود PDF: ${errorData.error || 'خطای ناشناخته'}`);
                   }
                 } catch (error) {
                   console.error('PDF export error:', error);
+                  alert('خطا در دانلود PDF. لطفاً دوباره تلاش کنید.');
                 }
               }}
               className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full font-semibold shadow-md transition-all duration-200"
