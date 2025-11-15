@@ -302,17 +302,30 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
       // تشخیص موبایل
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768
 
-      if (!document.fullscreenElement) {
+      // بررسی vendor prefixes مختلف برای fullscreen
+      const isFullscreen = !!(
+        document.fullscreenElement ||
+        (document as any).webkitFullscreenElement ||
+        (document as any).mozFullScreenElement ||
+        (document as any).msFullscreenElement
+      )
+
+      if (!isFullscreen) {
         // ورود به fullscreen
-        // استفاده از vendor prefixes مختلف
-        if (container.requestFullscreen) {
-          await container.requestFullscreen()
-        } else if ((container as any).webkitRequestFullscreen) {
-          await (container as any).webkitRequestFullscreen()
-        } else if ((container as any).mozRequestFullScreen) {
-          await (container as any).mozRequestFullScreen()
-        } else if ((container as any).msRequestFullscreen) {
-          await (container as any).msRequestFullscreen()
+        // در موبایل، از video element استفاده می‌کنیم (بهتر کار می‌کند)
+        const elementToFullscreen = isMobile ? video : container
+        
+        if (elementToFullscreen.requestFullscreen) {
+          await elementToFullscreen.requestFullscreen()
+        } else if ((elementToFullscreen as any).webkitRequestFullscreen) {
+          await (elementToFullscreen as any).webkitRequestFullscreen((Element as any).ALLOW_KEYBOARD_INPUT)
+        } else if ((elementToFullscreen as any).webkitEnterFullscreen) {
+          // برای iOS Safari
+          (elementToFullscreen as any).webkitEnterFullscreen()
+        } else if ((elementToFullscreen as any).mozRequestFullScreen) {
+          await (elementToFullscreen as any).mozRequestFullScreen()
+        } else if ((elementToFullscreen as any).msRequestFullscreen) {
+          await (elementToFullscreen as any).msRequestFullscreen()
         }
         
         setIsInFullscreenMode(true)
@@ -334,7 +347,7 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
             } catch (err) {
               console.log('Could not lock orientation:', err)
             }
-          }, 100)
+          }, 300)
         }
       } else {
         // خروج از fullscreen
@@ -432,6 +445,7 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           padding-bottom: 56.25%; /* 16:9 aspect ratio fallback */
           background: #000;
           min-height: 400px;
+          z-index: 1;
         }
 
         @supports (aspect-ratio: 16 / 9) {
@@ -448,6 +462,127 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           width: 100%;
           height: 100%;
           object-fit: contain;
+          z-index: 1;
+          background: #000;
+          display: block;
+        }
+
+        /* Fullscreen styles */
+        .video-player-container:fullscreen {
+          width: 100vw;
+          height: 100vh;
+          max-width: 100vw;
+          max-height: 100vh;
+          border-radius: 0;
+          margin: 0;
+        }
+
+        .video-player-container:-webkit-full-screen {
+          width: 100vw;
+          height: 100vh;
+          max-width: 100vw;
+          max-height: 100vh;
+          border-radius: 0;
+          margin: 0;
+        }
+
+        .video-player-container:-moz-full-screen {
+          width: 100vw;
+          height: 100vh;
+          max-width: 100vw;
+          max-height: 100vh;
+          border-radius: 0;
+          margin: 0;
+        }
+
+        .video-player-container:-ms-fullscreen {
+          width: 100vw;
+          height: 100vh;
+          max-width: 100vw;
+          max-height: 100vh;
+          border-radius: 0;
+          margin: 0;
+        }
+
+        .video-player-container:fullscreen .video-wrapper {
+          width: 100vw;
+          height: 100vh;
+          padding-bottom: 0;
+          aspect-ratio: unset;
+        }
+
+        .video-player-container:-webkit-full-screen .video-wrapper {
+          width: 100vw;
+          height: 100vh;
+          padding-bottom: 0;
+          aspect-ratio: unset;
+        }
+
+        .video-player-container:-moz-full-screen .video-wrapper {
+          width: 100vw;
+          height: 100vh;
+          padding-bottom: 0;
+          aspect-ratio: unset;
+        }
+
+        .video-player-container:-ms-fullscreen .video-wrapper {
+          width: 100vw;
+          height: 100vh;
+          padding-bottom: 0;
+          aspect-ratio: unset;
+        }
+
+        .video-player-container:fullscreen .video-wrapper video {
+          width: 100vw;
+          height: 100vh;
+          object-fit: contain;
+        }
+
+        .video-player-container:-webkit-full-screen .video-wrapper video {
+          width: 100vw;
+          height: 100vh;
+          object-fit: contain;
+        }
+
+        .video-player-container:-moz-full-screen .video-wrapper video {
+          width: 100vw;
+          height: 100vh;
+          object-fit: contain;
+        }
+
+        .video-player-container:-ms-fullscreen .video-wrapper video {
+          width: 100vw;
+          height: 100vh;
+          object-fit: contain;
+        }
+
+        /* برای زمانی که video element مستقیماً fullscreen می‌شود (موبایل) */
+        video:fullscreen {
+          width: 100vw;
+          height: 100vh;
+          object-fit: contain;
+          background: #000;
+        }
+
+        video:-webkit-full-screen {
+          width: 100vw;
+          height: 100vh;
+          object-fit: contain;
+          background: #000;
+        }
+
+        video:-moz-full-screen {
+          width: 100vw;
+          height: 100vh;
+          object-fit: contain;
+          background: #000;
+        }
+
+        video:-ms-fullscreen {
+          width: 100vw;
+          height: 100vh;
+          object-fit: contain;
+          background: #000;
         }
 
         .video-controls {
@@ -458,7 +593,8 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
           padding: 20px;
           transition: opacity 0.3s;
-          z-index: 10;
+          z-index: 20;
+          pointer-events: auto;
         }
 
         .video-controls.hidden {
@@ -689,7 +825,8 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           border-top-color: white;
           border-radius: 50%;
           animation: spin 1s linear infinite;
-          z-index: 15;
+          z-index: 25;
+          pointer-events: none;
         }
 
         .loading-indicator.hidden {
@@ -759,9 +896,16 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           poster={poster}
           onClick={togglePlay}
           className="video-element"
-          preload="none"
+          preload="metadata"
           playsInline
           controls={false}
+          style={{
+            display: 'block',
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            backgroundColor: '#000'
+          }}
         />
       </div>
 
@@ -894,7 +1038,19 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           </div>
 
           <div className="controls-right">
-            <button className="control-button" onClick={toggleFullscreen}>
+            <button 
+              className="control-button" 
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                toggleFullscreen()
+              }}
+              onTouchStart={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                toggleFullscreen()
+              }}
+            >
               {isFullscreen ? '🗗' : '⛶'}
             </button>
           </div>
