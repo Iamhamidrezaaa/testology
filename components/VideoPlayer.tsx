@@ -198,6 +198,40 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
     video.playbackRate = playbackRate
   }, [playbackRate])
 
+  // اطمینان از اینکه ویدئو درست load و display می‌شود
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    const handleLoadedData = () => {
+      // وقتی ویدئو load شد، مطمئن شو که نمایش داده می‌شود
+      if (video.readyState >= 2) {
+        video.style.display = 'block'
+        video.style.visibility = 'visible'
+        video.style.opacity = '1'
+      }
+    }
+
+    const handleCanPlay = () => {
+      video.style.display = 'block'
+      video.style.visibility = 'visible'
+      video.style.opacity = '1'
+    }
+
+    video.addEventListener('loadeddata', handleLoadedData)
+    video.addEventListener('canplay', handleCanPlay)
+
+    // اجرای اولیه
+    if (video.readyState >= 2) {
+      handleLoadedData()
+    }
+
+    return () => {
+      video.removeEventListener('loadeddata', handleLoadedData)
+      video.removeEventListener('canplay', handleCanPlay)
+    }
+  }, [videoUrl])
+
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
@@ -440,6 +474,7 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           padding-bottom: 56.25%; /* 16:9 aspect ratio fallback */
           background: #000;
           min-height: 400px;
+          overflow: hidden;
         }
 
         @supports (aspect-ratio: 16 / 9) {
@@ -456,6 +491,7 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           width: 100%;
           height: 100%;
           object-fit: contain;
+          background: #000;
         }
 
         /* Fullscreen styles */
@@ -887,9 +923,10 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           poster={poster}
           onClick={togglePlay}
           className="video-element"
-          preload="metadata"
+          preload="auto"
           playsInline
           controls={false}
+          crossOrigin="anonymous"
         />
       </div>
 
