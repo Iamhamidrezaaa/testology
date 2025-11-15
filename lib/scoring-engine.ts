@@ -4144,33 +4144,6 @@ function calculateInnovationScore(
 }
 
 /**
- * محاسبه نمره Work-Life Balance Assessment
- */
-function calculateWorkLifeBalanceScore(
-  config: ScoringConfig,
-  answers: Record<number, number>,
-  questions: Array<{ order: number; dimension?: string | null; isReverse?: boolean }>
-): TestResult {
-  // Import تابع محاسبه از config
-  const { calculateWorkLifeBalanceScore: calculateFromConfig } = require('../test-configs/work-life-balance-config');
-  
-  // محاسبه نمره
-  const result = calculateFromConfig(answers);
-  
-  // تبدیل به فرمت TestResult
-  return {
-    totalScore: result.totalScore,
-    subscales: result.subscales,
-    interpretation: result.interpretation,
-    metadata: {
-      cutoff: result.cutoff,
-      subscaleInterpretations: result.subscaleInterpretations,
-      ...(result.recommendedTests && { recommendedTests: result.recommendedTests }),
-    },
-  };
-}
-
-/**
  * محاسبه نمره Hobbies & Interests Profile
  */
 function calculateHobbiesInterestsScore(
