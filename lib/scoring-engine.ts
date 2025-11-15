@@ -4148,7 +4148,17 @@ function calculateAdaptabilityScore(
   questions: Array<{ order: number; dimension?: string | null; isReverse?: boolean }>
 ): TestResult {
   // Import تابع محاسبه از config
-  const { calculateAdaptabilityScore: calculateFromConfig } = require('../test-configs/adaptability-config');
+  let calculateFromConfig: any;
+  try {
+    const configModule = require('../test-configs/adaptability-config');
+    calculateFromConfig = configModule.calculateAdaptabilityScore;
+  } catch (e) {
+    return calculateCustomScore(config, answers, questions);
+  }
+  
+  if (!calculateFromConfig) {
+    return calculateCustomScore(config, answers, questions);
+  }
   
   // محاسبه نمره
   const result = calculateFromConfig(answers);
@@ -4175,7 +4185,17 @@ function calculateInnovationScore(
   questions: Array<{ order: number; dimension?: string | null; isReverse?: boolean }>
 ): TestResult {
   // Import تابع محاسبه از config
-  const { calculateInnovationScore: calculateFromConfig } = require('../test-configs/innovation-config');
+  let calculateFromConfig: any;
+  try {
+    const configModule = require('../test-configs/innovation-config');
+    calculateFromConfig = configModule.calculateInnovationScore;
+  } catch (e) {
+    return calculateCustomScore(config, answers, questions);
+  }
+  
+  if (!calculateFromConfig) {
+    return calculateCustomScore(config, answers, questions);
+  }
   
   // محاسبه نمره
   const result = calculateFromConfig(answers);
@@ -4202,7 +4222,17 @@ function calculateHobbiesInterestsScore(
   questions: Array<{ order: number; dimension?: string | null; isReverse?: boolean }>
 ): TestResult {
   // Import تابع محاسبه از config
-  const { calculateHobbiesInterestsScore: calculateFromConfig } = require('../test-configs/hobbies-interests-config');
+  let calculateFromConfig: any;
+  try {
+    const configModule = require('../test-configs/hobbies-interests-config');
+    calculateFromConfig = configModule.calculateHobbiesInterestsScore;
+  } catch (e) {
+    return calculateCustomScore(config, answers, questions);
+  }
+  
+  if (!calculateFromConfig) {
+    return calculateCustomScore(config, answers, questions);
+  }
   
   // محاسبه نمره
   const result = calculateFromConfig(answers);
@@ -4229,7 +4259,17 @@ function calculatePersonalValuesScore(
   questions: Array<{ order: number; dimension?: string | null; isReverse?: boolean }>
 ): TestResult {
   // Import تابع محاسبه از config
-  const { calculatePersonalValuesScore: calculateFromConfig } = require('../test-configs/personal-values-config');
+  let calculateFromConfig: any;
+  try {
+    const configModule = require('../test-configs/personal-values-config');
+    calculateFromConfig = configModule.calculatePersonalValuesScore;
+  } catch (e) {
+    return calculateCustomScore(config, answers, questions);
+  }
+  
+  if (!calculateFromConfig) {
+    return calculateCustomScore(config, answers, questions);
+  }
   
   // محاسبه نمره
   const result = calculateFromConfig(answers);
@@ -4257,7 +4297,17 @@ function calculateIdealEnvironmentScore(
   questions: Array<{ order: number; dimension?: string | null; isReverse?: boolean }>
 ): TestResult {
   // Import تابع محاسبه از config
-  const { calculateIdealEnvironmentScore: calculateFromConfig } = require('../test-configs/ideal-environment-config');
+  let calculateFromConfig: any;
+  try {
+    const configModule = require('../test-configs/ideal-environment-config');
+    calculateFromConfig = configModule.calculateIdealEnvironmentScore;
+  } catch (e) {
+    return calculateCustomScore(config, answers, questions);
+  }
+  
+  if (!calculateFromConfig) {
+    return calculateCustomScore(config, answers, questions);
+  }
   
   // محاسبه نمره
   const result = calculateFromConfig(answers);
