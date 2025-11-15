@@ -1949,7 +1949,18 @@ function calculateTimePreferenceScore(
   questions: Array<{ order: number; dimension?: string | null; isReverse?: boolean }>
 ): TestResult {
   // Import تابع محاسبه از config
-  const { calculateTimePreferenceScore: calculateFromConfig } = require('../test-configs/time-preference-config');
+  let calculateFromConfig: any;
+  try {
+    const configModule = require('../test-configs/time-preference-config');
+    calculateFromConfig = configModule.calculateTimePreferenceScore;
+  } catch (e) {
+    // اگر فایل وجود نداشت، از محاسبه ساده استفاده کن
+    return calculateCustomScore(config, answers, questions);
+  }
+  
+  if (!calculateFromConfig) {
+    return calculateCustomScore(config, answers, questions);
+  }
   
   // محاسبه نمره
   const result = calculateFromConfig(answers);
@@ -3988,9 +3999,18 @@ function calculatePSS10Score(
   answers: Record<number, number>,
   questions: Array<{ order: number; dimension?: string | null; isReverse?: boolean }>
 ): TestResult {
-  // Import تابع محاسبه از config (dynamic import برای جلوگیری از circular dependency)
-  // در runtime، این تابع از pss10-config import می‌شود
-  const { calculatePSS10Score: calculateFromConfig } = require('../test-configs/pss10-config');
+  // Import تابع محاسبه از config
+  let calculateFromConfig: any;
+  try {
+    const configModule = require('../test-configs/pss10-config');
+    calculateFromConfig = configModule.calculatePSS10Score;
+  } catch (e) {
+    return calculateCustomScore(config, answers, questions);
+  }
+  
+  if (!calculateFromConfig) {
+    return calculateCustomScore(config, answers, questions);
+  }
   
   // محاسبه نمره
   const result = calculateFromConfig(answers);
@@ -4017,7 +4037,17 @@ function calculateLearningStyleScore(
   questions: Array<{ order: number; dimension?: string | null; isReverse?: boolean }>
 ): TestResult {
   // Import تابع محاسبه از config
-  const { calculateLearningStyleScore: calculateFromConfig } = require('../test-configs/learning-style-config');
+  let calculateFromConfig: any;
+  try {
+    const configModule = require('../test-configs/learning-style-config');
+    calculateFromConfig = configModule.calculateLearningStyleScore;
+  } catch (e) {
+    return calculateCustomScore(config, answers, questions);
+  }
+  
+  if (!calculateFromConfig) {
+    return calculateCustomScore(config, answers, questions);
+  }
   
   // محاسبه نمره
   const result = calculateFromConfig(answers);
@@ -4044,7 +4074,17 @@ function calculateGrowthMindsetScore(
   questions: Array<{ order: number; dimension?: string | null; isReverse?: boolean }>
 ): TestResult {
   // Import تابع محاسبه از config
-  const { calculateGrowthMindsetScore: calculateFromConfig } = require('../test-configs/growth-mindset-config');
+  let calculateFromConfig: any;
+  try {
+    const configModule = require('../test-configs/growth-mindset-config');
+    calculateFromConfig = configModule.calculateGrowthMindsetScore;
+  } catch (e) {
+    return calculateCustomScore(config, answers, questions);
+  }
+  
+  if (!calculateFromConfig) {
+    return calculateCustomScore(config, answers, questions);
+  }
   
   // محاسبه نمره
   const result = calculateFromConfig(answers);
@@ -4071,7 +4111,17 @@ function calculateCuriosityScore(
   questions: Array<{ order: number; dimension?: string | null; isReverse?: boolean }>
 ): TestResult {
   // Import تابع محاسبه از config
-  const { calculateCuriosityScore: calculateFromConfig } = require('../test-configs/curiosity-config');
+  let calculateFromConfig: any;
+  try {
+    const configModule = require('../test-configs/curiosity-config');
+    calculateFromConfig = configModule.calculateCuriosityScore;
+  } catch (e) {
+    return calculateCustomScore(config, answers, questions);
+  }
+  
+  if (!calculateFromConfig) {
+    return calculateCustomScore(config, answers, questions);
+  }
   
   // محاسبه نمره
   const result = calculateFromConfig(answers);
