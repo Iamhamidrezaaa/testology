@@ -203,32 +203,54 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
     const video = videoRef.current
     if (!video) return
 
+    // Force video to be visible
+    const makeVideoVisible = () => {
+      video.style.cssText = `
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        z-index: 1 !important;
+      `
+    }
+
     const handleLoadedData = () => {
-      // وقتی ویدئو load شد، مطمئن شو که نمایش داده می‌شود
-      if (video.readyState >= 2) {
-        video.style.display = 'block'
-        video.style.visibility = 'visible'
-        video.style.opacity = '1'
-      }
+      makeVideoVisible()
+      console.log('Video loaded, readyState:', video.readyState)
     }
 
     const handleCanPlay = () => {
-      video.style.display = 'block'
-      video.style.visibility = 'visible'
-      video.style.opacity = '1'
+      makeVideoVisible()
+      console.log('Video can play')
     }
+
+    const handleLoadedMetadata = () => {
+      makeVideoVisible()
+      console.log('Video metadata loaded')
+    }
+
+    // اجرای فوری
+    makeVideoVisible()
 
     video.addEventListener('loadeddata', handleLoadedData)
     video.addEventListener('canplay', handleCanPlay)
+    video.addEventListener('loadedmetadata', handleLoadedMetadata)
 
-    // اجرای اولیه
-    if (video.readyState >= 2) {
-      handleLoadedData()
-    }
+    // یک بار دیگر بعد از کمی تاخیر
+    const timeout = setTimeout(() => {
+      makeVideoVisible()
+    }, 100)
 
     return () => {
+      clearTimeout(timeout)
       video.removeEventListener('loadeddata', handleLoadedData)
       video.removeEventListener('canplay', handleCanPlay)
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata)
     }
   }, [videoUrl])
 
@@ -926,7 +948,6 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           preload="auto"
           playsInline
           controls={false}
-          crossOrigin="anonymous"
         />
       </div>
 
