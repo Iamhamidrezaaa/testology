@@ -8,12 +8,18 @@ export default function VideoPlayerWrapper() {
   const [mounted, setMounted] = useState(false)
   const [videoVersion, setVideoVersion] = useState<number | null>(null)
 
+  const [videoFileName, setVideoFileName] = useState<string>('introduction1.mp4')
+
   // دریافت version فایل ویدئو از سرور
   useEffect(() => {
     fetch('/api/video/introduction-version')
       .then(res => res.json())
       .then(data => {
         setVideoVersion(data.version)
+        // استفاده از نام فایلی که سرور برگردونده
+        if (data.videoName) {
+          setVideoFileName(data.videoName)
+        }
       })
       .catch(err => {
         console.error('Error fetching video version:', err)
@@ -45,7 +51,7 @@ export default function VideoPlayerWrapper() {
         
         // استفاده از version فایل برای cache-busting
         // این version فقط زمانی تغییر می‌کند که فایل واقعاً تغییر کرده باشد
-        const videoUrl = `/videos/introduction1.mp4?v=${videoVersion}`
+        const videoUrl = `/videos/${videoFileName}?v=${videoVersion}`
         
         const reactRoot = createRoot(root)
         reactRoot.render(
@@ -66,7 +72,7 @@ export default function VideoPlayerWrapper() {
     const timer = setTimeout(tryMount, 300)
 
     return () => clearTimeout(timer)
-  }, [videoVersion])
+  }, [videoVersion, videoFileName])
 
   return null
 }
