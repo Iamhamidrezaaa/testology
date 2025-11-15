@@ -212,21 +212,32 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      const isFullscreenNow = !!document.fullscreenElement
+      // بررسی vendor prefixes مختلف
+      const isFullscreenNow = !!(
+        document.fullscreenElement ||
+        (document as any).webkitFullscreenElement ||
+        (document as any).mozFullScreenElement ||
+        (document as any).msFullscreenElement
+      )
+      
       setIsFullscreen(isFullscreenNow)
       setIsInFullscreenMode(isFullscreenNow)
       
       // اگر از fullscreen خارج شد، orientation را unlock کن
       if (!isFullscreenNow) {
-        if (screen.orientation && 'unlock' in screen.orientation) {
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768
+        
+        if (isMobile) {
           try {
-            (screen.orientation as any).unlock()
-          } catch (err) {
-            console.log('Could not unlock orientation:', err)
-          }
-        } else if ((screen as any).unlockOrientation) {
-          try {
-            (screen as any).unlockOrientation()
+            if (screen.orientation && 'unlock' in screen.orientation) {
+              (screen.orientation as any).unlock()
+            } else if ((screen as any).unlockOrientation) {
+              (screen as any).unlockOrientation()
+            } else if ((screen as any).mozUnlockOrientation) {
+              (screen as any).mozUnlockOrientation()
+            } else if ((screen as any).msUnlockOrientation) {
+              (screen as any).msUnlockOrientation()
+            }
           } catch (err) {
             console.log('Could not unlock orientation:', err)
           }
@@ -288,42 +299,69 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
     if (!container || !video) return
 
     try {
+      // تشخیص موبایل
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768
+
       if (!document.fullscreenElement) {
         // ورود به fullscreen
-        await container.requestFullscreen()
+        // استفاده از vendor prefixes مختلف
+        if (container.requestFullscreen) {
+          await container.requestFullscreen()
+        } else if ((container as any).webkitRequestFullscreen) {
+          await (container as any).webkitRequestFullscreen()
+        } else if ((container as any).mozRequestFullScreen) {
+          await (container as any).mozRequestFullScreen()
+        } else if ((container as any).msRequestFullscreen) {
+          await (container as any).msRequestFullscreen()
+        }
+        
         setIsInFullscreenMode(true)
         
-        // در موبایل، rotate به landscape
-        if (screen.orientation && 'lock' in screen.orientation) {
-          try {
-            await (screen.orientation as any).lock('landscape')
-          } catch (err) {
-            // اگر lock نشد، مشکلی نیست
-            console.log('Could not lock orientation:', err)
-          }
-        } else if ((screen as any).lockOrientation) {
-          // برای مرورگرهای قدیمی‌تر
-          try {
-            (screen as any).lockOrientation('landscape')
-          } catch (err) {
-            console.log('Could not lock orientation:', err)
-          }
+        // در موبایل، rotate به landscape (مثل یوتیوب)
+        if (isMobile) {
+          // کمی صبر کن تا fullscreen کامل شود
+          setTimeout(async () => {
+            try {
+              if (screen.orientation && 'lock' in screen.orientation) {
+                await (screen.orientation as any).lock('landscape')
+              } else if ((screen as any).lockOrientation) {
+                (screen as any).lockOrientation('landscape')
+              } else if ((screen as any).mozLockOrientation) {
+                (screen as any).mozLockOrientation('landscape')
+              } else if ((screen as any).msLockOrientation) {
+                (screen as any).msLockOrientation('landscape')
+              }
+            } catch (err) {
+              console.log('Could not lock orientation:', err)
+            }
+          }, 100)
         }
       } else {
         // خروج از fullscreen
-        await document.exitFullscreen()
+        if (document.exitFullscreen) {
+          await document.exitFullscreen()
+        } else if ((document as any).webkitExitFullscreen) {
+          await (document as any).webkitExitFullscreen()
+        } else if ((document as any).mozCancelFullScreen) {
+          await (document as any).mozCancelFullScreen()
+        } else if ((document as any).msExitFullscreen) {
+          await (document as any).msExitFullscreen()
+        }
+        
         setIsInFullscreenMode(false)
         
         // در موبایل، unlock orientation
-        if (screen.orientation && 'unlock' in screen.orientation) {
+        if (isMobile) {
           try {
-            (screen.orientation as any).unlock()
-          } catch (err) {
-            console.log('Could not unlock orientation:', err)
-          }
-        } else if ((screen as any).unlockOrientation) {
-          try {
-            (screen as any).unlockOrientation()
+            if (screen.orientation && 'unlock' in screen.orientation) {
+              (screen.orientation as any).unlock()
+            } else if ((screen as any).unlockOrientation) {
+              (screen as any).unlockOrientation()
+            } else if ((screen as any).mozUnlockOrientation) {
+              (screen as any).mozUnlockOrientation()
+            } else if ((screen as any).msUnlockOrientation) {
+              (screen as any).msUnlockOrientation()
+            }
           } catch (err) {
             console.log('Could not unlock orientation:', err)
           }
@@ -502,7 +540,7 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           display: flex;
           align-items: center;
           gap: 15px;
-          flex-wrap: wrap;
+          flex-wrap: nowrap;
           direction: ltr;
         }
 
@@ -511,12 +549,14 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           align-items: center;
           gap: 15px;
           flex: 1;
+          min-width: 0;
         }
 
         .controls-right {
           display: flex;
           align-items: center;
           gap: 8px;
+          flex-shrink: 0;
         }
 
         .control-button {
@@ -674,18 +714,24 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           }
 
           .controls-row {
-            gap: 8px;
+            gap: 6px;
             flex-direction: row;
             align-items: center;
+            flex-wrap: nowrap;
           }
 
           .controls-left {
-            gap: 8px;
+            gap: 6px;
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
           }
 
           .controls-right {
-            gap: 8px;
+            gap: 6px;
             align-items: center;
+            flex-shrink: 0;
+            display: flex;
           }
 
           .control-button {
