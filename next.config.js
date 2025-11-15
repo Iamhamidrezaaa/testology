@@ -64,6 +64,33 @@ const nextConfig = {
       };
     }
     
+    // Ignore dynamic requires در test-configs (برای جلوگیری از خطا در build)
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+    };
+    
+    // برای server-side، dynamic require ها را ignore نکن
+    // فقط در client-side این کار را انجام بده
+    if (!isServer) {
+      config.module = config.module || {};
+      config.module.rules = config.module.rules || [];
+      config.module.rules.push({
+        test: /lib\/scoring-engine\.ts$/,
+        use: {
+          loader: 'string-replace-loader',
+          options: {
+            search: /require\(['"]\.\.\/test-configs\/([^'"]+)['"]\)/g,
+            replace: (match, p1) => {
+              // در build time، این require ها را به null تبدیل می‌کنیم
+              // در runtime، try-catch آن‌ها را handle می‌کند
+              return 'null';
+            },
+            flags: 'g',
+          },
+        },
+      });
+    }
+    
     return config;
   },
   
