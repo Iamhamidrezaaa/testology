@@ -123,27 +123,11 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
     const video = videoRef.current
     if (!video) return
 
-    // اطمینان از اینکه ویدئو درست نمایش داده می‌شود
-    const ensureVideoVisible = () => {
-      if (video) {
-        video.style.display = 'block'
-        video.style.visibility = 'visible'
-        video.style.opacity = '1'
-        video.style.width = '100%'
-        video.style.height = '100%'
-        video.style.objectFit = 'contain'
-      }
-    }
-
     const updateTime = () => setCurrentTime(video.currentTime)
-    const updateDuration = () => {
-      setDuration(video.duration)
-      ensureVideoVisible()
-    }
+    const updateDuration = () => setDuration(video.duration)
     const handlePlay = () => {
       setIsPlaying(true)
       setIsLoading(false)
-      ensureVideoVisible()
     }
     const handlePause = () => setIsPlaying(false)
     const handleEnded = () => setIsPlaying(false)
@@ -152,7 +136,6 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
         const bufferedEnd = video.buffered.end(video.buffered.length - 1)
         setBuffered(bufferedEnd)
       }
-      ensureVideoVisible()
     }
     const handleWaiting = () => {
       const video = videoRef.current
@@ -165,14 +148,9 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
     }
     const handleCanPlay = () => {
       setIsLoading(false)
-      ensureVideoVisible()
     }
     const handleCanPlayThrough = () => {
       setIsLoading(false)
-      ensureVideoVisible()
-    }
-    const handleLoadedData = () => {
-      ensureVideoVisible()
     }
     const handleStalled = () => {
       const video = videoRef.current
@@ -187,12 +165,8 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
       }
     }
 
-    // اجرای اولیه
-    ensureVideoVisible()
-
     video.addEventListener('timeupdate', updateTime)
     video.addEventListener('loadedmetadata', updateDuration)
-    video.addEventListener('loadeddata', handleLoadedData)
     video.addEventListener('progress', handleProgress)
     video.addEventListener('play', handlePlay)
     video.addEventListener('pause', handlePause)
@@ -206,7 +180,6 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
     return () => {
       video.removeEventListener('timeupdate', updateTime)
       video.removeEventListener('loadedmetadata', updateDuration)
-      video.removeEventListener('loadeddata', handleLoadedData)
       video.removeEventListener('progress', handleProgress)
       video.removeEventListener('play', handlePlay)
       video.removeEventListener('pause', handlePause)
@@ -467,15 +440,12 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           padding-bottom: 56.25%; /* 16:9 aspect ratio fallback */
           background: #000;
           min-height: 400px;
-          z-index: 1;
-          overflow: hidden;
         }
 
         @supports (aspect-ratio: 16 / 9) {
           .video-wrapper {
             padding-bottom: 0;
             aspect-ratio: 16 / 9;
-            min-height: 0;
           }
         }
 
@@ -486,11 +456,6 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           width: 100%;
           height: 100%;
           object-fit: contain;
-          z-index: 2;
-          background: #000;
-          display: block;
-          visibility: visible;
-          opacity: 1;
         }
 
         /* Fullscreen styles */
@@ -619,7 +584,7 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
           padding: 20px;
           transition: opacity 0.3s;
-          z-index: 20;
+          z-index: 10;
           pointer-events: auto;
         }
 
@@ -851,7 +816,7 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           border-top-color: white;
           border-radius: 50%;
           animation: spin 1s linear infinite;
-          z-index: 25;
+          z-index: 15;
           pointer-events: none;
         }
 
