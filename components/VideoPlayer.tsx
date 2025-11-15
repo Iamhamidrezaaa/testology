@@ -27,6 +27,7 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
   const [isLoading, setIsLoading] = useState(false) // از false شروع می‌شود - فقط بعد از play نمایش داده می‌شود
   const [networkSpeed, setNetworkSpeed] = useState<'slow' | 'medium' | 'fast'>('medium')
   const [autoQuality, setAutoQuality] = useState(true)
+  const [isInFullscreenMode, setIsInFullscreenMode] = useState(false)
 
   const playbackRates = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2]
   const qualities = [
@@ -126,8 +127,7 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
     const updateDuration = () => setDuration(video.duration)
     const handlePlay = () => {
       setIsPlaying(true)
-      // بعد از play، اگر buffering باشد، loading نمایش داده می‌شود
-      // در غیر این صورت loading false می‌شود
+      // بعد از play، loading را false کن
       setIsLoading(false)
     }
     const handlePause = () => setIsPlaying(false)
@@ -139,9 +139,9 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
       }
     }
     const handleWaiting = () => {
-      // فقط اگر ویدئو در حال پخش است، loading را نمایش بده
+      // فقط اگر ویدئو در حال پخش است و واقعاً buffering می‌کند، loading را نمایش بده
       const video = videoRef.current
-      if (video && !video.paused) {
+      if (video && !video.paused && video.readyState < 3) {
         setIsLoading(true)
       }
       // اگر buffering زیاد باشه، سرعت اینترنت رو slow در نظر بگیر
@@ -149,11 +149,16 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
         setNetworkSpeed('slow')
       }
     }
-    const handleCanPlay = () => setIsLoading(false)
+    const handleCanPlay = () => {
+      setIsLoading(false)
+    }
+    const handleCanPlayThrough = () => {
+      setIsLoading(false)
+    }
     const handleStalled = () => {
-      // فقط اگر ویدئو در حال پخش است، loading را نمایش بده
+      // فقط اگر ویدئو در حال پخش است و واقعاً stalled است، loading را نمایش بده
       const video = videoRef.current
-      if (video && !video.paused) {
+      if (video && !video.paused && video.readyState < 3) {
         setIsLoading(true)
       }
       setNetworkSpeed('slow')
@@ -173,6 +178,7 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
     video.addEventListener('ended', handleEnded)
     video.addEventListener('waiting', handleWaiting)
     video.addEventListener('canplay', handleCanPlay)
+    video.addEventListener('canplaythrough', handleCanPlayThrough)
     video.addEventListener('stalled', handleStalled)
     video.addEventListener('suspend', handleSuspend)
 
@@ -185,6 +191,7 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
       video.removeEventListener('ended', handleEnded)
       video.removeEventListener('waiting', handleWaiting)
       video.removeEventListener('canplay', handleCanPlay)
+      video.removeEventListener('canplaythrough', handleCanPlayThrough)
       video.removeEventListener('stalled', handleStalled)
       video.removeEventListener('suspend', handleSuspend)
     }
@@ -205,10 +212,40 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement)
+      const isFullscreenNow = !!document.fullscreenElement
+      setIsFullscreen(isFullscreenNow)
+      setIsInFullscreenMode(isFullscreenNow)
+      
+      // اگر از fullscreen خارج شد، orientation را unlock کن
+      if (!isFullscreenNow) {
+        if (screen.orientation && 'unlock' in screen.orientation) {
+          try {
+            (screen.orientation as any).unlock()
+          } catch (err) {
+            console.log('Could not unlock orientation:', err)
+          }
+        } else if ((screen as any).unlockOrientation) {
+          try {
+            (screen as any).unlockOrientation()
+          } catch (err) {
+            console.log('Could not unlock orientation:', err)
+          }
+        }
+      }
     }
+    
+    // پشتیبانی از vendor prefixes مختلف
     document.addEventListener('fullscreenchange', handleFullscreenChange)
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange)
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange)
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange)
+    
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange)
+      document.removeEventListener('mozfullscreenchange', handleFullscreenChange)
+      document.removeEventListener('MSFullscreenChange', handleFullscreenChange)
+    }
   }, [])
 
   const togglePlay = async () => {
@@ -245,16 +282,55 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
     setIsMuted(newVolume === 0)
   }
 
-  const toggleFullscreen = () => {
+  const toggleFullscreen = async () => {
     const container = containerRef.current
-    if (!container) return
+    const video = videoRef.current
+    if (!container || !video) return
 
-    if (!document.fullscreenElement) {
-      container.requestFullscreen().catch(err => {
-        console.error('Error attempting to enable fullscreen:', err)
-      })
-    } else {
-      document.exitFullscreen()
+    try {
+      if (!document.fullscreenElement) {
+        // ورود به fullscreen
+        await container.requestFullscreen()
+        setIsInFullscreenMode(true)
+        
+        // در موبایل، rotate به landscape
+        if (screen.orientation && 'lock' in screen.orientation) {
+          try {
+            await (screen.orientation as any).lock('landscape')
+          } catch (err) {
+            // اگر lock نشد، مشکلی نیست
+            console.log('Could not lock orientation:', err)
+          }
+        } else if ((screen as any).lockOrientation) {
+          // برای مرورگرهای قدیمی‌تر
+          try {
+            (screen as any).lockOrientation('landscape')
+          } catch (err) {
+            console.log('Could not lock orientation:', err)
+          }
+        }
+      } else {
+        // خروج از fullscreen
+        await document.exitFullscreen()
+        setIsInFullscreenMode(false)
+        
+        // در موبایل، unlock orientation
+        if (screen.orientation && 'unlock' in screen.orientation) {
+          try {
+            (screen.orientation as any).unlock()
+          } catch (err) {
+            console.log('Could not unlock orientation:', err)
+          }
+        } else if ((screen as any).unlockOrientation) {
+          try {
+            (screen as any).unlockOrientation()
+          } catch (err) {
+            console.log('Could not unlock orientation:', err)
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error toggling fullscreen:', err)
     }
   }
 
@@ -440,7 +516,7 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
         .controls-right {
           display: flex;
           align-items: center;
-          gap: 15px;
+          gap: 8px;
         }
 
         .control-button {
@@ -599,6 +675,17 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
 
           .controls-row {
             gap: 8px;
+            flex-direction: row;
+            align-items: center;
+          }
+
+          .controls-left {
+            gap: 8px;
+          }
+
+          .controls-right {
+            gap: 8px;
+            align-items: center;
           }
 
           .control-button {
@@ -632,8 +719,10 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
         />
       </div>
 
-      {/* Loading Indicator - فقط زمانی نمایش داده می‌شود که ویدئو در حال پخش است و buffering می‌کند */}
-      {isLoading && isPlaying && <div className="loading-indicator" />}
+      {/* Loading Indicator - فقط زمانی نمایش داده می‌شود که ویدئو واقعاً buffering می‌کند */}
+      {isLoading && isPlaying && videoRef.current && videoRef.current.readyState < 3 && (
+        <div className="loading-indicator" />
+      )}
 
       <div className={`video-controls ${!showControls ? 'hidden' : ''}`}>
         <div className="progress-container">
