@@ -4334,7 +4334,17 @@ function calculateLifestyleHarmonyScore(
   questions: Array<{ order: number; dimension?: string | null; isReverse?: boolean }>
 ): TestResult {
   // Import تابع محاسبه از config
-  const { calculateLifestyleHarmonyScore: calculateFromConfig } = require('../test-configs/lifestyle-harmony-config');
+  let calculateFromConfig: any;
+  try {
+    const configModule = require('../test-configs/lifestyle-harmony-config');
+    calculateFromConfig = configModule.calculateLifestyleHarmonyScore;
+  } catch (e) {
+    return calculateCustomScore(config, answers, questions);
+  }
+  
+  if (!calculateFromConfig) {
+    return calculateCustomScore(config, answers, questions);
+  }
   
   // محاسبه نمره
   const result = calculateFromConfig(answers);
