@@ -26,10 +26,14 @@ export default function VideoPlayerWrapper() {
         root.id = 'react-video-player-root'
         placeholder.appendChild(root)
         
+        // اضافه کردن timestamp به URL برای جلوگیری از کش مرورگر
+        // این کار باعث می‌شود که هر بار ویدئو جدید لود شود
+        const videoUrl = `/videos/introduction.mp4?v=${Date.now()}`
+        
         const reactRoot = createRoot(root)
         reactRoot.render(
           <VideoPlayer 
-            videoUrl="/videos/introduction.mp4"
+            videoUrl={videoUrl}
             title="معرفی"
           />
         )
