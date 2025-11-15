@@ -64,19 +64,14 @@ const nextConfig = {
       };
     }
     
-    // برای server-side، dynamic require ها را ignore نکن
-    // فقط در client-side این کار را انجام بده
-    // در server-side، require ها در runtime resolve می‌شوند
-    if (!isServer) {
-      // در client-side، این require ها را ignore می‌کنیم
-      // چون scoring-engine فقط در server-side استفاده می‌شود
-      const webpack = require('webpack');
-      config.plugins.push(
-        new webpack.IgnorePlugin({
-          resourceRegExp: /^\.\.\/test-configs\/(time-preference|pss10|learning-style|growth-mindset|curiosity)-config$/,
-        })
-      );
-    }
+    // Ignore dynamic requires در test-configs برای جلوگیری از خطا در build
+    // این require ها در runtime با try-catch handle می‌شوند
+    const webpack = require('webpack');
+    config.plugins.push(
+      new webpack.IgnorePlugin({
+        resourceRegExp: /^\.\.\/test-configs\/(time-preference|pss10|learning-style|growth-mindset|curiosity|adaptability|innovation|hobbies-interests|personal-values|ideal-environment|work-life-balance|lifestyle-harmony)-config$/,
+      })
+    );
     
     return config;
   },
