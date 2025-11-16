@@ -198,40 +198,49 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
     video.playbackRate = playbackRate
   }, [playbackRate])
 
-  // اطمینان از اینکه ویدئو درست load و display می‌شود
+  // اطمینان از اینکه ویدئو درست load و display می‌شود - فقط برای دسکتاپ
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
 
+    // بررسی اینکه آیا در دسکتاپ هستیم
+    const isDesktop = window.innerWidth > 768
+    if (!isDesktop) return // فقط برای دسکتاپ
+
     // Force video to be visible
     const makeVideoVisible = () => {
-      video.style.cssText = `
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: contain !important;
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        z-index: 1 !important;
-      `
+      // در دسکتاپ، مطمئن شو که ویدئو visible است
+      video.style.setProperty('display', 'block', 'important')
+      video.style.setProperty('visibility', 'visible', 'important')
+      video.style.setProperty('opacity', '1', 'important')
+      video.style.setProperty('width', '100%', 'important')
+      video.style.setProperty('height', '100%', 'important')
+      video.style.setProperty('object-fit', 'contain', 'important')
+      video.style.setProperty('position', 'absolute', 'important')
+      video.style.setProperty('top', '0', 'important')
+      video.style.setProperty('left', '0', 'important')
+      video.style.setProperty('z-index', '1', 'important')
+      video.style.setProperty('background', '#000', 'important')
     }
 
     const handleLoadedData = () => {
       makeVideoVisible()
-      console.log('Video loaded, readyState:', video.readyState)
+      console.log('[Desktop] Video loaded, readyState:', video.readyState)
     }
 
     const handleCanPlay = () => {
       makeVideoVisible()
-      console.log('Video can play')
+      console.log('[Desktop] Video can play')
     }
 
     const handleLoadedMetadata = () => {
       makeVideoVisible()
-      console.log('Video metadata loaded')
+      console.log('[Desktop] Video metadata loaded')
+    }
+
+    const handlePlay = () => {
+      makeVideoVisible()
+      console.log('[Desktop] Video playing')
     }
 
     // اجرای فوری
@@ -240,17 +249,31 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
     video.addEventListener('loadeddata', handleLoadedData)
     video.addEventListener('canplay', handleCanPlay)
     video.addEventListener('loadedmetadata', handleLoadedMetadata)
+    video.addEventListener('play', handlePlay)
 
     // یک بار دیگر بعد از کمی تاخیر
     const timeout = setTimeout(() => {
       makeVideoVisible()
-    }, 100)
+    }, 200)
+
+    // یک بار دیگر بعد از تاخیر بیشتر (برای اطمینان)
+    const timeout2 = setTimeout(() => {
+      makeVideoVisible()
+    }, 500)
+
+    // یک بار دیگر بعد از تاخیر بیشتر (برای اطمینان کامل)
+    const timeout3 = setTimeout(() => {
+      makeVideoVisible()
+    }, 1000)
 
     return () => {
       clearTimeout(timeout)
+      clearTimeout(timeout2)
+      clearTimeout(timeout3)
       video.removeEventListener('loadeddata', handleLoadedData)
       video.removeEventListener('canplay', handleCanPlay)
       video.removeEventListener('loadedmetadata', handleLoadedMetadata)
+      video.removeEventListener('play', handlePlay)
     }
   }, [videoUrl])
 
@@ -493,16 +516,21 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
         .video-wrapper {
           position: relative;
           width: 100%;
-          padding-bottom: 56.25%; /* 16:9 aspect ratio fallback */
           background: #000;
-          min-height: 400px;
-          overflow: hidden;
         }
 
-        @supports (aspect-ratio: 16 / 9) {
+        /* برای موبایل - استفاده از padding-bottom */
+        @media (max-width: 768px) {
           .video-wrapper {
-            padding-bottom: 0;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio fallback */
+          }
+        }
+
+        /* برای دسکتاپ - استفاده از aspect-ratio */
+        @media (min-width: 769px) {
+          .video-wrapper {
             aspect-ratio: 16 / 9;
+            min-height: 400px;
           }
         }
 
@@ -514,6 +542,24 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           height: 100%;
           object-fit: contain;
           background: #000;
+          display: block;
+          visibility: visible;
+          opacity: 1;
+        }
+
+        /* برای دسکتاپ - اطمینان از نمایش ویدئو */
+        @media (min-width: 769px) {
+          .video-wrapper video {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            z-index: 1;
+            will-change: auto;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            backface-visibility: visible;
+            -webkit-backface-visibility: visible;
+          }
         }
 
         /* Fullscreen styles */
