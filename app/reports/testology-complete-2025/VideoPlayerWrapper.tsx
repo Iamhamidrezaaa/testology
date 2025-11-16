@@ -8,7 +8,7 @@ export default function VideoPlayerWrapper() {
   const [mounted, setMounted] = useState(false)
   const [videoVersion, setVideoVersion] = useState<number | null>(null)
 
-  const [videoFileName, setVideoFileName] = useState<string>('introduction1.mp4')
+  const [videoFileName, setVideoFileName] = useState<string>('introduction.mp4')
 
   // دریافت version فایل ویدئو از سرور
   useEffect(() => {
@@ -52,6 +52,9 @@ export default function VideoPlayerWrapper() {
         // استفاده از version فایل برای cache-busting
         // این version فقط زمانی تغییر می‌کند که فایل واقعاً تغییر کرده باشد
         const videoUrl = `/videos/${videoFileName}?v=${videoVersion}`
+        
+        // دیباگ: لاگ کردن URL نهایی
+        console.log('[DEBUG] videoUrl passed to VideoPlayer:', videoUrl)
         
         const reactRoot = createRoot(root)
         reactRoot.render(

@@ -21,7 +21,29 @@ sudo apt install ffmpeg
 brew install ffmpeg
 ```
 
-### دستور Encode
+### دستور Encode (پیشنهادی - فوق سازگار با مرورگرها)
+
+**این دستور برای حداکثر سازگاری با مرورگرهای وب:**
+
+```bash
+ffmpeg -i introduction.mp4 \
+  -vf "scale=1280:-2:flags=lanczos,format=yuv420p" \
+  -c:v libx264 -profile:v high -level 4.1 -pix_fmt yuv420p \
+  -c:a aac -b:a 160k -ac 2 \
+  -movflags +faststart \
+  introduction_web.mp4
+```
+
+**توضیح گزینه‌های اضافی:**
+- `-vf "scale=1280:-2:flags=lanczos"` → ویدئو را حداکثر 1280px عرض می‌کند با نسبت درست (برای وب مناسب است)
+- `format=yuv420p` → مهم‌ترین بخش: کروم و اکثر مرورگرها با این راحت هستند
+- `-ac 2` → صدا را به استریو (2 کانال) تبدیل می‌کند
+- `-b:a 160k` → بیت‌ریت صدا (160k برای وب مناسب است)
+
+**بعد از encode:**
+فایل جدید را در `public/videos/` قرار دهید و نام آن را به `introduction.mp4` تغییر دهید.
+
+### دستور Encode (ساده)
 
 ```bash
 ffmpeg -i input.mp4 \
