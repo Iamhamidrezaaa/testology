@@ -198,82 +198,60 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
     video.playbackRate = playbackRate
   }, [playbackRate])
 
-  // اطمینان از اینکه ویدئو درست load و display می‌شود - فقط برای دسکتاپ
+  // دیباگ: بررسی وضعیت ویدئو در دسکتاپ
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
 
-    // بررسی اینکه آیا در دسکتاپ هستیم
     const isDesktop = window.innerWidth > 768
-    if (!isDesktop) return // فقط برای دسکتاپ
+    if (!isDesktop) return
 
-    // Force video to be visible
-    const makeVideoVisible = () => {
-      // در دسکتاپ، مطمئن شو که ویدئو visible است
-      video.style.setProperty('display', 'block', 'important')
-      video.style.setProperty('visibility', 'visible', 'important')
-      video.style.setProperty('opacity', '1', 'important')
-      video.style.setProperty('width', '100%', 'important')
-      video.style.setProperty('height', '100%', 'important')
-      video.style.setProperty('object-fit', 'contain', 'important')
-      video.style.setProperty('position', 'absolute', 'important')
-      video.style.setProperty('top', '0', 'important')
-      video.style.setProperty('left', '0', 'important')
-      video.style.setProperty('z-index', '1', 'important')
-      video.style.setProperty('background', '#000', 'important')
+    // لاگ کردن وضعیت ویدئو برای دیباگ
+    const logVideoState = () => {
+      const computed = window.getComputedStyle(video)
+      console.log('[Desktop Debug] Video state:', {
+        width: computed.width,
+        height: computed.height,
+        opacity: computed.opacity,
+        visibility: computed.visibility,
+        display: computed.display,
+        zIndex: computed.zIndex,
+        position: computed.position,
+        transform: computed.transform,
+        filter: computed.filter,
+        mixBlendMode: computed.mixBlendMode,
+        readyState: video.readyState,
+        videoWidth: video.videoWidth,
+        videoHeight: video.videoHeight,
+      })
     }
 
     const handleLoadedData = () => {
-      makeVideoVisible()
+      logVideoState()
       console.log('[Desktop] Video loaded, readyState:', video.readyState)
     }
 
     const handleCanPlay = () => {
-      makeVideoVisible()
+      logVideoState()
       console.log('[Desktop] Video can play')
     }
 
     const handleLoadedMetadata = () => {
-      makeVideoVisible()
+      logVideoState()
       console.log('[Desktop] Video metadata loaded')
     }
-
-    const handlePlay = () => {
-      makeVideoVisible()
-      console.log('[Desktop] Video playing')
-    }
-
-    // اجرای فوری
-    makeVideoVisible()
 
     video.addEventListener('loadeddata', handleLoadedData)
     video.addEventListener('canplay', handleCanPlay)
     video.addEventListener('loadedmetadata', handleLoadedMetadata)
-    video.addEventListener('play', handlePlay)
 
-    // یک بار دیگر بعد از کمی تاخیر
-    const timeout = setTimeout(() => {
-      makeVideoVisible()
-    }, 200)
-
-    // یک بار دیگر بعد از تاخیر بیشتر (برای اطمینان)
-    const timeout2 = setTimeout(() => {
-      makeVideoVisible()
-    }, 500)
-
-    // یک بار دیگر بعد از تاخیر بیشتر (برای اطمینان کامل)
-    const timeout3 = setTimeout(() => {
-      makeVideoVisible()
-    }, 1000)
+    // لاگ اولیه
+    setTimeout(logVideoState, 100)
 
     return () => {
-      clearTimeout(timeout)
-      clearTimeout(timeout2)
-      clearTimeout(timeout3)
       video.removeEventListener('loadeddata', handleLoadedData)
       video.removeEventListener('canplay', handleCanPlay)
       video.removeEventListener('loadedmetadata', handleLoadedMetadata)
-      video.removeEventListener('play', handlePlay)
     }
   }, [videoUrl])
 
@@ -469,10 +447,14 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
     return `${m}:${s.toString().padStart(2, '0')}`
   }
 
+  const controlTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
   const handleMouseMove = () => {
     setShowControls(true)
-    clearTimeout(window.controlTimeout)
-    window.controlTimeout = setTimeout(() => {
+    if (controlTimeoutRef.current) {
+      clearTimeout(controlTimeoutRef.current)
+    }
+    controlTimeoutRef.current = setTimeout(() => {
       if (isPlaying) {
         setShowControls(false)
       }
@@ -538,27 +520,33 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           position: absolute;
           top: 0;
           left: 0;
-          width: 100%;
-          height: 100%;
+          width: 100% !important;
+          height: 100% !important;
           object-fit: contain;
-          background: #000;
-          display: block;
-          visibility: visible;
-          opacity: 1;
+          background: transparent !important;
+          display: block !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+          z-index: 1;
         }
 
-        /* برای دسکتاپ - اطمینان از نمایش ویدئو */
+        /* برای دسکتاپ - استایل ساده برای دیباگ */
         @media (min-width: 769px) {
           .video-wrapper video {
+            width: 100% !important;
+            height: auto !important;
+            min-height: 100% !important;
             display: block !important;
             visibility: visible !important;
             opacity: 1 !important;
-            z-index: 1;
-            will-change: auto;
-            transform: translateZ(0);
-            -webkit-transform: translateZ(0);
-            backface-visibility: visible;
-            -webkit-backface-visibility: visible;
+            z-index: 1 !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            background: transparent !important;
+            transform: none !important;
+            filter: none !important;
+            mix-blend-mode: normal !important;
           }
         }
 
@@ -690,6 +678,12 @@ export default function VideoPlayer({ videoUrl, title = 'معرفی', poster }: 
           transition: opacity 0.3s;
           z-index: 10;
           pointer-events: auto;
+        }
+
+        /* اطمینان از اینکه هیچ overlay روی ویدئو نیست */
+        .video-wrapper::before,
+        .video-wrapper::after {
+          display: none !important;
         }
 
         .video-controls.hidden {
